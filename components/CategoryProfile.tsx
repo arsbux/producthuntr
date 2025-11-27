@@ -17,12 +17,12 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
     });
 
     return (
-        <div className="p-8 bg-gray-50 min-h-screen font-sans">
+        <div className="p-8 bg-gray-50 dark:bg-black min-h-screen font-sans">
             <div className="max-w-7xl mx-auto space-y-8">
                 <div className="flex justify-between items-start">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">{data.topic}</h1>
-                        <p className="text-gray-500">Detailed analysis and trends.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{data.topic}</h1>
+                        <p className="text-gray-500 dark:text-gray-400">Detailed analysis and trends.</p>
                     </div>
                     <Link
                         href={`/desk/niche/${encodeURIComponent(data.topic)}`}
@@ -34,9 +34,9 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
                 </div>
 
                 {/* Growth Trend */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                    <h2 className="text-xl font-bold mb-4 text-gray-900">Growth Trend</h2>
-                    <p className="text-sm text-gray-500 mb-6">Launch volume, upvotes, and comments over the last 12 months</p>
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Growth Trend</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Launch volume, upvotes, and comments over the last 12 months</p>
                     <div className="h-96">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={data.timeSeriesData}>
@@ -56,9 +56,9 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Top Keywords */}
-                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                        <h2 className="text-xl font-bold mb-4 text-gray-900">Top Keywords</h2>
-                        <p className="text-sm text-gray-500 mb-6">Most frequently used terms in this category</p>
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Top Keywords</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Most frequently used terms in this category</p>
                         <div className="h-96">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={data.topKeywords.slice(0, 15)} layout="vertical" margin={{ left: 40 }}>
@@ -73,9 +73,9 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
                     </div>
 
                     {/* Keyword Trends */}
-                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                        <h2 className="text-xl font-bold mb-4 text-gray-900">Keyword Trends</h2>
-                        <p className="text-sm text-gray-500 mb-6">Usage frequency of top keywords over time</p>
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Keyword Trends</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Usage frequency of top keywords over time</p>
                         <div className="h-96">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={keywordChartData}>
