@@ -15,11 +15,28 @@ export async function GET() {
     try {
         const today = new Date().toISOString().split('T')[0];
 
-        // Fetch rich snapshots directly
+        // 1. Find the latest snapshot time for today
+        const { data: latestTimeData, error: timeError } = await supabase
+            .from('vote_snapshots')
+            .select('snapshot_time')
+            .eq('snapshot_date', today)
+            .order('snapshot_time', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (timeError || !latestTimeData) {
+            console.log('[Frontend API] No snapshots found for today');
+            return NextResponse.json({ chartData: [], topLaunches: [], metrics: {} });
+        }
+
+        const latestSnapshotTime = latestTimeData.snapshot_time;
+        console.log(`[Frontend API] Fetching snapshot from: ${latestSnapshotTime}`);
+
+        // 2. Fetch all records for that specific snapshot time
         const { data: snapshots, error } = await supabase
             .from('vote_snapshots')
             .select('*')
-            .eq('snapshot_date', today)
+            .eq('snapshot_time', latestSnapshotTime)
             .order('votes_count', { ascending: false });
 
         if (error || !snapshots) {
@@ -58,14 +75,23 @@ export async function GET() {
         }
 
         // Process data - Calculate from ALL snapshots
-        const categoryCount: Record<string, number> = {};
+        // Process data - Calculate from ALL snapshots
+        const categoryStats: Record<string, { count: number, votes: number, comments: number }> = {};
         let aiCount = 0;
         let totalVotes = 0;
 
         // First pass: Calculate category distribution from ALL products
         snapshots.forEach(s => {
             const category = guessCategory(s);
-            categoryCount[category] = (categoryCount[category] || 0) + 1;
+
+            if (!categoryStats[category]) {
+                categoryStats[category] = { count: 0, votes: 0, comments: 0 };
+            }
+
+            categoryStats[category].count++;
+            categoryStats[category].votes += s.votes_count;
+            categoryStats[category].comments += s.comments_count;
+
             if (category === 'AI & Machine Learning') aiCount++;
             totalVotes += s.votes_count;
         });
@@ -86,11 +112,16 @@ export async function GET() {
             };
         });
 
-        // Chart Data - Now reflects ALL products
-        const chartData = Object.entries(categoryCount)
-            .map(([name, value]) => ({ name, value, color: getCategoryColor(name) }))
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 10);
+        // Chart Data - Now reflects ALL products with rich stats
+        const chartData = Object.entries(categoryStats)
+            .map(([name, stats]) => ({
+                name,
+                value: stats.count,
+                votes: stats.votes,
+                comments: stats.comments,
+                color: getCategoryColor(name)
+            }))
+            .sort((a, b) => b.value - a.value); // Return all categories, sorted by count
 
         return NextResponse.json({
             chartData,

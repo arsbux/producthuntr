@@ -148,54 +148,80 @@ export default function DashboardPage() {
         <div className="p-4 sticky top-0 bg-white z-10 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-gray-900">All Categories</h2>
-            <span className="text-xs text-gray-500 font-semibold bg-gray-100 px-2.5 py-1 rounded-full">{topCategories.length}</span>
+            <span className="text-xs text-gray-500 font-semibold bg-gray-100 px-2.5 py-1 rounded-full">
+              {topCategories.length}
+            </span>
           </div>
         </div>
 
-        <div className="p-2">
+        <div className="p-2 space-y-2">
           {loadingCategories ? (
             <div className="space-y-2 p-2">
-              {[...Array(15)].map((_, i) => (
-                <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+              {[...Array(10)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : (
-            topCategories.map((category, index) => (
-              <Link
-                key={category.category}
-                href={`/desk/niche/${encodeURIComponent(category.category)}`}
-                className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-all border-l-2 border-transparent hover:border-blue-500"
-              >
-                {/* Rank */}
-                <div className={`
-                w-5 h-5 rounded flex items-center justify-center text-xs font-bold flex-shrink-0
-                ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                    index === 1 ? 'bg-gray-100 text-gray-600' :
-                      index === 2 ? 'bg-orange-100 text-orange-700' :
-                        'bg-gray-50 text-gray-400'}
-              `}>
-                  {index + 1}
-                </div>
+            topCategories.map((category, index) => {
+              // Generate a unique subtle gradient for each card based on index
+              const gradients = [
+                'bg-gradient-to-r from-gray-100 to-gray-50', // 1. Silver/Gray
+                'bg-gradient-to-r from-blue-50 to-indigo-50', // 2. Blueish
+                'bg-gradient-to-r from-cyan-50 to-blue-50', // 3. Cyanish
+                'bg-gradient-to-r from-red-50 to-orange-50', // 4. Reddish
+                'bg-gradient-to-r from-gray-100 to-slate-50', // 5. Gray
+                'bg-gradient-to-r from-green-50 to-emerald-50', // 6. Greenish
+                'bg-gradient-to-r from-purple-50 to-fuchsia-50', // 7. Purple
+                'bg-gradient-to-r from-orange-50 to-amber-50', // 8. Orange
+                'bg-gradient-to-r from-pink-50 to-rose-50', // 9. Pink
+                'bg-gradient-to-r from-blue-50 to-cyan-50', // 10. Blue
+              ];
+              const gradient = gradients[index % gradients.length];
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-gray-700 group-hover:text-gray-900 truncate">
-                      {category.category}
-                    </h3>
-                    <span className="text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded flex-shrink-0">
+              return (
+                <Link
+                  key={category.category}
+                  href={`/desk/niche/${encodeURIComponent(category.category)}`}
+                  className={`${gradient} p-3 rounded-xl border border-white/50 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 group`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {/* Rank */}
+                      <div className={`
+                        w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm
+                        ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                          index === 1 ? 'bg-gray-200 text-gray-700' :
+                            index === 2 ? 'bg-orange-100 text-orange-700' :
+                              'bg-white text-gray-500'}
+                      `}>
+                        {index + 1}
+                      </div>
+
+                      {/* Name */}
+                      <h3 className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors truncate max-w-[180px]">
+                        {category.category}
+                      </h3>
+                    </div>
+
+                    {/* Launch Count Badge */}
+                    <span className="text-xs font-bold text-gray-700 bg-white/60 px-2 py-1 rounded-md shadow-sm border border-white/50">
                       {category.launches}
                     </span>
                   </div>
-                  <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden mt-1.5">
-                    <div
-                      className="h-full bg-blue-500 rounded-full transition-all"
-                      style={{ width: `${Math.min(100, (category.launches / topCategories[0].launches) * 100)}%` }}
-                    />
+
+                  {/* Metrics Row - REMOVED as per request */}
+                  <div className="flex items-center justify-between pl-9 text-xs text-gray-500">
+                    <div className="w-full h-1 bg-gray-200/50 rounded-full overflow-hidden mt-1">
+                      <div
+                        className="h-full bg-blue-500 rounded-full opacity-60"
+                        style={{ width: `${Math.min(100, (category.launches / (topCategories[0]?.launches || 1)) * 100)}%` }}
+                      />
+                    </div>
                   </div>
-                </div>
-              </Link>
-            )))}
+                </Link>
+              );
+            })
+          )}
         </div>
       </aside>
 
@@ -243,63 +269,84 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Top Performers List */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-gray-900 text-sm">Top Performers</h3>
-                    <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">Sorted by Upvotes</span>
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                {/* Top Performers List - Compact & Scrollable */}
+                <div className="bg-white rounded-xl lg:col-span-2 border border-gray-100 shadow-sm overflow-hidden">
+                  <div className="p-3 border-b border-gray-100 bg-gray-50/50">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-gray-900 text-base">Top 10 products</h3>
+                      <div className="flex items-center gap-6 text-gray-400 text-xs pr-2">
+                        <span title="Votes">▲</span>
+                        <span title="Comments"><MessageCircle className="w-3 h-3" /></span>
+                        <span title="Score"><Zap className="w-3 h-3" /></span>
+                      </div>
+                    </div>
                   </div>
 
                   {loadingToday ? (
-                    <div className="space-y-3">
+                    <div className="p-2 space-y-2">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 animate-pulse">
-                          <div className="w-6 h-6 bg-gray-200 rounded" />
-                          <div className="w-10 h-10 bg-gray-200 rounded-lg" />
-                          <div className="flex-1 space-y-2">
-                            <div className="h-4 bg-gray-200 rounded w-3/4" />
-                            <div className="h-3 bg-gray-200 rounded w-1/2" />
-                          </div>
-                          <div className="w-12 h-6 bg-gray-200 rounded" />
+                        <div key={i} className="bg-gray-50 p-2 rounded-lg flex items-center gap-3 animate-pulse h-12">
+                          <div className="w-8 h-8 bg-gray-200 rounded" />
+                          <div className="flex-1 h-3 bg-gray-200 rounded w-1/2" />
+                          <div className="w-24 h-3 bg-gray-200 rounded" />
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                      {todayData?.topLaunches?.slice(0, 10).map((launch, index) => (
-                        <div key={launch.name} className="bg-white p-3 rounded-lg border border-gray-200 hover:shadow-sm transition-all flex items-center gap-3 group">
-                          <div className="flex-shrink-0 w-6 h-6 bg-yellow-100 text-yellow-700 rounded flex items-center justify-center text-xs font-bold">
-                            {index + 1}
-                          </div>
-                          {launch.thumbnail_url ? (
-                            <img src={launch.thumbnail_url} alt={launch.name} className="w-10 h-10 rounded-lg object-cover border border-gray-100" />
-                          ) : (
-                            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
-                              <Box className="w-5 h-5" />
+                    <div className="max-h-[350px] overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                      {todayData?.topLaunches?.slice(0, 10).map((launch, index) => {
+                        // Generate a unique subtle gradient for each card based on index
+                        const gradients = [
+                          'bg-gradient-to-r from-gray-100 to-gray-50', // 1. Silver/Gray
+                          'bg-gradient-to-r from-blue-50 to-indigo-50', // 2. Blueish
+                          'bg-gradient-to-r from-cyan-50 to-blue-50', // 3. Cyanish
+                          'bg-gradient-to-r from-red-50 to-orange-50', // 4. Reddish
+                          'bg-gradient-to-r from-gray-100 to-slate-50', // 5. Gray
+                          'bg-gradient-to-r from-green-50 to-emerald-50', // 6. Greenish
+                          'bg-gradient-to-r from-purple-50 to-fuchsia-50', // 7. Purple
+                          'bg-gradient-to-r from-orange-50 to-amber-50', // 8. Orange
+                          'bg-gradient-to-r from-pink-50 to-rose-50', // 9. Pink
+                          'bg-gradient-to-r from-blue-50 to-cyan-50', // 10. Blue
+                        ];
+                        const gradient = gradients[index % gradients.length];
+
+                        return (
+                          <div key={launch.name} className={`${gradient} py-2 px-3 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group`}>
+                            {/* Rank & Icon Container */}
+                            <div className="relative flex-shrink-0">
+                              <span className="absolute -top-1 -left-1 text-[10px] font-bold text-gray-500 w-4 h-4 flex items-center justify-center bg-white/80 rounded-full shadow-sm z-10">
+                                {index + 1}
+                              </span>
+                              {launch.thumbnail_url ? (
+                                <img src={launch.thumbnail_url} alt={launch.name} className="w-10 h-10 rounded-lg object-cover shadow-sm" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-gray-400 shadow-sm">
+                                  <Box className="w-5 h-5" />
+                                </div>
+                              )}
                             </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">{launch.name}</h4>
-                            <p className="text-xs text-gray-500 truncate">{launch.tagline}</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1 text-gray-400 text-xs">
-                              <MessageCircle className="w-3 h-3" />
-                              {launch.comments}
+
+                            {/* Name */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">{launch.name}</h4>
                             </div>
-                            <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-xs font-bold text-gray-700">
-                              <span className="text-[10px]">▲</span> {launch.votes}
+
+                            {/* Metrics Columns - Aligned with Header */}
+                            <div className="flex items-center gap-6 text-xs font-bold text-gray-900">
+                              <div className="w-6 text-center">{launch.votes}</div>
+                              <div className="w-6 text-center">{launch.comments}</div>
+                              <div className="w-6 text-center">{Math.round(launch.votes / 10) + launch.comments}</div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
 
                 {/* Category Chart */}
-                <div className="bg-white rounded-xl border border-gray-200 p-4">
+                <div className="bg-white rounded-xl border border-gray-200 p-4 lg:col-span-3">
                   <h3 className="font-bold text-gray-900 text-sm mb-4">Category Split</h3>
                   <div className="h-[300px] w-full relative flex items-center">
                     {loadingToday ? (

@@ -872,6 +872,8 @@ export async function getTopCategories(metric: 'launches' | 'engagement' | 'grow
     const categoryMap = new Map<string, {
         launches: number;
         totalEngagement: number;
+        totalVotes: number;
+        totalComments: number;
         recentLaunches: number;
         oldLaunches: number;
     }>();
@@ -882,11 +884,20 @@ export async function getTopCategories(metric: 'launches' | 'engagement' | 'grow
     launches.forEach(launch => {
         const niche = launch.ai_analysis?.niche || 'Unknown';
         if (!categoryMap.has(niche)) {
-            categoryMap.set(niche, { launches: 0, totalEngagement: 0, recentLaunches: 0, oldLaunches: 0 });
+            categoryMap.set(niche, {
+                launches: 0,
+                totalEngagement: 0,
+                totalVotes: 0,
+                totalComments: 0,
+                recentLaunches: 0,
+                oldLaunches: 0
+            });
         }
 
         const data = categoryMap.get(niche)!;
         data.launches += 1;
+        data.totalVotes += (launch.votes_count || 0);
+        data.totalComments += (launch.comments_count || 0);
         data.totalEngagement += (launch.votes_count || 0) + (launch.comments_count || 0) * 2;
 
         if (new Date(launch.launched_at) > sixMonthsAgo) {
@@ -904,6 +915,8 @@ export async function getTopCategories(metric: 'launches' | 'engagement' | 'grow
         return {
             category,
             launches: data.launches,
+            totalVotes: data.totalVotes,
+            totalComments: data.totalComments,
             avgEngagement: Math.round(data.totalEngagement / data.launches),
             growthRate,
         };

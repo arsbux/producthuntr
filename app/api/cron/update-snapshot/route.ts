@@ -46,9 +46,9 @@ export async function GET(request: Request) {
             return NextResponse.json({ message: 'No posts fetched', postsCount: 0 });
         }
 
-        // Delete old snapshots for today
+        // We no longer delete old snapshots - we just append new ones
+        // This allows us to keep a history of data points throughout the day
         const todayDate = today.toISOString().split('T')[0];
-        await supabase.from('vote_snapshots').delete().eq('snapshot_date', todayDate);
 
         // Prepare FULL snapshot records
         const snapshotTime = new Date().toISOString();

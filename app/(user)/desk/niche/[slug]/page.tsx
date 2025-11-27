@@ -703,52 +703,70 @@ export default function NicheDetailPage() {
                                     No launches in this category today.
                                 </div>
                             ) : (
-                                todayLaunches.slice(0, 10).map((product, index) => (
-                                    <div
-                                        key={product.name + '-live'}
-                                        className="group p-3 hover:bg-blue-50/50 transition-all cursor-pointer"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {/* Live Position Badge */}
-                                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                                                #{index + 1}
-                                            </div>
+                                todayLaunches.slice(0, 10).map((product, index) => {
+                                    const gradients = [
+                                        'bg-gradient-to-r from-gray-100 to-gray-50',
+                                        'bg-gradient-to-r from-blue-50 to-indigo-50',
+                                        'bg-gradient-to-r from-cyan-50 to-blue-50',
+                                        'bg-gradient-to-r from-red-50 to-orange-50',
+                                        'bg-gradient-to-r from-gray-100 to-slate-50',
+                                        'bg-gradient-to-r from-green-50 to-emerald-50',
+                                        'bg-gradient-to-r from-purple-50 to-fuchsia-50',
+                                        'bg-gradient-to-r from-orange-50 to-amber-50',
+                                        'bg-gradient-to-r from-pink-50 to-rose-50',
+                                        'bg-gradient-to-r from-blue-50 to-cyan-50',
+                                    ];
+                                    const gradient = gradients[index % gradients.length];
 
-                                            {/* Thumbnail */}
-                                            {product.thumbnail_url && (
-                                                <div className="flex-shrink-0">
-                                                    <img
-                                                        src={product.thumbnail_url}
-                                                        alt={product.name}
-                                                        className="w-10 h-10 rounded-lg object-cover border border-gray-200"
-                                                    />
+                                    return (
+                                        <div
+                                            key={product.name + '-live'}
+                                            className={`${gradient} mx-2 my-2 p-2.5 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all cursor-pointer group`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                {/* Rank & Thumbnail Container */}
+                                                <div className="relative flex-shrink-0">
+                                                    <span className="absolute -top-1 -left-1 text-[10px] font-bold text-white w-5 h-5 flex items-center justify-center bg-blue-500 rounded-full shadow-sm z-10">
+                                                        {index + 1}
+                                                    </span>
+                                                    {product.thumbnail_url ? (
+                                                        <img
+                                                            src={product.thumbnail_url}
+                                                            alt={product.name}
+                                                            className="w-10 h-10 rounded-lg object-cover shadow-sm"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-gray-400 shadow-sm">
+                                                            <Award className="w-5 h-5" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
 
-                                            {/* Product Info */}
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
-                                                    {product.name}
-                                                </h3>
-                                                <p className="text-xs text-gray-500 line-clamp-1">
-                                                    {product.tagline}
-                                                </p>
-                                            </div>
-
-                                            {/* Stats */}
-                                            <div className="flex-shrink-0 flex flex-col items-end gap-1 text-xs">
-                                                <div className="flex items-center gap-1 bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
-                                                    <span className="font-bold">▲</span>
-                                                    <span className="font-bold">{product.votes?.toLocaleString() || 0}</span>
+                                                {/* Product Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
+                                                        {product.name}
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 line-clamp-1">
+                                                        {product.tagline}
+                                                    </p>
                                                 </div>
-                                                <div className="flex items-center gap-1 text-gray-500">
-                                                    <MessageCircle className="w-3 h-3" />
-                                                    <span className="font-semibold">{product.comments || 0}</span>
+
+                                                {/* Stats */}
+                                                <div className="flex-shrink-0 flex items-center gap-3 text-xs font-bold text-gray-900">
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <span className="text-orange-600">{product.votes?.toLocaleString() || 0}</span>
+                                                        <span className="text-[10px] text-gray-400">▲</span>
+                                                    </div>
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <span className="text-gray-700">{product.comments || 0}</span>
+                                                        <MessageCircle className="w-3 h-3 text-gray-400" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
                     </div>
@@ -761,56 +779,74 @@ export default function NicheDetailPage() {
                     </div>
 
                     <div className="divide-y divide-gray-100">
-                        {topProducts.slice(0, 10).map((product, index) => (
-                            <div
-                                key={product.name}
-                                className="group p-3 hover:bg-gray-50 transition-all cursor-pointer"
-                            >
-                                <div className="flex items-center gap-3">
-                                    {/* Rank */}
-                                    <div className={`flex-shrink-0 w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                        index === 1 ? 'bg-gray-200 text-gray-700' :
-                                            index === 2 ? 'bg-orange-100 text-orange-700' :
-                                                'bg-gray-100 text-gray-600'
-                                        }`}>
-                                        {index + 1}
-                                    </div>
+                        {topProducts.slice(0, 10).map((product, index) => {
+                            const gradients = [
+                                'bg-gradient-to-r from-gray-100 to-gray-50',
+                                'bg-gradient-to-r from-blue-50 to-indigo-50',
+                                'bg-gradient-to-r from-cyan-50 to-blue-50',
+                                'bg-gradient-to-r from-red-50 to-orange-50',
+                                'bg-gradient-to-r from-gray-100 to-slate-50',
+                                'bg-gradient-to-r from-green-50 to-emerald-50',
+                                'bg-gradient-to-r from-purple-50 to-fuchsia-50',
+                                'bg-gradient-to-r from-orange-50 to-amber-50',
+                                'bg-gradient-to-r from-pink-50 to-rose-50',
+                                'bg-gradient-to-r from-blue-50 to-cyan-50',
+                            ];
+                            const gradient = gradients[index % gradients.length];
 
-                                    {/* Thumbnail */}
-                                    {product.thumbnail_url && (
-                                        <div className="flex-shrink-0">
-                                            <img
-                                                src={product.thumbnail_url}
-                                                alt={product.name}
-                                                className="w-10 h-10 rounded-lg object-cover border border-gray-200"
-                                            />
+                            return (
+                                <div
+                                    key={product.name}
+                                    className={`${gradient} mx-2 my-2 p-2.5 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all cursor-pointer group`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {/* Rank & Thumbnail Container */}
+                                        <div className="relative flex-shrink-0">
+                                            <span className={`absolute -top-1 -left-1 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm z-10 ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                                                    index === 1 ? 'bg-gray-200 text-gray-700' :
+                                                        index === 2 ? 'bg-orange-100 text-orange-700' :
+                                                            'bg-white/80 text-gray-500'
+                                                }`}>
+                                                {index + 1}
+                                            </span>
+                                            {product.thumbnail_url ? (
+                                                <img
+                                                    src={product.thumbnail_url}
+                                                    alt={product.name}
+                                                    className="w-10 h-10 rounded-lg object-cover shadow-sm"
+                                                />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-gray-400 shadow-sm">
+                                                    <Award className="w-5 h-5" />
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
 
-                                    {/* Product Info */}
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
-                                            {product.name}
-                                        </h3>
-                                        <p className="text-xs text-gray-500 line-clamp-1">
-                                            {product.tagline}
-                                        </p>
-                                    </div>
-
-                                    {/* Stats */}
-                                    <div className="flex-shrink-0 flex items-center gap-3 text-xs">
-                                        <div className="flex flex-col items-center w-10">
-                                            <span className="text-gray-400 mb-0.5">▲</span>
-                                            <span className="font-bold text-gray-900">{product.votes_count.toLocaleString()}</span>
+                                        {/* Product Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
+                                                {product.name}
+                                            </h3>
+                                            <p className="text-xs text-gray-500 line-clamp-1">
+                                                {product.tagline}
+                                            </p>
                                         </div>
-                                        <div className="flex flex-col items-center w-10">
-                                            <MessageCircle className="w-3 h-3 text-gray-400 mb-0.5" />
-                                            <span className="font-semibold text-gray-700">{product.comments_count}</span>
+
+                                        {/* Stats */}
+                                        <div className="flex-shrink-0 flex items-center gap-3 text-xs font-bold text-gray-900">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <span>{product.votes_count.toLocaleString()}</span>
+                                                <span className="text-[10px] text-gray-400">▲</span>
+                                            </div>
+                                            <div className="flex items-center justify-center gap-1">
+                                                <span className="text-gray-700">{product.comments_count}</span>
+                                                <MessageCircle className="w-3 h-3 text-gray-400" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </aside>
             </div>
