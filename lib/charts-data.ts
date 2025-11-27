@@ -1332,6 +1332,86 @@ export async function getYesterdayLaunchesData(): Promise<YesterdayData> {
     };
 }
 
+// Get Today's Live Launches Data
+export async function getTodayLiveLaunchesData(): Promise<YesterdayData> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const now = new Date();
+
+    const { data: launches } = await supabase
+        .from('ph_launches')
+        .select('name, votes_count, comments_count, tagline, ai_analysis, launched_at, thumbnail_url, website_url')
+        .gte('launched_at', today.toISOString())
+        .lte('launched_at', now.toISOString())
+        .order('votes_count', { ascending: false });
+
+    if (!launches || launches.length === 0) {
+        return {
+            chartData: [],
+            topLaunches: [],
+            metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
+        };
+    }
+
+    // Process Categories
+    const categoryMap = new Map<string, number>();
+    let aiCount = 0;
+    let totalVotes = 0;
+
+    launches.forEach(launch => {
+        const niche = launch.ai_analysis?.niche || 'Other';
+        const category = mapNicheToCategory(niche);
+        categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+
+        // Check for AI
+        const isAI = niche.toLowerCase().includes('ai') ||
+            launch.name.toLowerCase().includes('ai') ||
+            launch.tagline.toLowerCase().includes('ai');
+        if (isAI) aiCount++;
+
+        totalVotes += launch.votes_count || 0;
+    });
+
+    // Format Chart Data
+    const chartData = Array.from(categoryMap.entries())
+        .map(([name, value]) => ({
+            name,
+            value,
+            color: getColorForCategory(name)
+        }))
+        .sort((a, b) => b.value - a.value);
+
+    // Metrics
+    const totalLaunches = launches.length;
+    const aiPercentage = Math.round((aiCount / totalLaunches) * 100);
+    const avgVotes = Math.round(totalVotes / totalLaunches);
+    const topCategory = chartData.length > 0 ? chartData[0].name : 'N/A';
+
+    // Top 50 Launches
+    const topLaunches = launches.slice(0, 50).map(l => ({
+        name: l.name,
+        votes: l.votes_count || 0,
+        comments: l.comments_count || 0,
+        niche: l.ai_analysis?.niche || 'Unknown',
+        tagline: l.tagline,
+        thumbnail_url: l.thumbnail_url,
+        website_url: l.website_url,
+        launched_at: l.launched_at
+    }));
+
+    return {
+        chartData,
+        topLaunches,
+        metrics: {
+            totalLaunches,
+            aiPercentage,
+            avgVotes,
+            topCategory
+        }
+    };
+}
+
 
 // ============================================
 // 8. DAILY LAUNCH PULSE

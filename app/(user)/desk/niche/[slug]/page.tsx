@@ -31,25 +31,35 @@ import {
     Zap,
     Globe,
     Camera,
-    Coffee
+    Coffee,
+    ArrowLeft,
+    Brain,
+    RefreshCw
 } from 'lucide-react';
 import {
     LineChart,
     Line,
+    BarChart,
+    Bar,
+    Cell,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
     Legend,
-    ResponsiveContainer
+    ResponsiveContainer,
+    AreaChart,
+    Area
 } from 'recharts';
 import {
     getNicheSuccessHistogram,
     getProductScatterData,
     getFeatureCorrelation,
+    getTopicVelocity,
     type NicheHistogramData,
     type ProductScatterPoint,
-    type FeatureCorrelation
+    type FeatureCorrelation,
+    type TopicVelocityData
 } from '@/lib/charts-data';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -62,31 +72,92 @@ export default function NicheDetailPage() {
     const [histogramData, setHistogramData] = useState<NicheHistogramData | null>(null);
     const [scatterData, setScatterData] = useState<ProductScatterPoint[]>([]);
     const [correlationData, setCorrelationData] = useState<FeatureCorrelation[]>([]);
+    const [growthData, setGrowthData] = useState<TopicVelocityData | null>(null);
     const [topProducts, setTopProducts] = useState<any[]>([]);
     const [allProducts, setAllProducts] = useState<any[]>([]);
     const [showingAll, setShowingAll] = useState(false);
-    const [loadingAll, setLoadingAll] = useState(false);
+    const [aiAnalysis, setAiAnalysis] = useState<{
+        engagementGap: { value: string; label: string };
+        brief: { paragraph1: string; paragraph2: string };
+        key_insight: string;
+    } | null>(null);
+    const [loadingAnalysis, setLoadingAnalysis] = useState(true);
+    const [todayLaunches, setTodayLaunches] = useState<any[]>([]);
+    const [loadingLive, setLoadingLive] = useState(true);
 
     const supabase = createClientComponentClient();
 
     useEffect(() => {
         if (niche) {
             loadNicheData();
+            loadAiAnalysis();
+            loadTodayLaunches();
         }
     }, [niche]);
+
+    const loadAiAnalysis = async () => {
+        setLoadingAnalysis(true);
+        try {
+            const response = await fetch('/api/niche/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ niche }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setAiAnalysis(data);
+            }
+        } catch (error) {
+            console.error('Failed to load AI analysis', error);
+        } finally {
+            setLoadingAnalysis(false);
+        }
+    };
+
+    const loadTodayLaunches = async () => {
+        setLoadingLive(true);
+        try {
+            const response = await fetch('/api/today-launches');
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Niche:', niche);
+                console.log('Top Launches:', data.topLaunches.length);
+                console.log('First Launch Niche:', data.topLaunches[0]?.niche);
+
+                // Filter launches by current niche
+                const nicheLaunches = data.topLaunches.filter((launch: any) =>
+                    launch.niche === niche ||
+                    launch.tagline?.toLowerCase().includes(niche.toLowerCase()) ||
+                    launch.name?.toLowerCase().includes(niche.toLowerCase())
+                );
+                console.log('Filtered Launches:', nicheLaunches.length);
+                setTodayLaunches(nicheLaunches);
+            }
+        } catch (error) {
+            console.error('Failed to load today launches', error);
+        } finally {
+            setLoadingLive(false);
+        }
+    };
 
     const loadNicheData = async () => {
         setLoading(true);
         try {
-            const [histogram, scatter, correlation] = await Promise.all([
+            const [histogram, scatter, correlation, allVelocity] = await Promise.all([
                 getNicheSuccessHistogram(niche),
                 getProductScatterData(niche),
-                getFeatureCorrelation(niche)
+                getFeatureCorrelation(niche),
+                getTopicVelocity()
             ]);
 
             setHistogramData(histogram);
             setScatterData(scatter);
             setCorrelationData(correlation);
+
+            // Find matching velocity data
+            const velocity = allVelocity.find(v => v.topic === niche) ||
+                allVelocity.find(v => v.topic.includes(niche) || niche.includes(v.topic));
+            setGrowthData(velocity || null);
 
             // Load top 10 products
             const { data: products } = await supabase
@@ -106,26 +177,7 @@ export default function NicheDetailPage() {
         setLoading(false);
     };
 
-    const loadAllProducts = async () => {
-        setLoadingAll(true);
-        try {
-            // Fetch all products in this niche
-            const { data: products } = await supabase
-                .from('ph_launches')
-                .select('name, votes_count, comments_count, ai_analysis, launched_at, thumbnail_url, tagline, website_url')
-                .not('ai_analysis', 'is', null)
-                .order('votes_count', { ascending: false });
 
-            if (products) {
-                const filtered = products.filter(p => p.ai_analysis?.niche === niche);
-                setAllProducts(filtered);
-                setShowingAll(true);
-            }
-        } catch (error) {
-            console.error('Error loading all products:', error);
-        }
-        setLoadingAll(false);
-    };
 
     const getTypeColor = (type: ProductScatterPoint['productType']) => {
         switch (type) {
@@ -293,88 +345,157 @@ export default function NicheDetailPage() {
                         </div>
                     </div>
 
-                    {/* Top 3 Products */}
-                    {topProducts.length > 0 && (
-                        <div className="p-4">
-                            <h2 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">
-                                Top 3 Products
-                            </h2>
-                            <div className="space-y-2">
-                                {topProducts.slice(0, 3).map((product, index) => (
-                                    <div
-                                        key={product.name}
-                                        className="group bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg p-3 transition-all cursor-pointer"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {/* Rank */}
-                                            <div className={`flex-shrink-0 w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                                index === 1 ? 'bg-gray-200 text-gray-700' :
-                                                    'bg-orange-100 text-orange-700'
-                                                }`}>
-                                                {index + 1}
-                                            </div>
+                    {/* AI Success Decode */}
+                    <div className="p-4">
+                        <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-100">
+                            <div className="flex items-center justify-between mb-3">
+                                <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                    <Brain className="w-4 h-4 text-purple-600" />
+                                    Success Decode
+                                </h2>
+                                <button
+                                    onClick={loadAiAnalysis}
+                                    disabled={loadingAnalysis}
+                                    className="p-1.5 text-purple-400 hover:text-purple-600 hover:bg-purple-100 rounded-md transition-colors disabled:opacity-50"
+                                    title="Regenerate Analysis"
+                                >
+                                    <RefreshCw className={`w-3.5 h-3.5 ${loadingAnalysis ? 'animate-spin' : ''}`} />
+                                </button>
+                            </div>
 
-                                            {/* Thumbnail */}
-                                            {product.thumbnail_url && (
-                                                <div className="flex-shrink-0">
-                                                    <img
-                                                        src={product.thumbnail_url}
-                                                        alt={product.name}
-                                                        className="w-12 h-12 rounded-lg object-cover border border-gray-200"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            {/* Product Info */}
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
-                                                    {product.name}
-                                                </h3>
-                                                <p className="text-xs text-gray-500 line-clamp-1">
-                                                    {product.tagline}
-                                                </p>
-                                            </div>
-
-                                            {/* Stats */}
-                                            <div className="flex-shrink-0 flex items-center gap-3 text-xs">
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-gray-400">▲</span>
-                                                    <span className="font-bold text-gray-900">{product.votes_count.toLocaleString()}</span>
-                                                </div>
-                                                <div className="flex flex-col items-center">
-                                                    <MessageCircle className="w-3 h-3 text-gray-400" />
-                                                    <span className="font-semibold text-gray-700">{product.comments_count}</span>
-                                                </div>
+                            {loadingAnalysis ? (
+                                <div className="space-y-3 animate-pulse">
+                                    <div className="h-3 bg-purple-100 rounded w-3/4"></div>
+                                    <div className="h-24 bg-white/60 rounded-lg border border-purple-50"></div>
+                                    <div className="h-24 bg-white/60 rounded-lg border border-purple-50"></div>
+                                </div>
+                            ) : aiAnalysis ? (
+                                <div className="space-y-4">
+                                    {/* Engagement Stats */}
+                                    <div className="bg-white/60 rounded-lg p-3 border border-purple-100 flex items-center justify-between">
+                                        <div>
+                                            <div className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold mb-0.5">Engagement Gap</div>
+                                            <div className="flex items-baseline gap-1.5">
+                                                <span className="text-lg font-bold text-gray-900">{aiAnalysis.engagementGap.value}</span>
+                                                <span className="text-xs text-gray-600">{aiAnalysis.engagementGap.label}</span>
                                             </div>
                                         </div>
+                                        <div className="text-right max-w-[50%]">
+                                            <div className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold mb-0.5">Key Insight</div>
+                                            <span className="inline-block px-2 py-1 rounded-md text-[10px] font-bold bg-purple-100 text-purple-700 leading-tight">
+                                                {aiAnalysis.key_insight}
+                                            </span>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
+
+                                    {/* Analysis Text */}
+                                    <div className="space-y-3">
+                                        <p className="text-xs text-gray-700 leading-relaxed">
+                                            {aiAnalysis.brief.paragraph1}
+                                        </p>
+                                        <p className="text-xs text-gray-700 leading-relaxed">
+                                            {aiAnalysis.brief.paragraph2}
+                                        </p>
+                                    </div>
+
+                                    <div className="text-[10px] text-gray-400 italic pt-2 border-t border-purple-100/50">
+                                        Based on real-time analysis of 60 products in this niche.
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-xs text-gray-500 italic">
+                                    Analysis unavailable.
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </aside>
 
                 {/* CENTER - Charts & Analytics */}
                 <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Key Stats */}
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                            <div className="text-xs text-gray-500 mb-1">Total Products</div>
-                            <div className="text-2xl font-bold text-gray-900">{histogramData.stats.total}</div>
+                    {/* Niche Growth Trend */}
+                    {growthData && (
+                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div className="p-4 border-b border-gray-200">
+                                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                    <TrendingUp className="w-5 h-5 text-blue-600" />
+                                    Growth Trend
+                                </h2>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Launch volume, upvotes, and comments over the last 12 months
+                                </p>
+                            </div>
+                            <div className="p-4">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <AreaChart data={growthData.timeSeriesData} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorLaunches" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                                        <XAxis
+                                            dataKey="month"
+                                            stroke="#9ca3af"
+                                            fontSize={10}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            yAxisId="left"
+                                            stroke="#9ca3af"
+                                            fontSize={10}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            yAxisId="right"
+                                            orientation="right"
+                                            stroke="#9ca3af"
+                                            fontSize={10}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                            labelStyle={{ color: '#374151', fontWeight: 'bold', marginBottom: '4px' }}
+                                        />
+                                        <Legend />
+                                        <Area
+                                            yAxisId="left"
+                                            type="monotone"
+                                            dataKey="launchCount"
+                                            stroke="#3b82f6"
+                                            strokeWidth={2}
+                                            fillOpacity={1}
+                                            fill="url(#colorLaunches)"
+                                            name="Launches"
+                                        />
+                                        <Line
+                                            yAxisId="right"
+                                            type="monotone"
+                                            dataKey="avgUpvotes"
+                                            stroke="#10b981"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            name="Avg Upvotes"
+                                        />
+                                        <Line
+                                            yAxisId="right"
+                                            type="monotone"
+                                            dataKey="avgComments"
+                                            stroke="#8b5cf6"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            name="Avg Comments"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
-                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                            <div className="text-xs text-gray-500 mb-1">Median Upvotes</div>
-                            <div className="text-2xl font-bold text-blue-600">{histogramData.stats.median}</div>
-                        </div>
-                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                            <div className="text-xs text-gray-500 mb-1">Top 10% (P90)</div>
-                            <div className="text-2xl font-bold text-orange-600">{histogramData.stats.p90}</div>
-                        </div>
-                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                            <div className="text-xs text-gray-500 mb-1">Top 1% (P99)</div>
-                            <div className="text-2xl font-bold text-green-600">{histogramData.stats.p99}</div>
-                        </div>
-                    </div>
+                    )}
 
                     {/* Performance Scatter Plot */}
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -447,6 +568,7 @@ export default function NicheDetailPage() {
                         </div>
                     </div>
 
+
                     {/* Feature Correlation */}
                     {correlationData.length > 0 && (
                         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -460,6 +582,53 @@ export default function NicheDetailPage() {
                                 </p>
                             </div>
                             <div className="p-4">
+                                {/* Bar Chart Visualization */}
+                                <div className="mb-6">
+                                    <ResponsiveContainer width="100%" height={250}>
+                                        <BarChart
+                                            data={correlationData.slice(0, 10)}
+                                            layout="vertical"
+                                            margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
+                                            <XAxis type="number" stroke="#9ca3af" fontSize={10} tickLine={false} />
+                                            <YAxis
+                                                dataKey="keyword"
+                                                type="category"
+                                                width={110}
+                                                stroke="#9ca3af"
+                                                fontSize={10}
+                                                tickLine={false}
+                                            />
+                                            <Tooltip
+                                                content={({ active, payload }) => {
+                                                    if (active && payload && payload[0]) {
+                                                        const data = payload[0].payload;
+                                                        return (
+                                                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                                                                <div className="font-bold text-gray-900 text-sm mb-1">"{data.keyword}"</div>
+                                                                <div className="text-xs space-y-0.5">
+                                                                    <div>Uplift: <span className={`font-bold ${data.uplift > 0 ? 'text-green-600' : 'text-red-600'}`}>{data.uplift > 0 ? '+' : ''}{data.uplift}%</span></div>
+                                                                    <div>Mentions: <span className="font-semibold">{data.occurrences}</span></div>
+                                                                    <div>With: <span className="font-semibold">{data.avgUpvotesWithKeyword}</span> upvotes</div>
+                                                                    <div>Without: <span className="font-semibold">{data.avgUpvotesWithout}</span> upvotes</div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                }}
+                                            />
+                                            <Bar dataKey="uplift" radius={[0, 4, 4, 0]}>
+                                                {correlationData.slice(0, 10).map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.uplift > 0 ? '#10b981' : '#ef4444'} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+
+                                {/* Top 5 Keywords Details */}
                                 <div className="space-y-2">
                                     {correlationData.slice(0, 5).map((feature, index) => (
                                         <div
@@ -502,35 +671,97 @@ export default function NicheDetailPage() {
                     )}
                 </main>
 
-                {/* RIGHT SIDEBAR - All Products List */}
+                {/* RIGHT SIDEBAR - Live Today + Top 10 Products List */}
                 <aside className="w-[420px] bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0">
+                    {/* Live Today Section */}
+                    <div className="border-b border-gray-200">
+                        <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
+                            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+                                <span className="flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-blue-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                                </span>
+                                Live Today in {niche}
+                            </h2>
+                        </div>
+                        <div className="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
+                            {loadingLive ? (
+                                <div className="p-4 space-y-4">
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="flex gap-3 animate-pulse">
+                                            <div className="w-8 h-8 rounded-full bg-gray-200" />
+                                            <div className="w-10 h-10 rounded-lg bg-gray-200" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : todayLaunches.length === 0 ? (
+                                <div className="p-8 text-center text-gray-500 text-sm">
+                                    No launches in this category today.
+                                </div>
+                            ) : (
+                                todayLaunches.slice(0, 10).map((product, index) => (
+                                    <div
+                                        key={product.name + '-live'}
+                                        className="group p-3 hover:bg-blue-50/50 transition-all cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            {/* Live Position Badge */}
+                                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
+                                                #{index + 1}
+                                            </div>
+
+                                            {/* Thumbnail */}
+                                            {product.thumbnail_url && (
+                                                <div className="flex-shrink-0">
+                                                    <img
+                                                        src={product.thumbnail_url}
+                                                        alt={product.name}
+                                                        className="w-10 h-10 rounded-lg object-cover border border-gray-200"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {/* Product Info */}
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
+                                                    {product.name}
+                                                </h3>
+                                                <p className="text-xs text-gray-500 line-clamp-1">
+                                                    {product.tagline}
+                                                </p>
+                                            </div>
+
+                                            {/* Stats */}
+                                            <div className="flex-shrink-0 flex flex-col items-end gap-1 text-xs">
+                                                <div className="flex items-center gap-1 bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                                                    <span className="font-bold">▲</span>
+                                                    <span className="font-bold">{product.votes?.toLocaleString() || 0}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 text-gray-500">
+                                                    <MessageCircle className="w-3 h-3" />
+                                                    <span className="font-semibold">{product.comments || 0}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Top 10 Products Section */}
                     <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                         <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
-                            All Products ({showingAll ? allProducts.length : topProducts.length})
+                            Top 10 Products
                         </h2>
-                        {!showingAll && (
-                            <button
-                                onClick={loadAllProducts}
-                                disabled={loadingAll}
-                                className="mt-2 w-full py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5"
-                            >
-                                {loadingAll ? (
-                                    <>
-                                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        Loading...
-                                    </>
-                                ) : (
-                                    <>
-                                        <TrendingUp className="w-3.5 h-3.5" />
-                                        Load All Products
-                                    </>
-                                )}
-                            </button>
-                        )}
                     </div>
 
                     <div className="divide-y divide-gray-100">
-                        {(showingAll ? allProducts : topProducts).map((product, index) => (
+                        {topProducts.slice(0, 10).map((product, index) => (
                             <div
                                 key={product.name}
                                 className="group p-3 hover:bg-gray-50 transition-all cursor-pointer"
@@ -538,9 +769,9 @@ export default function NicheDetailPage() {
                                 <div className="flex items-center gap-3">
                                     {/* Rank */}
                                     <div className={`flex-shrink-0 w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                            index === 1 ? 'bg-gray-200 text-gray-700' :
-                                                index === 2 ? 'bg-orange-100 text-orange-700' :
-                                                    'bg-gray-100 text-gray-600'
+                                        index === 1 ? 'bg-gray-200 text-gray-700' :
+                                            index === 2 ? 'bg-orange-100 text-orange-700' :
+                                                'bg-gray-100 text-gray-600'
                                         }`}>
                                         {index + 1}
                                     </div>
