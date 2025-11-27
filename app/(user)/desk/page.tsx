@@ -142,9 +142,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-80px)] bg-gray-50">
+    <div className="flex min-h-[calc(100vh-64px)] bg-gray-50">
       {/* LEFT SIDEBAR - Fixed Position Categories List */}
-      <aside className="w-96 bg-white border-r border-gray-200 flex-shrink-0 h-[calc(100vh-80px)] overflow-y-auto sticky top-0">
+      <aside className="w-96 bg-white border-r border-gray-200 flex-shrink-0 h-[calc(100vh-64px)] overflow-y-auto sticky top-16">
         <div className="p-4 sticky top-0 bg-white z-10 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-gray-900">All Categories</h2>
@@ -226,7 +226,7 @@ export default function DashboardPage() {
       </aside>
 
       {/* MAIN CONTENT - Full Width */}
-      <main className="flex-1 h-[calc(100vh-80px)] overflow-y-auto">
+      <main className="flex-1">
         <div className="p-6 space-y-6">
 
           {/* TODAY'S LIVE PULSE */}

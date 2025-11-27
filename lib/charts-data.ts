@@ -1660,3 +1660,100 @@ export async function getMarketGapData(): Promise<MarketGapData | null> {
         topOpportunity
     };
 }
+
+export interface CategoryDetails {
+    topic: string;
+    timeSeriesData: {
+        month: string;
+        launchCount: number;
+        avgUpvotes: number;
+        avgComments: number;
+        totalVotes: number;
+        totalComments: number;
+    }[];
+    topKeywords: { keyword: string; count: number }[];
+    keywordTrends: { keyword: string; data: { month: string; count: number }[] }[];
+}
+
+export async function getCategoryDetails(topic: string, months = 12): Promise<CategoryDetails | null> {
+    // Fetch launches
+    const { data: launches } = await supabase
+        .from('ph_launches')
+        .select('ai_analysis, votes_count, comments_count, launched_at, description, tagline, name')
+        .not('ai_analysis', 'is', null)
+        .gte('launched_at', getMonthsAgo(months));
+
+    if (!launches) return null;
+
+    // Filter by topic
+    const categoryLaunches = launches.filter(l => {
+        const niche = mapNicheToCategory(l.ai_analysis?.niche || 'Unknown');
+        return niche === topic;
+    });
+
+    if (categoryLaunches.length === 0) return null;
+
+    // Build Time Series
+    const monthMap = new Map<string, { launches: number, votes: number, comments: number }>();
+
+    // Build Keyword Map
+    const keywordMap = new Map<string, number>();
+    const keywordTrendMap = new Map<string, Map<string, number>>();
+
+    categoryLaunches.forEach(launch => {
+        const monthKey = getMonthKey(launch.launched_at);
+
+        // Time Series
+        if (!monthMap.has(monthKey)) monthMap.set(monthKey, { launches: 0, votes: 0, comments: 0 });
+        const mData = monthMap.get(monthKey)!;
+        mData.launches++;
+        mData.votes += launch.votes_count || 0;
+        mData.comments += launch.comments_count || 0;
+
+        // Keywords (simple extraction from description/tagline/name)
+        const text = `${launch.name} ${launch.tagline} ${launch.description}`.toLowerCase();
+        const words = text.split(/\W+/).filter(w => w.length > 3 && !['with', 'this', 'that', 'from', 'your', 'have', 'for', 'and', 'the'].includes(w));
+
+        const uniqueWords = new Set(words);
+        uniqueWords.forEach(word => {
+            keywordMap.set(word, (keywordMap.get(word) || 0) + 1);
+
+            if (!keywordTrendMap.has(word)) keywordTrendMap.set(word, new Map());
+            const kTrend = keywordTrendMap.get(word)!;
+            kTrend.set(monthKey, (kTrend.get(monthKey) || 0) + 1);
+        });
+    });
+
+    // Format Time Series
+    const timeSeriesData = Array.from(monthMap.entries()).map(([month, data]) => ({
+        month,
+        launchCount: data.launches,
+        avgUpvotes: Math.round(data.votes / data.launches),
+        avgComments: Math.round(data.comments / data.launches),
+        totalVotes: data.votes,
+        totalComments: data.comments
+    })).sort((a, b) => a.month.localeCompare(b.month));
+
+    // Format Top Keywords
+    const topKeywords = Array.from(keywordMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([keyword, count]) => ({ keyword, count }));
+
+    // Format Keyword Trends (Top 5)
+    const keywordTrends = topKeywords.slice(0, 5).map(k => {
+        const kTrend = keywordTrendMap.get(k.keyword)!;
+        const data = timeSeriesData.map(t => ({
+            month: t.month,
+            count: kTrend.get(t.month) || 0
+        }));
+        return { keyword: k.keyword, data };
+    });
+
+    return {
+        topic,
+        timeSeriesData,
+        topKeywords,
+        keywordTrends
+    };
+}

@@ -1,18 +1,15 @@
-'use client';
+import { getTopicVelocity } from '@/lib/charts-data';
+import CategoryTrendsDashboard from '@/components/CategoryTrendsDashboard';
+import DeskLayout from '@/components/DeskLayout';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+export const revalidate = 3600; // Revalidate every hour
 
-export default function Home() {
-    const router = useRouter();
-
-    useEffect(() => {
-        router.replace('/desk');
-    }, [router]);
+export default async function Home() {
+    const trendsData = await getTopicVelocity(12);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#FFF5F0]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-        </div>
+        <DeskLayout>
+            <CategoryTrendsDashboard data={trendsData} />
+        </DeskLayout>
     );
 }

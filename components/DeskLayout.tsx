@@ -3,7 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { TrendingUp, Lightbulb, Sparkles, Menu, X } from 'lucide-react';
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Sparkles,
+  Rocket,
+  Menu,
+  X
+} from 'lucide-react';
 import Image from 'next/image';
 
 interface DeskLayoutProps {
@@ -15,84 +22,103 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
+    { href: '/', label: 'Overview', icon: LayoutDashboard },
     { href: '/desk', label: 'Market Intelligence', icon: TrendingUp },
-    { href: '/desk/idea-validator', label: 'Idea Validator', icon: Lightbulb },
+    { href: '/desk/idea-validator', label: 'Growth Workbench', icon: Rocket },
     { href: '/desk/opportunities', label: 'Opportunities', icon: Sparkles },
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-neutral-200 z-50 px-4 md:px-6 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-8 h-8 relative rounded-lg overflow-hidden">
-            <Image src="/Favicon.png" alt="Logo" fill className="object-cover" />
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
+          {/* Logo & Branding */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 relative rounded-lg overflow-hidden">
+              <Image src="/Favicon.png" alt="Logo" fill className="object-cover" sizes="32px" />
+            </div>
+            <span className="font-bold text-xl text-gray-900 tracking-tight">Product Huntr</span>
           </div>
-          <span className="font-bold text-neutral-900 text-lg hidden sm:block">Product Huntr</span>
-        </div>
 
-        {/* Desktop Navigation - Centered */}
-        <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href || (item.href !== '/desk' && pathname.startsWith(item.href));
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${isActive
-                  ? 'bg-neutral-900 text-white shadow-sm'
-                  : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
-                  }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-neutral-500'}`} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden p-2 text-neutral-600 hover:bg-neutral-100 rounded-lg"
-        >
-          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </header>
-
-      {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden pt-16">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-          <nav className="relative bg-white border-b border-neutral-200 p-4 space-y-1 shadow-xl">
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || (item.href !== '/desk' && pathname.startsWith(item.href));
+              let isActive = pathname === item.href;
+
+              if (item.href === '/desk') {
+                // Active if exactly /desk or sub-routes NOT belonging to other tabs
+                isActive = pathname === '/desk' ||
+                  (pathname?.startsWith('/desk') &&
+                    !pathname?.startsWith('/desk/idea-validator') &&
+                    !pathname?.startsWith('/desk/opportunities'));
+              } else if (item.href !== '/') {
+                isActive = pathname?.startsWith(item.href);
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
+                    ? 'bg-gray-900 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-500'}`} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg ml-auto"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 bg-white px-4 py-2 space-y-1 shadow-lg">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              let isActive = false;
+
+              if (item.href === '/desk') {
+                isActive = pathname === '/desk' ||
+                  (pathname.startsWith('/desk/') &&
+                    !pathname.startsWith('/desk/idea-validator') &&
+                    !pathname.startsWith('/desk/opportunities'));
+              } else {
+                isActive = pathname.startsWith(item.href);
+              }
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive
-                    ? 'bg-neutral-900 text-white shadow-sm'
-                    : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                  className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
+                    ? 'bg-gray-50 text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-neutral-500'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
                   {item.label}
                 </Link>
               );
             })}
-          </nav>
-        </div>
-      )}
+          </div>
+        )}
+      </header>
 
-      {/* Main Content */}
-      <main className="pt-16">
+      {/* Main Content Area */}
+      <main className="flex-1 w-full max-w-[1600px] mx-auto">
         {children}
       </main>
     </div>
