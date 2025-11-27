@@ -57,16 +57,22 @@ export async function GET() {
             return colors[category] || '#9ca3af';
         }
 
-        // Process data
+        // Process data - Calculate from ALL snapshots
         const categoryCount: Record<string, number> = {};
         let aiCount = 0;
         let totalVotes = 0;
 
-        const topLaunches = snapshots.slice(0, 200).map(s => {
+        // First pass: Calculate category distribution from ALL products
+        snapshots.forEach(s => {
             const category = guessCategory(s);
             categoryCount[category] = (categoryCount[category] || 0) + 1;
             if (category === 'AI & Machine Learning') aiCount++;
             totalVotes += s.votes_count;
+        });
+
+        // Second pass: Build topLaunches list (limited to 200 for performance)
+        const topLaunches = snapshots.slice(0, 200).map(s => {
+            const category = guessCategory(s);
 
             return {
                 name: s.product_name,
@@ -80,7 +86,7 @@ export async function GET() {
             };
         });
 
-        // Chart Data
+        // Chart Data - Now reflects ALL products
         const chartData = Object.entries(categoryCount)
             .map(([name, value]) => ({ name, value, color: getCategoryColor(name) }))
             .sort((a, b) => b.value - a.value)
