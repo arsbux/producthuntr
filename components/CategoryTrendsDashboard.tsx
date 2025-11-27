@@ -42,6 +42,8 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
 
                             if (oldAvg > 0.5) {
                                 growthPercent = Math.round(((recentAvg - oldAvg) / oldAvg) * 100);
+                                // Cap at 200% for realistic display
+                                growthPercent = Math.min(growthPercent, 200);
                             } else if (recentAvg > 0) {
                                 growthPercent = 100;
                                 isNew = true;
@@ -49,8 +51,11 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
                         } else {
                             const first = dataPoints[0]?.launchCount || 0;
                             const last = dataPoints[len - 1]?.launchCount || 0;
-                            if (first > 0) growthPercent = Math.round(((last - first) / first) * 100);
-                            else if (last > 0) {
+                            if (first > 0) {
+                                growthPercent = Math.round(((last - first) / first) * 100);
+                                // Cap at 200% for realistic display
+                                growthPercent = Math.min(growthPercent, 200);
+                            } else if (last > 0) {
                                 growthPercent = 100;
                                 isNew = true;
                             }
@@ -63,7 +68,7 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
                             <Link
                                 href={`/category/${encodeURIComponent(category.topic)}`}
                                 key={category.topic}
-                                className={`bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group ${isFeatured ? 'md:col-span-2 lg:col-span-2 row-span-2' : ''}`}
+                                className={`bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer group ${isFeatured ? 'md:col-span-2 lg:col-span-2 row-span-2' : ''}`}
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className={`font-bold text-gray-900 truncate pr-2 ${isFeatured ? 'text-2xl' : 'text-lg'}`} title={category.topic}>{category.topic}</h3>
@@ -73,20 +78,9 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
                                     </div>
                                 </div>
 
-                                <div className="flex items-baseline gap-2 mb-4">
-                                    <span className={`${isFeatured ? 'text-3xl' : 'text-2xl'} font-bold text-gray-900`}>{category.totalLaunches}</span>
-                                    <span className="text-xs text-gray-500 uppercase">Total Launches</span>
-                                </div>
-
-                                <div className={`${isFeatured ? 'h-64' : 'h-32'} mb-4`}>
+                                <div className={`${isFeatured ? 'h-48' : 'h-32'} mb-4`}>
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={category.timeSeriesData}>
-                                            <Tooltip
-                                                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#111827', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                                                itemStyle={{ color: chartColor }}
-                                                labelStyle={{ display: 'none' }}
-                                                formatter={(value: number) => [value, 'Launches']}
-                                            />
                                             <Line
                                                 type="monotone"
                                                 dataKey="launchCount"

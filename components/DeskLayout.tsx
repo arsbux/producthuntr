@@ -25,7 +25,6 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
     { href: '/', label: 'Overview', icon: LayoutDashboard },
     { href: '/desk', label: 'Market Intelligence', icon: TrendingUp },
     { href: '/desk/idea-validator', label: 'Growth Workbench', icon: Rocket },
-    { href: '/desk/opportunities', label: 'Opportunities', icon: Sparkles },
   ];
 
   return (

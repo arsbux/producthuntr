@@ -312,33 +312,35 @@ export default function DashboardPage() {
                         const gradient = gradients[index % gradients.length];
 
                         return (
-                          <div key={launch.name} className={`${gradient} py-2 px-3 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group`}>
-                            {/* Rank & Icon Container */}
-                            <div className="relative flex-shrink-0">
-                              <span className="absolute -top-1 -left-1 text-[10px] font-bold text-gray-500 w-4 h-4 flex items-center justify-center bg-white/80 rounded-full shadow-sm z-10">
-                                {index + 1}
-                              </span>
-                              {launch.thumbnail_url ? (
-                                <img src={launch.thumbnail_url} alt={launch.name} className="w-10 h-10 rounded-lg object-cover shadow-sm" />
-                              ) : (
-                                <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-gray-400 shadow-sm">
-                                  <Box className="w-5 h-5" />
-                                </div>
-                              )}
-                            </div>
+                          <Link key={launch.name} href={`/desk/idea-validator?product=${launch.id}`}>
+                            <div className={`${gradient} py-2 px-3 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group cursor-pointer`}>
+                              {/* Rank & Icon Container */}
+                              <div className="relative flex-shrink-0">
+                                <span className="absolute -top-1 -left-1 text-[10px] font-bold text-gray-500 w-4 h-4 flex items-center justify-center bg-white/80 rounded-full shadow-sm z-10">
+                                  {index + 1}
+                                </span>
+                                {launch.thumbnail_url ? (
+                                  <img src={launch.thumbnail_url} alt={launch.name} className="w-10 h-10 rounded-lg object-cover shadow-sm" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-gray-400 shadow-sm">
+                                    <Box className="w-5 h-5" />
+                                  </div>
+                                )}
+                              </div>
 
-                            {/* Name */}
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">{launch.name}</h4>
-                            </div>
+                              {/* Name */}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">{launch.name}</h4>
+                              </div>
 
-                            {/* Metrics Columns - Aligned with Header */}
-                            <div className="flex items-center gap-6 text-xs font-bold text-gray-900">
-                              <div className="w-6 text-center">{launch.votes}</div>
-                              <div className="w-6 text-center">{launch.comments}</div>
-                              <div className="w-6 text-center">{Math.round(launch.votes / 10) + launch.comments}</div>
+                              {/* Metrics Columns - Aligned with Header */}
+                              <div className="flex items-center gap-6 text-xs font-bold text-gray-900">
+                                <div className="w-6 text-center">{launch.votes}</div>
+                                <div className="w-6 text-center">{launch.comments}</div>
+                                <div className="w-6 text-center">{Math.round(launch.votes / 10) + launch.comments}</div>
+                              </div>
                             </div>
-                          </div>
+                          </Link>
                         );
                       })}
                     </div>

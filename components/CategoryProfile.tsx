@@ -2,6 +2,8 @@
 
 import { CategoryDetails } from '@/lib/charts-data';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 
 export default function CategoryProfile({ data }: { data: CategoryDetails }) {
     // Prepare data for Keyword Trends chart
@@ -17,9 +19,18 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
     return (
         <div className="p-8 bg-gray-50 min-h-screen font-sans">
             <div className="max-w-7xl mx-auto space-y-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">{data.topic}</h1>
-                    <p className="text-gray-500">Detailed analysis and trends.</p>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">{data.topic}</h1>
+                        <p className="text-gray-500">Detailed analysis and trends.</p>
+                    </div>
+                    <Link
+                        href={`/desk/niche/${encodeURIComponent(data.topic)}`}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                    >
+                        See full data
+                        <ExternalLink className="w-4 h-4" />
+                    </Link>
                 </div>
 
                 {/* Growth Trend */}

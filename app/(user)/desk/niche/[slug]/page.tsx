@@ -58,10 +58,12 @@ import {
     getProductScatterData,
     getFeatureCorrelation,
     getTopicVelocity,
+    getCategoryDetails,
     type NicheHistogramData,
     type ProductScatterPoint,
     type FeatureCorrelation,
-    type TopicVelocityData
+    type TopicVelocityData,
+    type CategoryDetails
 } from '@/lib/charts-data';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -86,6 +88,7 @@ export default function NicheDetailPage() {
     const [loadingAnalysis, setLoadingAnalysis] = useState(true);
     const [todayLaunches, setTodayLaunches] = useState<any[]>([]);
     const [loadingLive, setLoadingLive] = useState(true);
+    const [categoryDetails, setCategoryDetails] = useState<CategoryDetails | null>(null);
 
     const supabase = createClientComponentClient();
 
@@ -145,16 +148,18 @@ export default function NicheDetailPage() {
     const loadNicheData = async () => {
         setLoading(true);
         try {
-            const [histogram, scatter, correlation, allVelocity] = await Promise.all([
+            const [histogram, scatter, correlation, allVelocity, catDetails] = await Promise.all([
                 getNicheSuccessHistogram(niche),
                 getProductScatterData(niche),
                 getFeatureCorrelation(niche),
-                getTopicVelocity()
+                getTopicVelocity(),
+                getCategoryDetails(niche)
             ]);
 
             setHistogramData(histogram);
             setScatterData(scatter);
             setCorrelationData(correlation);
+            setCategoryDetails(catDetails);
 
             // Find matching velocity data
             const velocity = allVelocity.find(v => v.topic === niche) ||
@@ -570,6 +575,133 @@ export default function NicheDetailPage() {
                         </div>
                     </div>
 
+
+                    {/* Keyword Analysis Section */}
+                    {categoryDetails && (
+                        <div className="space-y-6">
+                            {/* Keyword Trends */}
+                            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                <div className="p-4 border-b border-gray-200">
+                                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        <Activity className="w-5 h-5 text-blue-600" />
+                                        Keyword Trends
+                                    </h2>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Usage frequency of top keywords over time
+                                    </p>
+                                </div>
+                                <div className="p-4">
+                                    <ResponsiveContainer width="100%" height={350}>
+                                        <LineChart
+                                            data={(() => {
+                                                // Prepare data for Keyword Trends chart
+                                                return categoryDetails.timeSeriesData.map(t => {
+                                                    const point: any = { month: t.month };
+                                                    categoryDetails.keywordTrends.forEach(k => {
+                                                        const kPoint = k.data.find(d => d.month === t.month);
+                                                        point[k.keyword] = kPoint ? kPoint.count : 0;
+                                                    });
+                                                    return point;
+                                                });
+                                            })()}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                            <XAxis
+                                                dataKey="month"
+                                                stroke="#9ca3af"
+                                                fontSize={10}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+                                            <YAxis
+                                                stroke="#9ca3af"
+                                                fontSize={10}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: '#fff',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #e5e7eb',
+                                                    fontSize: '12px'
+                                                }}
+                                            />
+                                            <Legend wrapperStyle={{ fontSize: '11px' }} />
+                                            {categoryDetails.keywordTrends.map((k, i) => (
+                                                <Line
+                                                    key={k.keyword}
+                                                    type="monotone"
+                                                    dataKey={k.keyword}
+                                                    name={k.keyword}
+                                                    stroke={`hsl(${i * 60 + 200}, 70%, 50%)`}
+                                                    strokeWidth={2}
+                                                    dot={false}
+                                                    activeDot={{ r: 4 }}
+                                                />
+                                            ))}
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            {/* Top Keywords */}
+                            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                <div className="p-4 border-b border-gray-200">
+                                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        <BookOpen className="w-5 h-5 text-blue-600" />
+                                        Top Keywords
+                                    </h2>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Most frequently used terms in this category
+                                    </p>
+                                </div>
+                                <div className="p-4">
+                                    <ResponsiveContainer width="100%" height={350}>
+                                        <BarChart
+                                            data={categoryDetails.topKeywords.slice(0, 15)}
+                                            layout="vertical"
+                                            margin={{ left: 60, right: 20, top: 5, bottom: 5 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
+                                            <XAxis
+                                                type="number"
+                                                stroke="#9ca3af"
+                                                fontSize={10}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+                                            <YAxis
+                                                dataKey="keyword"
+                                                type="category"
+                                                width={100}
+                                                stroke="#4b5563"
+                                                fontSize={11}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+                                            <Tooltip
+                                                cursor={{ fill: '#f9fafb' }}
+                                                contentStyle={{
+                                                    backgroundColor: '#fff',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #e5e7eb',
+                                                    fontSize: '12px'
+                                                }}
+                                            />
+                                            <Bar
+                                                dataKey="count"
+                                                fill="#3b82f6"
+                                                radius={[0, 4, 4, 0]}
+                                                barSize={20}
+                                                name="Frequency"
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Feature Correlation */}
                     {correlationData.length > 0 && (

@@ -101,6 +101,7 @@ export async function GET() {
             const category = guessCategory(s);
 
             return {
+                id: s.product_id,
                 name: s.product_name,
                 votes: s.votes_count,
                 comments: s.comments_count,
