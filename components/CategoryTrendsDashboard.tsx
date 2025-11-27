@@ -15,11 +15,11 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
     // For now, we'll trust the order or just take the first one as featured.
 
     return (
-        <div className="p-8 bg-gray-50 min-h-screen font-sans">
+        <div className="p-8 bg-gray-50 dark:bg-black min-h-screen font-sans">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-12">
-                    <h1 className="text-3xl font-bold mb-2 text-gray-900">Market Understanding</h1>
-                    <p className="text-gray-500">Clear category identification with real-time trend data. See what's rising before the crowd.</p>
+                    <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Market Understanding</h1>
+                    <p className="text-gray-500 dark:text-gray-400">Clear category identification with real-time trend data. See what's rising before the crowd.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
@@ -68,10 +68,10 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
                             <Link
                                 href={`/category/${encodeURIComponent(category.topic)}`}
                                 key={category.topic}
-                                className={`bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer group ${isFeatured ? 'md:col-span-2 lg:col-span-2 row-span-2' : ''}`}
+                                className={`bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer group ${isFeatured ? 'md:col-span-2 lg:col-span-2 row-span-2' : ''}`}
                             >
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className={`font-bold text-gray-900 truncate pr-2 ${isFeatured ? 'text-2xl' : 'text-lg'}`} title={category.topic}>{category.topic}</h3>
+                                    <h3 className={`font-bold text-gray-900 dark:text-white truncate pr-2 ${isFeatured ? 'text-2xl' : 'text-lg'}`} title={category.topic}>{category.topic}</h3>
                                     <div className={`flex flex-col items-end ${growthColor}`}>
                                         <span className={`${isFeatured ? 'text-3xl' : 'text-xl'} font-bold`}>{growthDisplay}</span>
                                         <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400">Growth</span>
@@ -93,16 +93,16 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
                                     </ResponsiveContainer>
                                 </div>
 
-                                <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                                <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 mb-4">
                                     <span>{category.timeSeriesData[0]?.month}</span>
                                     <span>{category.timeSeriesData[category.timeSeriesData.length - 1]?.month}</span>
                                 </div>
 
-                                <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
-                                    <p className="text-sm text-gray-500 line-clamp-2">
+                                <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                                         {category.topic} tools seeing {category.trend} activity.
                                     </p>
-                                    <span className="text-blue-600 group-hover:translate-x-1 transition-transform">
+                                    <span className="text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform">
                                         <ArrowUpRight className="w-4 h-4" />
                                     </span>
                                 </div>
