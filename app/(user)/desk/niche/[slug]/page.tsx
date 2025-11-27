@@ -628,43 +628,143 @@ export default function NicheDetailPage() {
                                     </ResponsiveContainer>
                                 </div>
 
-                                {/* Top 5 Keywords Details */}
-                                <div className="space-y-2">
-                                    {correlationData.slice(0, 5).map((feature, index) => (
-                                        <div
-                                            key={feature.keyword}
-                                            className={`p-3 rounded-lg border ${feature.uplift > 20
-                                                ? 'bg-green-50 border-green-200'
-                                                : feature.uplift > 0
-                                                    ? 'bg-blue-50 border-blue-200'
-                                                    : 'bg-red-50 border-red-200'
-                                                }`}
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex-1">
-                                                    <div className="font-bold text-gray-900 text-sm mb-0.5 flex items-center gap-2">
-                                                        <span>
-                                                            {index + 1}. "{feature.keyword}"
-                                                        </span>
-                                                        <span className="text-xs px-2 py-0.5 bg-white rounded-full border border-gray-200">
-                                                            {feature.occurrences} mentions
-                                                        </span>
-                                                    </div>
-                                                    <div className="text-xs text-gray-600">
-                                                        With: <span className="font-semibold">{feature.avgUpvotesWithKeyword}</span>
-                                                        {' • '}
-                                                        Without: <span className="font-semibold">{feature.avgUpvotesWithout}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className={`text-xl font-bold ${feature.uplift > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {feature.uplift > 0 ? '+' : ''}{feature.uplift}%
-                                                    </div>
-                                                    <div className="text-xs text-gray-600">uplift</div>
-                                                </div>
-                                            </div>
+                                {/* Detailed Analysis Charts */}
+                                <div className="grid grid-cols-1 gap-8 mt-8">
+                                    {/* Impact Analysis - With vs Without */}
+                                    <div>
+                                        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                            <Zap className="w-4 h-4 text-yellow-500" />
+                                            Impact Analysis (Avg. Upvotes)
+                                        </h3>
+                                        <div className="h-[250px] w-full">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart
+                                                    data={correlationData.slice(0, 8)}
+                                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                                    barGap={0}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                                    <XAxis
+                                                        dataKey="keyword"
+                                                        axisLine={false}
+                                                        tickLine={false}
+                                                        fontSize={10}
+                                                        stroke="#6b7280"
+                                                    />
+                                                    <YAxis
+                                                        axisLine={false}
+                                                        tickLine={false}
+                                                        fontSize={10}
+                                                        stroke="#6b7280"
+                                                    />
+                                                    <Tooltip
+                                                        cursor={{ fill: '#f9fafb' }}
+                                                        content={({ active, payload, label }) => {
+                                                            if (active && payload && payload.length) {
+                                                                return (
+                                                                    <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-xl">
+                                                                        <p className="font-bold text-gray-900 text-sm mb-2">"{label}"</p>
+                                                                        <div className="space-y-1">
+                                                                            <div className="flex items-center gap-2 text-xs">
+                                                                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                                                                <span className="text-gray-500">With Keyword:</span>
+                                                                                <span className="font-bold text-gray-900">{payload[0].value}</span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-xs">
+                                                                                <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                                                                                <span className="text-gray-500">Without Keyword:</span>
+                                                                                <span className="font-bold text-gray-900">{payload[1].value}</span>
+                                                                            </div>
+                                                                            <div className="pt-2 mt-2 border-t border-gray-100">
+                                                                                <span className={`text-xs font-bold ${payload[0].value > payload[1].value ? 'text-green-600' : 'text-red-600'}`}>
+                                                                                    {payload[0].value > payload[1].value ? '+' : ''}
+                                                                                    {Math.round(((Number(payload[0].value) - Number(payload[1].value)) / Number(payload[1].value)) * 100)}% Impact
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        }}
+                                                    />
+                                                    <Legend iconType="circle" fontSize={10} />
+                                                    <Bar
+                                                        dataKey="avgUpvotesWithKeyword"
+                                                        name="With Keyword"
+                                                        fill="#3b82f6"
+                                                        radius={[4, 4, 0, 0]}
+                                                        barSize={20}
+                                                    />
+                                                    <Bar
+                                                        dataKey="avgUpvotesWithout"
+                                                        name="Without Keyword"
+                                                        fill="#e5e7eb"
+                                                        radius={[4, 4, 0, 0]}
+                                                        barSize={20}
+                                                    />
+                                                </BarChart>
+                                            </ResponsiveContainer>
                                         </div>
-                                    ))}
+                                    </div>
+
+                                    {/* Keyword Frequency */}
+                                    <div>
+                                        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                            <MessageCircle className="w-4 h-4 text-purple-500" />
+                                            Keyword Frequency
+                                        </h3>
+                                        <div className="h-[200px] w-full">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart
+                                                    data={correlationData.slice(0, 10)}
+                                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                                    <XAxis
+                                                        dataKey="keyword"
+                                                        axisLine={false}
+                                                        tickLine={false}
+                                                        fontSize={10}
+                                                        stroke="#6b7280"
+                                                    />
+                                                    <YAxis
+                                                        axisLine={false}
+                                                        tickLine={false}
+                                                        fontSize={10}
+                                                        stroke="#6b7280"
+                                                    />
+                                                    <Tooltip
+                                                        cursor={{ fill: '#f9fafb' }}
+                                                        content={({ active, payload, label }) => {
+                                                            if (active && payload && payload.length) {
+                                                                return (
+                                                                    <div className="bg-white p-2 border border-gray-100 shadow-lg rounded-lg">
+                                                                        <p className="font-bold text-gray-900 text-xs">"{label}"</p>
+                                                                        <p className="text-xs text-purple-600 font-semibold">
+                                                                            {payload[0].value} mentions
+                                                                        </p>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        }}
+                                                    />
+                                                    <Bar
+                                                        dataKey="occurrences"
+                                                        name="Mentions"
+                                                        fill="#8b5cf6"
+                                                        radius={[4, 4, 0, 0]}
+                                                        barSize={30}
+                                                    >
+                                                        {correlationData.slice(0, 10).map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fillOpacity={0.6 + (index * 0.05)} />
+                                                        ))}
+                                                    </Bar>
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -803,9 +903,9 @@ export default function NicheDetailPage() {
                                         {/* Rank & Thumbnail Container */}
                                         <div className="relative flex-shrink-0">
                                             <span className={`absolute -top-1 -left-1 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm z-10 ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                                    index === 1 ? 'bg-gray-200 text-gray-700' :
-                                                        index === 2 ? 'bg-orange-100 text-orange-700' :
-                                                            'bg-white/80 text-gray-500'
+                                                index === 1 ? 'bg-gray-200 text-gray-700' :
+                                                    index === 2 ? 'bg-orange-100 text-orange-700' :
+                                                        'bg-white/80 text-gray-500'
                                                 }`}>
                                                 {index + 1}
                                             </span>
