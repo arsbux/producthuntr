@@ -1,0 +1,3 @@
+# Netlify redirects
+/join    /join/    200
+/admin   /admin/   200

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join the Lab — Register for Atomic Labs</title>
+    <link rel="icon" type="image/svg+xml" href="/public/atomiclabslogo-white.svg">
+    <meta name="description"
+        content="Register for Atomic Labs and start building real projects. Join our project-first academy for teens.">
+
+    <!-- Open Graph / Social Share -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Join the Lab — Register for Atomic Labs">
+    <meta property="og:description"
+        content="Register for Atomic Labs and start building real projects. Join our project-first academy for teens.">
+    <meta property="og:image" content="/public/socialshare.png">
+    <meta property="og:url" content="https://atomiclabs.ug/join">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Join the Lab — Register for Atomic Labs">
+    <meta name="twitter:description"
+        content="Register for Atomic Labs and start building real projects. Join our project-first academy for teens.">
+    <meta name="twitter:image" content="/public/socialshare.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Form-specific styles */
+        .join-section {
+            padding: 140px 0 100px;
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .join-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(74, 144, 226, 0.08) 1px, transparent 0);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .join-container {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .join-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .join-header h1 {
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            letter-spacing: -1.5px;
+        }
+
+        .join-header .highlight {
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        .join-header p {
+            font-size: 20px;
+            color: var(--text-medium);
+            line-height: 1.6;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .registration-form {
+            background: white;
+            padding: 60px;
+            border-radius: 32px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .registration-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-blue), var(--accent-purple));
+        }
+
+        .form-group {
+            margin-bottom: 32px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            letter-spacing: -0.2px;
+        }
+
+        .form-group label .required {
+            color: var(--accent-orange);
+            margin-left: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-family: inherit;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-input:hover {
+            border-color: var(--text-medium);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-help {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 18px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(5, 150, 105, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .submit-button:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(5, 150, 105, 0.4);
+        }
+
+        .submit-button:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-footer p {
+            font-size: 14px;
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+
+        .form-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .form-footer a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Decorative floating elements */
+        .join-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .join-float-icon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            opacity: 0.1;
+        }
+
+        .join-float-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .join-float-icon.icon-1 {
+            top: 15%;
+            left: 10%;
+            animation: float-bounce 8s ease-in-out infinite;
+            color: var(--accent-blue);
+        }
+
+        .join-float-icon.icon-2 {
+            top: 25%;
+            right: 8%;
+            animation: spin-slow 20s linear infinite;
+            color: var(--primary-color);
+        }
+
+        .join-float-icon.icon-3 {
+            bottom: 20%;
+            left: 8%;
+            animation: float-diagonal 10s ease-in-out infinite;
+            color: var(--accent-purple);
+        }
+
+        .join-float-icon.icon-4 {
+            bottom: 30%;
+            right: 12%;
+            animation: pulse 5s ease-in-out infinite;
+            color: var(--accent-orange);
+        }
+
+        /* Success message */
+        .success-message {
+            display: none;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-message svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .success-message h3 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        .success-message p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.95);
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .join-section {
+                padding: 100px 0 60px;
+            }
+
+            .join-header h1 {
+                font-size: 42px;
+                padding: 0 20px;
+            }
+
+            .join-header p {
+                font-size: 18px;
+                padding: 0 20px;
+            }
+
+            .registration-form {
+                padding: 32px 24px;
+                margin: 0 20px;
+                border-radius: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .submit-button {
+                padding: 16px 24px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .join-header h1 {
+                font-size: 36px;
+            }
+
+            .registration-form {
+                padding: 24px 20px;
+                margin: 0 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="/public/atomiclabslogo.svg" alt="Atomic Labs" class="logo-img">
+                <span class="logo-text">Atomic Labs</span>
+            </a>
+            <div class="nav-links">
+                <a href="/#programs">Programs</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#outcomes">Outcomes</a>
+                <a href="/#faq">FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Join Section -->
+    <section class="join-section">
+        <!-- Decorative Elements -->
+        <div class="join-decoration">
+            <div class="join-float-icon icon-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+            </div>
+            <div class="join-float-icon icon-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <line x1="12" y1="2" x2="12" y2="9"></line>
+                    <line x1="12" y1="15" x2="12" y2="22"></line>
+                </svg>
+            </div>
+            <div class="join-float-icon icon-3">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+            </div>
+            <div class="join-float-icon icon-4">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+            </div>
+        </div>
+
+        <div class="join-container">
+            <div class="join-header">
+                <h1>Join <span class="highlight">the Lab</span></h1>
+                <p>Register to start building real projects. We'll be in touch within 24 hours to discuss the best
+                    program for you.</p>
+            </div>
+
+            <div class="registration-form" id="registrationForm">
+                <form id="joinForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name <span class="required">*</span></label>
+                        <input type="text" id="fullName" name="fullName" class="form-input"
+                            placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age <span class="required">*</span></label>
+                            <input type="number" id="age" name="age" class="form-input" placeholder="Your age" min="10"
+                                max="25" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location">Location <span class="required">*</span></label>
+                            <input type="text" id="location" name="location" class="form-input"
+                                placeholder="City, Uganda" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number (Ugandan) <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="+256 700 000 000"
+                            pattern="(\+?256|0)[0-9]{9}" required>
+                        <div class="form-help">Format: +256700000000 or 0700000000</div>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        Complete Registration
+                    </button>
+
+                    <div class="form-footer">
+                        <p>By registering, you agree to our <a href="#">terms and conditions</a> and <a href="#">privacy
+                                policy</a>.</p>
+                        <p style="margin-top: 12px;">Already registered? <a
+                                href="https://wa.me/256744820648?text=Hi%2C%20I%20have%20a%20question%20about%20my%20registration">Contact
+                                us</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h3>Welcome to Atomic Labs!</h3>
+                <p>Your registration has been received. We'll contact you within 24 hours to discuss the perfect program
+                    for you and answer any questions.</p>
+                <p style="margin-top: 20px; opacity: 0.9;">Check your WhatsApp or phone for our message!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Programs</h4>
+                        <a href="/#programs">Vibe Coding</a>
+                        <a href="/#programs">Maker Robotics</a>
+                        <a href="/#programs">Product Launch Lab</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/#how-it-works">How It Works</a>
+                        <a href="/#outcomes">Outcomes</a>
+                        <a href="/#faq">FAQ</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Contact</h4>
+                        <a href="tel:+256701045157">+256 701 045 157</a>
+                        <a href="https://wa.me/256744820648" target="_blank">WhatsApp: +256 744 820 648</a>
+                        <a href="mailto:keith@flightlabs.agency">keith@flightlabs.agency</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-brand-section">
+                <div class="footer-brand-logo">
+                    <img src="/public/atomiclabslogo-white.svg" alt="Atomic Labs" class="footer-logo-img">
+                    <span class="footer-brand-text">Atomic Labs</span>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-tagline">Built for builders. Not for spectators.</p>
+                <p class="footer-legal">Privacy & safeguarding policies available on request.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Supabase & Config (MUST load first) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/tracker.js"></script>
+
+    <script>
+        console.log('=== Registration Form Initialization ===');
+        console.log('Supabase library loaded:', typeof window.supabase !== 'undefined');
+        console.log('Config loaded:', typeof SUPABASE_CONFIG !== 'undefined');
+
+        // Check if Supabase is available
+        if (typeof window.supabase === 'undefined') {
+            console.error('ERROR: Supabase library not loaded!');
+            alert('Error: Unable to load registration system. Please refresh the page.');
+        }
+
+        if (typeof SUPABASE_CONFIG === 'undefined') {
+            console.error('ERROR: Supabase config not loaded!');
+            alert('Error: Configuration missing. Please contact support.');
+        }
+
+        // Initialize Supabase client
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(
+                SUPABASE_CONFIG.url,
+                SUPABASE_CONFIG.anonKey
+            );
+            console.log('✓ Supabase client initialized successfully');
+            console.log('Supabase URL:', SUPABASE_CONFIG.url);
+        } catch (error) {
+            console.error('ERROR initializing Supabase:', error);
+            alert('Error: Unable to connect to database. Please contact support.');
+        }
+
+        // Test database connection
+        async function testConnection() {
+            try {
+                console.log('Testing database connection...');
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .select('count')
+                    .limit(1);
+
+                if (error) {
+                    console.warn('Database connection test:', error.message);
+                    if (error.message.includes('not found')) {
+                        console.error('⚠️ Table "registrations" does not exist! Run registrations-setup.sql first.');
+                        return false;
+                    }
+                } else {
+                    console.log('✓ Database connection successful');
+                    return true;
+                }
+            } catch (error) {
+                console.error('Connection test failed:', error);
+                return false;
+            }
+        }
+
+        // Run connection test on page load
+        window.addEventListener('load', () => {
+            testConnection();
+        });
+
+        // Add loading spinner style
+        const style = document.createElement('style');
+        style.textContent = `
+            .submit-button.loading {
+                position: relative;
+                color: transparent;
+            }
+            .submit-button.loading::after {
+                content: '';
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                top: 50%;
+                left: 50%;
+                margin-left: -10px;
+                margin-top: -10px;
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top-color: white;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+            .error-message {
+                background: #FEE2E2;
+                border: 2px solid #EF4444;
+                color: #991B1B;
+                padding: 16px 20px;
+                border-radius: 12px;
+                margin-top: 20px;
+                font-size: 14px;
+                line-height: 1.5;
+                display: none;
+            }
+            .error-message.show {
+                display: block;
+                animation: shake 0.5s;
+            }
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+            .success-message.show {
+                animation: fadeInUp 0.6s ease;
+            }
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add error message div to form
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'errorMessage';
+        errorDiv.className = 'error-message';
+        document.querySelector('.submit-button').insertAdjacentElement('afterend', errorDiv);
+
+        // Form submission handler
+        document.getElementById('joinForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            console.log('\n=== Form Submission Started ===');
+
+            // Get submit button
+            const submitBtn = this.querySelector('.submit-button');
+            const errorMessage = document.getElementById('errorMessage');
+            const originalText = submitBtn.textContent;
+
+            // Hide previous errors
+            errorMessage.classList.remove('show');
+            errorMessage.textContent = '';
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.style.opacity = '0.8';
+
+            try {
+                // Get form data
+                const formData = {
+                    full_name: document.getElementById('fullName').value.trim(),
+                    age: parseInt(document.getElementById('age').value),
+                    location: document.getElementById('location').value.trim(),
+                    phone: document.getElementById('phone').value.trim()
+                };
+
+                console.log('Form data collected:', formData);
+
+                // Validate data
+                if (!formData.full_name || formData.full_name.length < 2) {
+                    throw new Error('Please enter a valid full name');
+                }
+                if (!formData.age || formData.age < 10 || formData.age > 25) {
+                    throw new Error('Age must be between 10 and 25');
+                }
+                if (!formData.location || formData.location.length < 2) {
+                    throw new Error('Please enter a valid location');
+                }
+                if (!formData.phone || formData.phone.length < 10) {
+                    throw new Error('Please enter a valid phone number');
+                }
+
+                console.log('✓ Validation passed');
+                console.log('Sending to Supabase...');
+
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .insert([formData])
+                    .select();
+
+                if (error) {
+                    console.error('Supabase error:', error);
+
+                    // Provide helpful error messages
+                    if (error.message.includes('relation') && error.message.includes('does not exist')) {
+                        throw new Error('Database table not set up. Please run the SQL setup first (see REGISTRATION_SETUP.md)');
+                    } else if (error.message.includes('permission')) {
+                        throw new Error('Database permissions error. Please check your Supabase settings.');
+                    } else if (error.message.includes('duplicate')) {
+                        throw new Error('This phone number is already registered. Please contact us if you need help.');
+                    } else {
+                        throw new Error(error.message || 'Database error occurred');
+                    }
+                }
+
+                console.log('✓ Registration saved successfully!');
+                console.log('Saved data:', data);
+
+                // Show success message with animation
+                setTimeout(() => {
+                    document.getElementById('registrationForm').style.display = 'none';
+                    document.getElementById('successMessage').classList.add('show');
+
+                    // Scroll to success message
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: document.getElementById('successMessage').offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }, 100);
+                }, 300);
+
+            } catch (error) {
+                console.error('=== Error saving registration ===');
+                console.error('Error type:', error.name);
+                console.error('Error message:', error.message);
+                console.error('Full error:', error);
+
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = originalText;
+                submitBtn.style.opacity = '1';
+
+                // Show user-friendly error message
+                let userMessage = error.message;
+
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    userMessage = 'Network error. Please check your internet connection and try again.';
+                } else if (error.message.includes('table not set up')) {
+                    userMessage = 'System configuration error. Please contact us on WhatsApp: +256 744 820 648';
+                }
+
+                errorMessage.textContent = '⚠️ ' + userMessage;
+                errorMessage.classList.add('show');
+
+                // Also show a browser alert for critical errors
+                if (error.message.includes('table not set up') || error.message.includes('permission')) {
+                    alert('Registration system error. Please contact us directly:\nWhatsApp: +256 744 820 648\nor call: +256 701 045 157');
+                }
+            }
+        });
+
+        // Phone number formatting with better validation
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/[^0-9+]/g, '');
+
+            // Auto-format phone number
+            if (value.startsWith('0') && value.length === 10) {
+                e.target.value = '+256' + value.substring(1);
+            } else if (value.startsWith('256') && !value.startsWith('+') && value.length === 12) {
+                e.target.value = '+' + value;
+            } else {
+                e.target.value = value;
+            }
+        });
+
+        // Add visual feedback for phone validation
+        phoneInput.addEventListener('blur', function () {
+            const value = this.value;
+            if (value && !value.match(/^(\+?256|0)[0-9]{9}$/)) {
+                this.style.borderColor = '#EF4444';
+            } else {
+                this.style.borderColor = '';
+            }
+        });
+
+        phoneInput.addEventListener('focus', function () {
+            this.style.borderColor = '';
+        });
+
+        console.log('✓ Form handlers initialized');
+        console.log('=== Initialization Complete ===\n');
+    </script>
+</body>
+
+</html>

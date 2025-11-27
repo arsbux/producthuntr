@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tracking - Atomic Labs</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #059669;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        button {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #047857;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #059669;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Tracking Test Page</h1>
+        <p>Use this page to test if your Supabase tracking is working correctly.</p>
+
+        <!-- Config Check -->
+        <div class="test-section">
+            <h2>1. Configuration Check</h2>
+            <div id="configResult" class="result info">Checking...</div>
+        </div>
+
+        <!-- Connection Test -->
+        <div class="test-section">
+            <h2>2. Connection Test</h2>
+            <button onclick="testConnection()">Test Supabase Connection</button>
+            <div id="connectionResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Insert Test -->
+        <div class="test-section">
+            <h2>3. Insert Test</h2>
+            <button onclick="testInsert()">Test Insert Visitor</button>
+            <div id="insertResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Read Test -->
+        <div class="test-section">
+            <h2>4. Read Test</h2>
+            <button onclick="testRead()">Test Read Visitors</button>
+            <div id="readResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- SQL Commands -->
+        <div class="test-section">
+            <h2>📋 Quick Fix SQL</h2>
+            <p>If tests fail, run this in Supabase SQL Editor:</p>
+            <pre>-- Grant all permissions
+GRANT ALL ON visitors TO anon, authenticated;
+GRANT ALL ON page_views TO anon, authenticated;
+
+-- Disable RLS
+ALTER TABLE visitors DISABLE ROW LEVEL SECURITY;
+ALTER TABLE page_views DISABLE ROW LEVEL SECURITY;</pre>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script>
+        // Check configuration
+        window.addEventListener('load', function() {
+            const configDiv = document.getElementById('configResult');
+            
+            if (!SUPABASE_CONFIG.url || SUPABASE_CONFIG.url === 'YOUR_SUPABASE_URL') {
+                configDiv.className = 'result error';
+                configDiv.innerHTML = '❌ Supabase URL not configured in js/config.js';
+                return;
+            }
+            
+            if (!SUPABASE_CONFIG.anonKey || SUPABASE_CONFIG.anonKey === 'YOUR_SUPABASE_ANON_KEY') {
+                configDiv.className = 'result error';
+                configDiv.innerHTML = '❌ Supabase anon key not configured in js/config.js';
+                return;
+            }
+            
+            configDiv.className = 'result success';
+            configDiv.innerHTML = `✅ Configuration looks good!<br>
+                URL: ${SUPABASE_CONFIG.url}<br>
+                Key: ${SUPABASE_CONFIG.anonKey.substring(0, 20)}...`;
+        });
+
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(
+            SUPABASE_CONFIG.url,
+            SUPABASE_CONFIG.anonKey
+        );
+
+        // Test connection
+        async function testConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '⏳ Testing connection...';
+
+            try {
+                const { data, error } = await supabase
+                    .from('visitors')
+                    .select('count')
+                    .limit(1);
+
+                if (error) {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Connection failed:<br>${error.message}<br><br>
+                        <strong>Error Code:</strong> ${error.code || 'unknown'}<br>
+                        <strong>Hint:</strong> ${error.hint || 'Run fix-permissions.sql in Supabase'}`;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ Connection successful!';
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Error: ${err.message}`;
+            }
+        }
+
+        // Test insert
+        async function testInsert() {
+            const resultDiv = document.getElementById('insertResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '⏳ Testing insert...';
+
+            try {
+                const testData = {
+                    session_id: 'test_' + Date.now(),
+                    page_url: window.location.href,
+                    page_title: 'Test Page',
+                    referrer: 'test',
+                    device_type: 'desktop',
+                    browser: 'test',
+                    os: 'test'
+                };
+
+                const { data, error } = await supabase
+                    .from('visitors')
+                    .insert([testData])
+                    .select()
+                    .single();
+
+                if (error) {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Insert failed:<br>${error.message}<br><br>
+                        <strong>Error Code:</strong> ${error.code || 'unknown'}<br>
+                        <strong>Details:</strong> ${error.details || 'none'}<br>
+                        <strong>Hint:</strong> ${error.hint || 'Check permissions'}`;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ Insert successful!<br>
+                        <strong>ID:</strong> ${data.id}<br>
+                        <strong>Session:</strong> ${data.session_id}`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Error: ${err.message}`;
+            }
+        }
+
+        // Test read
+        async function testRead() {
+            const resultDiv = document.getElementById('readResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '⏳ Testing read...';
+
+            try {
+                const { data, error, count } = await supabase
+                    .from('visitors')
+                    .select('*', { count: 'exact' })
+                    .limit(5);
+
+                if (error) {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Read failed:<br>${error.message}`;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ Read successful!<br>
+                        <strong>Total visitors:</strong> ${count}<br>
+                        <strong>Recent visitors:</strong> ${data.length}<br>
+                        <pre>${JSON.stringify(data.slice(0, 2), null, 2)}</pre>`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Error: ${err.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
