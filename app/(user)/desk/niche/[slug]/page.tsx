@@ -334,9 +334,9 @@ export default function NicheDetailPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Three Column Layout */}
-            <div className="flex gap-0 h-screen">
+            <div className="flex flex-col lg:flex-row gap-0 min-h-screen">
                 {/* LEFT SIDEBAR - Category Name + Top 3 Products */}
-                <aside className="w-[420px] bg-white border-r border-gray-200 overflow-y-auto flex-shrink-0">
+                <aside className="w-full lg:w-[420px] bg-white border-b lg:border-b-0 lg:border-r border-gray-200 overflow-y-auto flex-shrink-0 lg:h-screen">
                     {/* Category Header */}
                     <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                         <div className="flex items-center gap-4 mb-3">

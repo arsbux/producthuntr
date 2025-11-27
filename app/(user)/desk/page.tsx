@@ -142,9 +142,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] bg-gray-50">
-      {/* LEFT SIDEBAR - Fixed Position Categories List */}
-      <aside className="w-96 bg-white border-r border-gray-200 flex-shrink-0 h-[calc(100vh-64px)] overflow-y-auto sticky top-16">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)] bg-gray-50">
+      {/* LEFT SIDEBAR - Categories List */}
+      <aside className="w-full lg:w-96 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex-shrink-0 h-auto lg:h-[calc(100vh-64px)] overflow-y-auto lg:sticky lg:top-16">
         <div className="p-4 sticky top-0 bg-white z-10 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-gray-900">All Categories</h2>
@@ -231,43 +231,52 @@ export default function DashboardPage() {
 
           {/* TODAY'S LIVE PULSE */}
           {todayData && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-blue-600" />
-                    Today's Live Pulse
-                    <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-bold rounded-full flex items-center gap-1">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8">
+              {/* Header Section */}
+              <div className="mb-4 sm:mb-6">
+                <div className="flex items-start gap-3 mb-3">
+                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                      Today's Live Pulse
+                    </h2>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 border border-red-100 rounded-full">
                       <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                      LIVE from Product Hunt API
-                    </span>
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Real-time Product Hunt launches happening right now • Auto-refreshes every 5 minutes
-                  </p>
+                      <span className="text-[11px] sm:text-xs font-bold text-red-600">LIVE from Product Hunt API</span>
+                    </div>
+                  </div>
                 </div>
-                {loadingToday ? (
-                  <div className="flex gap-2">
-                    <div className="h-8 w-24 bg-gray-100 rounded-lg animate-pulse" />
-                    <div className="h-8 w-16 bg-gray-100 rounded-lg animate-pulse" />
-                    <div className="h-8 w-32 bg-gray-100 rounded-lg animate-pulse" />
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <div className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-600">
-                      {todayData?.metrics?.totalLaunches || 0} Launches
-                    </div>
-                    <div className="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-lg text-xs font-semibold text-purple-700">
-                      {todayData?.metrics?.aiPercentage || 0}% AI
-                    </div>
-                    <Link href="/desk/niche/AI%20%26%20Machine%20Learning">
-                      <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors flex items-center gap-1">
-                        View Full Analysis <ArrowRight className="w-3 h-3" />
-                      </button>
-                    </Link>
-                  </div>
-                )}
+                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                  Real-time Product Hunt launches happening right now
+                  <span className="hidden sm:inline"> • Auto-refreshes every 5 minutes</span>
+                </p>
               </div>
+
+              {/* Stats Row */}
+              {loadingToday ? (
+                <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
+                  <div className="h-10 sm:h-12 w-28 sm:w-32 bg-gray-100 rounded-lg animate-pulse" />
+                  <div className="h-10 sm:h-12 w-20 sm:w-24 bg-gray-100 rounded-lg animate-pulse" />
+                  <div className="h-10 sm:h-12 flex-1 min-w-[140px] bg-gray-100 rounded-lg animate-pulse" />
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <div className="px-4 py-2.5 sm:py-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
+                    <div className="text-xs text-blue-600 font-semibold mb-0.5">Total Launches</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{todayData?.metrics?.totalLaunches || 0}</div>
+                  </div>
+                  <div className="px-4 py-2.5 sm:py-3 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-xl">
+                    <div className="text-xs text-purple-600 font-semibold mb-0.5">AI Products</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{todayData?.metrics?.aiPercentage || 0}%</div>
+                  </div>
+                  <Link href="/desk/niche/AI%20%26%20Machine%20Learning" className="flex-1 min-w-[140px]">
+                    <button className="w-full px-4 py-2.5 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm sm:text-base transition-colors flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                      <span>View AI Analysis</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </Link>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
                 {/* Top Performers List - Compact & Scrollable */}
@@ -350,7 +359,7 @@ export default function DashboardPage() {
                 {/* Category Chart */}
                 <div className="bg-white rounded-xl border border-gray-200 p-4 lg:col-span-3">
                   <h3 className="font-bold text-gray-900 text-sm mb-4">Category Split</h3>
-                  <div className="h-[300px] w-full relative flex items-center">
+                  <div className="h-[280px] sm:h-[300px] w-full relative flex items-center">
                     {loadingToday ? (
                       <div className="w-full h-full flex items-center justify-center animate-pulse">
                         <div className="w-48 h-48 rounded-full border-8 border-gray-100 border-t-blue-100" />
@@ -359,28 +368,30 @@ export default function DashboardPage() {
                       <>
                         <ResponsiveContainer width="100%" height="100%">
                           <RadialBarChart
-                            cx="40%"
+                            cx="50%"
                             cy="50%"
-                            innerRadius="30%"
-                            outerRadius="100%"
+                            innerRadius="40%"
+                            outerRadius="90%"
                             data={todayData?.chartData?.map(item => ({ ...item, fill: item.color })) || []}
                             startAngle={180}
                             endAngle={0}
                           >
                             <RadialBar
-                              label={{ position: 'insideStart', fill: '#fff', fontSize: 10, fontWeight: 'bold' }}
+                              label={{ position: 'insideStart', fill: '#fff', fontSize: 9, fontWeight: 'bold' }}
                               background={{ fill: '#f3f4f6' }}
                               dataKey="value"
-                              cornerRadius={10}
+                              cornerRadius={8}
                             />
+                            {/* Hide legend on mobile, show on desktop */}
                             <Legend
-                              iconSize={10}
+                              iconSize={8}
                               layout="vertical"
                               verticalAlign="middle"
                               align="right"
-                              wrapperStyle={style}
+                              wrapperStyle={{ right: '2%', fontSize: '10px', lineHeight: '18px', display: 'none' }}
+                              className="hidden lg:block"
                               formatter={(value, entry: any) => (
-                                <span style={{ color: '#374151', fontWeight: 500, fontSize: '12px' }}>
+                                <span style={{ color: '#374151', fontWeight: 500, fontSize: '10px' }}>
                                   {value} <span style={{ color: '#9ca3af', fontWeight: 400 }}>({entry.payload.value})</span>
                                 </span>
                               )}
@@ -389,11 +400,23 @@ export default function DashboardPage() {
                           </RadialBarChart>
                         </ResponsiveContainer>
                         {/* Center Label */}
-                        <div className="absolute left-[40%] top-1/2 -translate-y-1/2 -translate-x-1/2 text-center pointer-events-none mt-8">
-                          <div className="text-4xl font-bold text-gray-900 tracking-tight">
+                        <div className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 text-center pointer-events-none">
+                          <div className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
                             {todayData?.chartData?.reduce((sum, item) => sum + item.value, 0) || 0}
                           </div>
-                          <div className="text-xs text-gray-500 font-medium mt-1 uppercase tracking-wide">Total Launches</div>
+                          <div className="text-[10px] sm:text-xs text-gray-500 font-medium mt-1 uppercase tracking-wide">Total Launches</div>
+                        </div>
+
+                        {/* Mobile-only simple legend below */}
+                        <div className="absolute bottom-0 left-0 right-0 lg:hidden">
+                          <div className="flex flex-wrap justify-center gap-2 text-xs">
+                            {todayData?.chartData?.slice(0, 3).map((item, i) => (
+                              <div key={i} className="flex items-center gap-1">
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+                                <span className="text-gray-600 text-[10px]">{item.name}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </>
                     )}
@@ -475,15 +498,15 @@ export default function DashboardPage() {
                 Launch Volume vs. Demand (Avg Upvotes)
               </p>
             </div>
-            <div className="p-6">
-              <div className="h-[500px]">
+            <div className="p-4 sm:p-6">
+              <div className="h-[400px] sm:h-[450px] min-h-[400px]">
                 {loadingGaps ? (
                   <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse flex items-center justify-center">
                     <div className="text-gray-400 text-sm">Loading market gap data...</div>
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ScatterChart margin={{ top: 20, right: 40, bottom: 60, left: 60 }}>
+                  <ResponsiveContainer width="100%" height="100%" minHeight={400}>
+                    <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
 
                       {/* Quadrant Backgrounds */}
@@ -541,16 +564,20 @@ export default function DashboardPage() {
                         dataKey="launchVolume"
                         name="Launch Volume"
                         stroke="#9ca3af"
-                        fontSize={11}
-                        label={{ value: 'Launch Volume (Competition) →', position: 'bottom', offset: 40, style: { fill: '#6b7280', fontWeight: 600, fontSize: 12 } }}
+                        fontSize={9}
+                        tickLine={false}
+                        axisLine={false}
+                        label={{ value: 'Competition →', position: 'insideBottom', offset: -5, style: { fill: '#6b7280', fontWeight: 600, fontSize: 10 } }}
                       />
                       <YAxis
                         type="number"
                         dataKey="avgUpvotes"
                         name="Avg Upvotes"
                         stroke="#9ca3af"
-                        fontSize={11}
-                        label={{ value: '← Avg Upvotes (Demand)', angle: -90, position: 'left', offset: 40, style: { fill: '#6b7280', fontWeight: 600, fontSize: 12 } }}
+                        fontSize={9}
+                        tickLine={false}
+                        axisLine={false}
+                        label={{ value: '← Demand', angle: -90, position: 'insideLeft', offset: 10, style: { fill: '#6b7280', fontWeight: 600, fontSize: 10 } }}
                       />
                       <ZAxis type="number" dataKey="opportunityScore" range={[60, 400]} name="Opportunity Score" />
 
@@ -602,7 +629,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Quadrant Breakdown */}
-              <div className="mt-6 grid grid-cols-4 gap-4">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Blue Ocean */}
                 <div>
                   <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
