@@ -49,7 +49,9 @@ import {
     Legend,
     ResponsiveContainer,
     AreaChart,
-    Area
+    Area,
+    ReferenceLine,
+    LabelList
 } from 'recharts';
 import {
     getNicheSuccessHistogram,
@@ -584,34 +586,52 @@ export default function NicheDetailPage() {
                             <div className="p-4">
                                 {/* Bar Chart Visualization */}
                                 <div className="mb-6">
-                                    <ResponsiveContainer width="100%" height={250}>
+                                    <ResponsiveContainer width="100%" height={350}>
                                         <BarChart
-                                            data={correlationData.slice(0, 10)}
+                                            data={correlationData.slice(0, 10).map(d => ({
+                                                ...d,
+                                                posUplift: d.uplift > 0 ? d.uplift : 0,
+                                                negUplift: d.uplift < 0 ? d.uplift : 0
+                                            }))}
                                             layout="vertical"
-                                            margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                                            margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                                            barSize={32}
+                                            stackOffset="sign"
                                         >
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
-                                            <XAxis type="number" stroke="#9ca3af" fontSize={10} tickLine={false} />
-                                            <YAxis
-                                                dataKey="keyword"
-                                                type="category"
-                                                width={110}
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" horizontal={false} />
+                                            <XAxis
+                                                type="number"
                                                 stroke="#9ca3af"
                                                 fontSize={10}
                                                 tickLine={false}
+                                                axisLine={false}
+                                                tickFormatter={(value) => `${value}%`}
+                                            />
+                                            <YAxis
+                                                dataKey="keyword"
+                                                type="category"
+                                                width={100}
+                                                stroke="#4b5563"
+                                                fontSize={11}
+                                                tickLine={false}
+                                                axisLine={false}
+                                                tick={{ fill: '#374151', fontWeight: 500 }}
                                             />
                                             <Tooltip
+                                                cursor={{ fill: '#f9fafb' }}
                                                 content={({ active, payload }) => {
                                                     if (active && payload && payload[0]) {
                                                         const data = payload[0].payload;
                                                         return (
-                                                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                                                            <div className="bg-white p-3 border border-gray-100 rounded-xl shadow-xl">
                                                                 <div className="font-bold text-gray-900 text-sm mb-1">"{data.keyword}"</div>
-                                                                <div className="text-xs space-y-0.5">
-                                                                    <div>Uplift: <span className={`font-bold ${data.uplift > 0 ? 'text-green-600' : 'text-red-600'}`}>{data.uplift > 0 ? '+' : ''}{data.uplift}%</span></div>
-                                                                    <div>Mentions: <span className="font-semibold">{data.occurrences}</span></div>
-                                                                    <div>With: <span className="font-semibold">{data.avgUpvotesWithKeyword}</span> upvotes</div>
-                                                                    <div>Without: <span className="font-semibold">{data.avgUpvotesWithout}</span> upvotes</div>
+                                                                <div className="text-xs space-y-1">
+                                                                    <div className={`font-bold ${data.uplift > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                        {data.uplift > 0 ? '+' : ''}{data.uplift}% Uplift
+                                                                    </div>
+                                                                    <div className="text-gray-500">
+                                                                        {data.occurrences} mentions
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         );
@@ -619,10 +639,26 @@ export default function NicheDetailPage() {
                                                     return null;
                                                 }}
                                             />
-                                            <Bar dataKey="uplift" radius={[0, 4, 4, 0]}>
-                                                {correlationData.slice(0, 10).map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.uplift > 0 ? '#10b981' : '#ef4444'} />
-                                                ))}
+                                            <ReferenceLine x={0} stroke="#d1d5db" strokeWidth={2} />
+
+                                            {/* Positive Bars */}
+                                            <Bar dataKey="posUplift" fill="#10b981" radius={[0, 4, 4, 0]} stackId="stack">
+                                                <LabelList
+                                                    dataKey="posUplift"
+                                                    position="right"
+                                                    formatter={(val: any) => Number(val) > 0 ? `+${val}%` : ''}
+                                                    style={{ fontSize: '10px', fill: '#10b981', fontWeight: 'bold' }}
+                                                />
+                                            </Bar>
+
+                                            {/* Negative Bars */}
+                                            <Bar dataKey="negUplift" fill="#ef4444" radius={[4, 0, 0, 4]} stackId="stack">
+                                                <LabelList
+                                                    dataKey="negUplift"
+                                                    position="left"
+                                                    formatter={(val: any) => Number(val) < 0 ? `${val}%` : ''}
+                                                    style={{ fontSize: '10px', fill: '#ef4444', fontWeight: 'bold' }}
+                                                />
                                             </Bar>
                                         </BarChart>
                                     </ResponsiveContainer>
