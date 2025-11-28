@@ -35,13 +35,19 @@ export async function POST(request: Request) {
         // 4. Process Payment with Square
         console.log(`Processing payment of $29.00 for user ${email} with source ${sourceId}`);
 
+        // Create a shorter idempotency key (max 45 chars)
+        // Use first 8 chars of userId + timestamp
+        const shortId = userId.substring(0, 8);
+        const timestamp = Date.now().toString();
+        const idempotencyKey = `ph-${shortId}-${timestamp}`;
+
         const paymentResponse = await squareClient.payments.create({
             sourceId: sourceId,
             amountMoney: {
                 amount: BigInt(SUBSCRIPTION_AMOUNT),
                 currency: 'USD'
             },
-            idempotencyKey: `${userId}-${Date.now()}`, // Unique key to prevent duplicate charges
+            idempotencyKey: idempotencyKey,
             locationId: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID,
             referenceId: userId, // Store user ID for reference
             note: `Product Huntr Pro Monthly - ${email}`
