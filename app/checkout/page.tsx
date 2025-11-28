@@ -17,7 +17,12 @@ export default function CheckoutPage() {
         setLoading(true);
         setError(null);
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+            if (!user || userError) {
+                setError('You must be logged in to subscribe. Please log in and try again.');
+                return;
+            }
 
             // Call your backend to process the payment
             const response = await fetch('/api/subscription/process', {
@@ -27,8 +32,8 @@ export default function CheckoutPage() {
                 },
                 body: JSON.stringify({
                     sourceId: token.token,
-                    userId: user?.id,
-                    email: user?.email,
+                    userId: user.id,
+                    email: user.email,
                 }),
             });
 

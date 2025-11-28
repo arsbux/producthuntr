@@ -12,9 +12,23 @@ export async function POST(request: Request) {
         const { sourceId, userId, email } = await request.json();
 
         // 1. Verify Session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session || session.user.id !== userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        console.log('Session check:', {
+            hasSession: !!session,
+            sessionUserId: session?.user?.id,
+            requestUserId: userId,
+            sessionError: sessionError?.message
+        });
+
+        if (!session) {
+            console.error('No session found');
+            return NextResponse.json({ error: 'No active session. Please log in again.' }, { status: 401 });
+        }
+
+        if (session.user.id !== userId) {
+            console.error('User ID mismatch:', { sessionUserId: session.user.id, requestUserId: userId });
+            return NextResponse.json({ error: 'Session user mismatch' }, { status: 401 });
         }
 
         // 2. Validate Square credentials
