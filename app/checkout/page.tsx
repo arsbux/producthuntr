@@ -124,6 +124,11 @@ export default function CheckoutPage() {
                             <PaymentForm
                                 applicationId={process.env.NEXT_PUBLIC_SQUARE_APP_ID}
                                 locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID}
+                                overrides={{
+                                    scriptSrc: process.env.NEXT_PUBLIC_SQUARE_APP_ID?.startsWith('sandbox-')
+                                        ? 'https://sandbox.web.squareup.com/v1/square.js'
+                                        : undefined
+                                }}
                                 cardTokenizeResponseReceived={async (token, verifiedBuyer) => {
                                     await handlePaymentSuccess(token);
                                 }}
