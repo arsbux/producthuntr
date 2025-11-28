@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, ArrowRight, Box, Sparkles } from 'lucide-react';
+import { Loader2, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function SignupPage() {
     const [email, setEmail] = useState('');
