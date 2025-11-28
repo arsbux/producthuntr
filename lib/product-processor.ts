@@ -41,11 +41,83 @@ export async function fetchLaunchesForDate(date: Date): Promise<PHPost[]> {
         throw new Error('Missing Product Hunt API credentials');
     }
 
-    const startDate = new Date(date);
-    startDate.setHours(0, 0, 0, 0);
+    // Calculate start and end times for the Product Hunt day (Pacific Time)
+    // We use the date string YYYY-MM-DD from the input date to ensure we target the right day
+    const phDateStr = date.toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
 
-    const endDate = new Date(date);
-    endDate.setHours(23, 59, 59, 999);
+    // Create timestamps for 00:00:00 and 23:59:59 in Pacific Time
+    // We append 'T00:00:00' and use the America/Los_Angeles timezone to get the correct UTC offset
+    const startInPT = new Date(`${phDateStr}T00:00:00`);
+    // Adjust for timezone offset manually or use a library. 
+    // Since we don't have moment-timezone, we can rely on the fact that PH API accepts ISO strings.
+    // But we need the ISO string to represent 00:00 PT.
+
+    // Robust way without libraries:
+    // 1. Get YYYY, MM, DD parts for PT
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).formatToParts(date);
+
+    const year = parts.find(p => p.type === 'year')?.value;
+    const month = parts.find(p => p.type === 'month')?.value;
+    const day = parts.find(p => p.type === 'day')?.value;
+
+    const phDay = `${year}-${month}-${day}`;
+
+    // Product Hunt day starts at 00:00 PST/PDT.
+    // We can simply pass the date string to the API if it supports it, but it takes DateTime.
+    // Let's construct the ISO string for the start of the day in PT.
+    // Actually, simpler: The API respects the timezone if we don't provide one? No, usually UTC.
+
+    // Let's try to construct the specific UTC times.
+    // 00:00 PT is roughly 07:00 or 08:00 UTC.
+    // Let's use a trick: Create a date object, set it to the PH time, then read it back.
+
+    // Function to get UTC ISO string for a specific time in PT
+    const getUtcFromPt = (dateStr: string, timeStr: string) => {
+        // Create a date object that represents that time in PT
+        // This is tricky without a library.
+        // Alternative: Just use the day boundaries. 
+        // If we query for a slightly wider range it's fine, but we want exact day.
+
+        // Let's assume the user wants "Today" in PH terms.
+        // If we just use the YYYY-MM-DD string, maybe we can filter in memory? No, pagination.
+
+        // Let's rely on the fact that we can create a string with offset if we knew it.
+        // But offset changes (DST).
+
+        // Let's use the 'postedAfter' and 'postedBefore' variables with a safe margin?
+        // No, let's try to be precise.
+
+        // Hacky but effective:
+        // Create a date, set to noon UTC.
+        // Shift it until `toLocaleDateString('en-US', {timeZone: 'America/Los_Angeles'})` matches target date.
+        // Then find the exact bounds.
+
+        // Actually, let's just use the YYYY-MM-DD string and append a fixed offset? No.
+
+        // Let's use the Intl API to find the offset.
+        const d = new Date(date);
+        const timeString = d.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', timeZoneName: 'short' });
+        // timeString might contain "PST" or "PDT".
+        const isPDT = timeString.includes('PDT');
+        const offset = isPDT ? '-07:00' : '-08:00';
+
+        return {
+            start: `${phDay}T00:00:00${offset}`,
+            end: `${phDay}T23:59:59.999${offset}`
+        };
+    };
+
+    const { start, end } = getUtcFromPt(date.toISOString(), '');
+
+    // Convert to ISO for API (which expects UTC usually, but with offset it should handle it)
+    // Or we convert to UTC ISO string ourselves.
+    const startDate = new Date(start);
+    const endDate = new Date(end);
 
     let allPosts: PHPost[] = [];
     let hasNextPage = true;

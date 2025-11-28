@@ -236,47 +236,70 @@ export default function DashboardPage() {
           {todayData && (
             <div className="bg-white dark:bg-hunted-card rounded-xl border border-gray-200 dark:border-hunted-border p-4 sm:p-6 mb-6 sm:mb-8">
               {/* Header Section */}
-              <div className="mb-4 sm:mb-6">
-                <div className="flex items-start gap-3 mb-3">
-                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-hunted-text mb-2">
-                      Today's Live Pulse
-                    </h2>
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-full">
-                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                      <span className="text-[11px] sm:text-xs font-bold text-red-600">LIVE from Product Hunt API</span>
+              <div className="mb-6 sm:mb-8 border-b border-gray-100 dark:border-hunted-border pb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <Zap className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-hunted-text">
+                        Today's Live Pulse
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-hunted-muted">
+                        Real-time launch data from Product Hunt
+                      </p>
                     </div>
                   </div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-full animate-pulse">
+                    <span className="w-2 h-2 bg-red-500 rounded-full" />
+                    <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Live</span>
+                  </div>
                 </div>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-hunted-muted leading-relaxed">
-                  Real-time Product Hunt launches happening right now
-                  <span className="hidden sm:inline"> • Auto-refreshes every 5 minutes</span>
-                </p>
               </div>
 
               {/* Stats Row */}
               {loadingToday ? (
-                <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
-                  <div className="h-10 sm:h-12 w-28 sm:w-32 bg-gray-100 dark:bg-hunted-card rounded-lg animate-pulse" />
-                  <div className="h-10 sm:h-12 w-20 sm:w-24 bg-gray-100 dark:bg-hunted-card rounded-lg animate-pulse" />
-                  <div className="h-10 sm:h-12 flex-1 min-w-[140px] bg-gray-100 dark:bg-hunted-card rounded-lg animate-pulse" />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-24 bg-gray-100 dark:bg-hunted-card rounded-xl animate-pulse" />
+                  ))}
                 </div>
               ) : (
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                  <div className="px-4 py-2.5 sm:py-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
-                    <div className="text-xs text-blue-600 dark:text-blue-400 font-semibold mb-0.5">Total Launches</div>
-                    <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-hunted-text">{todayData?.metrics?.totalLaunches || 0}</div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                  {/* Total Launches Card */}
+                  <div className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-5 text-white shadow-lg shadow-blue-500/20 group hover:scale-[1.02] transition-transform">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Target className="w-16 h-16" />
+                    </div>
+                    <div className="relative z-10">
+                      <p className="text-blue-100 text-sm font-medium mb-1">Total Launches</p>
+                      <h3 className="text-4xl font-bold">{todayData?.metrics?.totalLaunches || 0}</h3>
+                      <p className="text-blue-100 text-xs mt-2">Products launched today</p>
+                    </div>
                   </div>
-                  <div className="px-4 py-2.5 sm:py-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-900/30 rounded-xl">
-                    <div className="text-xs text-purple-600 dark:text-purple-400 font-semibold mb-0.5">AI Products</div>
-                    <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-hunted-text">{todayData?.metrics?.aiPercentage || 0}%</div>
+
+                  {/* AI Products Card */}
+                  <div className="relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-5 text-white shadow-lg shadow-purple-500/20 group hover:scale-[1.02] transition-transform">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Zap className="w-16 h-16" />
+                    </div>
+                    <div className="relative z-10">
+                      <p className="text-purple-100 text-sm font-medium mb-1">AI Saturation</p>
+                      <h3 className="text-4xl font-bold">{todayData?.metrics?.aiPercentage || 0}%</h3>
+                      <p className="text-purple-100 text-xs mt-2">Of today's launches are AI</p>
+                    </div>
                   </div>
-                  <Link href="/desk/niche/AI%20%26%20Machine%20Learning" className="flex-1 min-w-[140px]">
-                    <button className="w-full px-4 py-2.5 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm sm:text-base transition-colors flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
-                      <span>View AI Analysis</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+
+                  {/* Action Card */}
+                  <Link href="/desk/niche/AI%20%26%20Machine%20Learning" className="group">
+                    <div className="h-full bg-white dark:bg-hunted-card border-2 border-dashed border-gray-200 dark:border-hunted-border rounded-xl p-5 flex flex-col justify-center items-center text-center hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all cursor-pointer">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <ArrowRight className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <h3 className="text-gray-900 dark:text-hunted-text font-bold text-sm">Analyze AI Trends</h3>
+                      <p className="text-gray-500 dark:text-hunted-muted text-xs mt-1">Deep dive into today's AI products</p>
+                    </div>
                   </Link>
                 </div>
               )}
@@ -296,65 +319,68 @@ export default function DashboardPage() {
                   </div>
 
                   {loadingToday ? (
-                    <div className="p-2 space-y-2">
+                    <div className="p-4 space-y-3">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="bg-gray-50 dark:bg-hunted-card p-2 rounded-lg flex items-center gap-3 animate-pulse h-12">
-                          <div className="w-8 h-8 bg-gray-200 dark:bg-hunted-border rounded" />
-                          <div className="flex-1 h-3 bg-gray-200 dark:bg-hunted-border rounded w-1/2" />
-                          <div className="w-24 h-3 bg-gray-200 dark:bg-hunted-border rounded" />
+                        <div key={i} className="flex items-center gap-4 animate-pulse">
+                          <div className="w-8 h-8 bg-gray-100 dark:bg-hunted-border rounded-lg" />
+                          <div className="flex-1 h-4 bg-gray-100 dark:bg-hunted-border rounded" />
+                          <div className="w-12 h-4 bg-gray-100 dark:bg-hunted-border rounded" />
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="max-h-[350px] overflow-y-auto p-2 space-y-2 custom-scrollbar">
-                      {todayData?.topLaunches?.slice(0, 10).map((launch, index) => {
-                        // Generate a unique subtle gradient for each card based on index
-                        const gradients = [
-                          'bg-gradient-to-r from-gray-100 to-gray-50', // 1. Silver/Gray
-                          'bg-gradient-to-r from-blue-50 to-indigo-50', // 2. Blueish
-                          'bg-gradient-to-r from-cyan-50 to-blue-50', // 3. Cyanish
-                          'bg-gradient-to-r from-red-50 to-orange-50', // 4. Reddish
-                          'bg-gradient-to-r from-gray-100 to-slate-50', // 5. Gray
-                          'bg-gradient-to-r from-green-50 to-emerald-50', // 6. Greenish
-                          'bg-gradient-to-r from-purple-50 to-fuchsia-50', // 7. Purple
-                          'bg-gradient-to-r from-orange-50 to-amber-50', // 8. Orange
-                          'bg-gradient-to-r from-pink-50 to-rose-50', // 9. Pink
-                          'bg-gradient-to-r from-blue-50 to-cyan-50', // 10. Blue
-                        ];
-                        const gradient = gradients[index % gradients.length];
-
-                        return (
+                    <div className="max-h-[400px] overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                      {todayData?.topLaunches?.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500 dark:text-hunted-muted text-sm">
+                          No launches yet today.
+                        </div>
+                      ) : (
+                        todayData?.topLaunches?.slice(0, 10).map((launch, index) => (
                           <Link key={launch.name} href={`/desk/idea-validator?product=${launch.id}`}>
-                            <div className={`${gradient} dark:from-hunted-card dark:to-hunted-card dark:border-hunted-border py-2 px-3 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group cursor-pointer`}>
-                              {/* Rank & Icon Container */}
-                              <div className="relative flex-shrink-0">
-                                <span className="absolute -top-1 -left-1 text-[10px] font-bold text-gray-500 dark:text-hunted-muted w-4 h-4 flex items-center justify-center bg-white/80 dark:bg-hunted-border rounded-full shadow-sm z-10">
-                                  {index + 1}
-                                </span>
+                            <div className="group flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-hunted-border/50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 dark:hover:border-hunted-border">
+                              {/* Rank */}
+                              <div className={`
+                                w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-md text-xs font-bold
+                                ${index === 0 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                  index === 1 ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' :
+                                    index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                      'text-gray-400 dark:text-hunted-muted'}
+                              `}>
+                                {index + 1}
+                              </div>
+
+                              {/* Icon */}
+                              <div className="flex-shrink-0">
                                 {launch.thumbnail_url ? (
-                                  <img src={launch.thumbnail_url} alt={launch.name} className="w-10 h-10 rounded-lg object-cover shadow-sm" />
+                                  <img src={launch.thumbnail_url} alt={launch.name} className="w-8 h-8 rounded-lg object-cover shadow-sm" />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-lg bg-white/50 dark:bg-hunted-border flex items-center justify-center text-gray-400 shadow-sm">
-                                    <Box className="w-5 h-5" />
+                                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-hunted-border flex items-center justify-center text-gray-400">
+                                    <Box className="w-4 h-4" />
                                   </div>
                                 )}
                               </div>
 
-                              {/* Name */}
+                              {/* Name & Niche */}
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-hunted-text truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{launch.name}</h4>
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-hunted-text truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                  {launch.name}
+                                </h4>
+                                <p className="text-[10px] text-gray-500 dark:text-hunted-muted truncate">
+                                  {launch.niche}
+                                </p>
                               </div>
 
-                              {/* Metrics Columns - Aligned with Header */}
-                              <div className="flex items-center gap-6 text-xs font-bold text-gray-900 dark:text-hunted-muted">
-                                <div className="w-6 text-center">{launch.votes}</div>
-                                <div className="w-6 text-center">{launch.comments}</div>
-                                <div className="w-6 text-center">{Math.round(launch.votes / 10) + launch.comments}</div>
+                              {/* Metrics */}
+                              <div className="flex items-center gap-3 text-xs font-medium text-gray-600 dark:text-hunted-muted">
+                                <div className="flex items-center gap-1 w-12 justify-end">
+                                  <span>{launch.votes}</span>
+                                  <span className="text-[10px] text-gray-400">▲</span>
+                                </div>
                               </div>
                             </div>
                           </Link>
-                        );
-                      })}
+                        ))
+                      )}
                     </div>
                   )}
                 </div>

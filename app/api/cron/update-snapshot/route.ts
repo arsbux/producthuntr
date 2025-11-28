@@ -31,6 +31,7 @@ export async function GET(request: Request) {
 
         console.log('[Snapshot Job] Starting live data fetch...');
 
+        // Use Pacific Time to determine "today" since Product Hunt operates on PT
         const today = new Date();
         let posts: any[] = [];
 
@@ -46,9 +47,8 @@ export async function GET(request: Request) {
             return NextResponse.json({ message: 'No posts fetched', postsCount: 0 });
         }
 
-        // We no longer delete old snapshots - we just append new ones
-        // This allows us to keep a history of data points throughout the day
-        const todayDate = today.toISOString().split('T')[0];
+        // Calculate snapshot date in Pacific Time
+        const todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
 
         // Prepare FULL snapshot records
         const snapshotTime = new Date().toISOString();

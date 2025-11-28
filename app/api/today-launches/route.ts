@@ -13,7 +13,8 @@ export const revalidate = 0;
  */
 export async function GET() {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        // 1. Get today's date in Pacific Time (Product Hunt's timezone)
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
 
         // 1. Find the latest snapshot time for today
         const { data: latestTimeData, error: timeError } = await supabase
