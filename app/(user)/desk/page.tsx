@@ -145,6 +145,23 @@ export default function DashboardPage() {
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-hunted-dark">
       {/* LEFT SIDEBAR - Categories List */}
       <aside className="w-full lg:w-96 bg-white dark:bg-hunted-card border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-hunted-border flex-shrink-0 h-auto lg:h-[calc(100vh-64px)] overflow-y-auto lg:sticky lg:top-16">
+        {/* Product Hunt Badge */}
+        <div className="p-4 flex justify-center border-b border-gray-100 dark:border-hunted-border bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+          <a
+            href="https://www.producthunt.com/products/product-huntr-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-product-huntr-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1043422&theme=light&t=1764335076340"
+              alt="Product Huntr - Data analysis platform for Product hunt | Product Hunt"
+              style={{ width: '250px', height: '54px' }}
+              width="250"
+              height="54"
+            />
+          </a>
+        </div>
+
         <div className="p-4 sticky top-0 bg-white dark:bg-hunted-card z-10 border-b border-gray-100 dark:border-hunted-border">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-gray-900 dark:text-hunted-text">All Categories</h2>
