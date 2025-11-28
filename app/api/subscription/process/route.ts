@@ -1,7 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { Client, Environment } from 'square';
+import { SquareClient, SquareEnvironment } from 'square';
 
 const SUBSCRIPTION_AMOUNT = 2900; // $29.00 in cents
 
@@ -25,17 +25,17 @@ export async function POST(request: Request) {
         }
 
         // 3. Initialize Square Client
-        const squareClient = new Client({
-            accessToken: squareAccessToken,
-            environment: squareAccessToken.startsWith('sandbox-')
-                ? Environment.Sandbox
-                : Environment.Production
+        const squareClient = new SquareClient({
+            token: squareAccessToken,
+            environment: squareAccessToken.startsWith('sandbox-') || squareAccessToken.startsWith('EAA')
+                ? SquareEnvironment.Sandbox
+                : SquareEnvironment.Production
         });
 
         // 4. Process Payment with Square
         console.log(`Processing payment of $29.00 for user ${email} with source ${sourceId}`);
 
-        const paymentResponse = await squareClient.paymentsApi.createPayment({
+        const paymentResponse = await squareClient.payments.create({
             sourceId: sourceId,
             amountMoney: {
                 amount: BigInt(SUBSCRIPTION_AMOUNT),
@@ -48,12 +48,12 @@ export async function POST(request: Request) {
         });
 
         // 5. Check if payment was successful
-        if (!paymentResponse.result.payment) {
+        if (!paymentResponse.payment) {
             console.error('Payment failed - no payment object returned');
             return NextResponse.json({ error: 'Payment failed' }, { status: 400 });
         }
 
-        const payment = paymentResponse.result.payment;
+        const payment = paymentResponse.payment;
 
         if (payment.status !== 'COMPLETED' && payment.status !== 'APPROVED') {
             console.error(`Payment failed with status: ${payment.status}`);
