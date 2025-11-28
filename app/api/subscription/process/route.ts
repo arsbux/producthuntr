@@ -25,11 +25,12 @@ export async function POST(request: Request) {
         }
 
         // 3. Initialize Square Client
+        const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID;
+        const isSandbox = appId?.startsWith('sandbox-');
+
         const squareClient = new SquareClient({
             token: squareAccessToken,
-            environment: squareAccessToken.startsWith('sandbox-') || squareAccessToken.startsWith('EAA')
-                ? SquareEnvironment.Sandbox
-                : SquareEnvironment.Production
+            environment: isSandbox ? SquareEnvironment.Sandbox : SquareEnvironment.Production
         });
 
         // 4. Process Payment with Square
