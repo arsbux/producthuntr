@@ -123,7 +123,23 @@ export async function POST(request: Request) {
 
         // Handle specific Square API errors
         if (error.statusCode) {
-            const errorMessage = error.errors?.[0]?.detail || error.message || 'Payment processing failed';
+            const errorCode = error.errors?.[0]?.code;
+            const errorDetail = error.errors?.[0]?.detail;
+
+            // Map common error codes to user-friendly messages
+            const userFriendlyMessages: Record<string, string> = {
+                'TRANSACTION_LIMIT': 'Your card has exceeded its transaction limit. Please try a different payment method.',
+                'INSUFFICIENT_FUNDS': 'Insufficient funds. Please try a different payment method.',
+                'CVV_FAILURE': 'Invalid CVV. Please check your card security code.',
+                'ADDRESS_VERIFICATION_FAILURE': 'Card verification failed. Please check your billing address.',
+                'CARD_DECLINED': 'Your card was declined. Please try a different payment method.',
+                'INVALID_CARD': 'Invalid card details. Please check your card information.',
+                'CARD_DECLINED_VERIFICATION_REQUIRED': 'Additional verification required. Please contact your card issuer.',
+                'GENERIC_DECLINE': 'Payment declined. Please try a different payment method.',
+            };
+
+            const errorMessage = userFriendlyMessages[errorCode] || errorDetail || 'Payment processing failed';
+
             return NextResponse.json({
                 error: errorMessage,
                 details: error.errors

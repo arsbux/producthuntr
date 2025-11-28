@@ -33,14 +33,15 @@ export default function CheckoutPage() {
             });
 
             if (!response.ok) {
-                throw new Error('Payment processing failed');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Payment processing failed');
             }
 
             // Redirect to success or dashboard
             router.push('/desk/idea-validator?success=true');
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError('Payment failed. Please try again.');
+            setError(err.message || 'Payment failed. Please try again.');
         } finally {
             setLoading(false);
         }
