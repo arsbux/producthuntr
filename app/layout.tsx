@@ -4,6 +4,7 @@ import { Outfit } from 'next/font/google'
 import './globals.css'
 
 import { AnalyticsTracker } from '@/components/AnalyticsTracker'
+import Footer from '@/components/Footer'
 
 const title = 'Product Huntr - Use Product Hunt Data to Find Ideas and Opportunities'
 const description = 'Discover your next big opportunity with Product Huntr. Analyze 12K+ Product Hunt launches to find validated ideas, market gaps, and untapped opportunities. AI-powered insights for builders and makers.'
@@ -87,7 +88,10 @@ export default function RootLayout({
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/20 rounded-full blur-[100px]" />
           <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-400/20 rounded-full blur-[100px]" />
         </div>
-        {children}
+        <div className="flex flex-col min-h-screen">
+          {children}
+          <Footer />
+        </div>
       </body>
     </html>
   )

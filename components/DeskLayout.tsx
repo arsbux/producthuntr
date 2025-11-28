@@ -28,7 +28,7 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-hunted-dark flex flex-col">
+    <div className="bg-gray-50 dark:bg-hunted-dark flex flex-col flex-1">
       {/* Top Navigation Bar */}
       <header className="bg-white dark:bg-hunted-dark border-b border-gray-200 dark:border-hunted-border sticky top-0 z-50">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">

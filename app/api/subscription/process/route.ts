@@ -1,6 +1,9 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { Client, Environment } from 'square';
+
+const SUBSCRIPTION_AMOUNT = 2900; // $29.00 in cents
 
 export async function POST(request: Request) {
     const supabase = createRouteHandlerClient({ cookies });
@@ -14,14 +17,55 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // 2. Mock Payment Processing (Square removed)
-        console.log(`Processing mock payment of $29 for user ${email} with source ${sourceId}`);
+        // 2. Validate Square credentials
+        const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN;
+        if (!squareAccessToken) {
+            console.error('SQUARE_ACCESS_TOKEN is not configured');
+            return NextResponse.json({ error: 'Payment system not configured' }, { status: 500 });
+        }
 
-        // Simulate a successful payment delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // 3. Initialize Square Client
+        const squareClient = new Client({
+            accessToken: squareAccessToken,
+            environment: squareAccessToken.startsWith('sandbox-')
+                ? Environment.Sandbox
+                : Environment.Production
+        });
 
-        // 3. Create/Update Subscription Record in Supabase
-        // Use service role client to bypass RLS
+        // 4. Process Payment with Square
+        console.log(`Processing payment of $29.00 for user ${email} with source ${sourceId}`);
+
+        const paymentResponse = await squareClient.paymentsApi.createPayment({
+            sourceId: sourceId,
+            amountMoney: {
+                amount: BigInt(SUBSCRIPTION_AMOUNT),
+                currency: 'USD'
+            },
+            idempotencyKey: `${userId}-${Date.now()}`, // Unique key to prevent duplicate charges
+            locationId: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID,
+            referenceId: userId, // Store user ID for reference
+            note: `Product Huntr Pro Monthly - ${email}`
+        });
+
+        // 5. Check if payment was successful
+        if (!paymentResponse.result.payment) {
+            console.error('Payment failed - no payment object returned');
+            return NextResponse.json({ error: 'Payment failed' }, { status: 400 });
+        }
+
+        const payment = paymentResponse.result.payment;
+
+        if (payment.status !== 'COMPLETED' && payment.status !== 'APPROVED') {
+            console.error(`Payment failed with status: ${payment.status}`);
+            return NextResponse.json({
+                error: 'Payment was not successful',
+                status: payment.status
+            }, { status: 400 });
+        }
+
+        console.log(`✅ Payment successful! Payment ID: ${payment.id}, Status: ${payment.status}`);
+
+        // 6. Create/Update Subscription Record in Supabase
         const { createClient } = await import('@supabase/supabase-js');
         const supabaseAdmin = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,26 +78,51 @@ export async function POST(request: Request) {
             }
         );
 
+        const currentDate = new Date();
+        const periodEnd = new Date(currentDate);
+        periodEnd.setDate(periodEnd.getDate() + 30);
+
         const { error: dbError } = await supabaseAdmin
             .from('subscriptions')
             .upsert({
                 user_id: userId,
                 status: 'active',
                 plan: 'growth_monthly',
-                updated_at: new Date().toISOString(),
-                current_period_start: new Date().toISOString(),
-                current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // +30 days
+                updated_at: currentDate.toISOString(),
+                current_period_start: currentDate.toISOString(),
+                current_period_end: periodEnd.toISOString(),
+                square_payment_id: payment.id, // Store Square payment ID for reference
             }, { onConflict: 'user_id' });
 
         if (dbError) {
             console.error('Error creating subscription record:', dbError);
-            return NextResponse.json({ error: 'Failed to record subscription. Please contact support.' }, { status: 500 });
+            // Payment was successful but DB failed - this needs manual intervention
+            return NextResponse.json({
+                error: 'Payment processed but subscription activation failed. Please contact support with payment ID: ' + payment.id,
+                paymentId: payment.id
+            }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true });
+        console.log(`✅ Subscription activated for user ${userId}`);
 
-    } catch (error) {
+        return NextResponse.json({
+            success: true,
+            paymentId: payment.id,
+            subscriptionStatus: 'active'
+        });
+
+    } catch (error: any) {
         console.error('Payment processing error:', error);
+
+        // Handle specific Square API errors
+        if (error.statusCode) {
+            const errorMessage = error.errors?.[0]?.detail || error.message || 'Payment processing failed';
+            return NextResponse.json({
+                error: errorMessage,
+                details: error.errors
+            }, { status: error.statusCode });
+        }
+
         return NextResponse.json({
             error: 'Internal server error',
             details: error instanceof Error ? error.message : 'Unknown error'
