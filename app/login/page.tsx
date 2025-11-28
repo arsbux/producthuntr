@@ -44,9 +44,7 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 bg-black text-white p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
         {/* Logo */}
         <div className="flex items-center gap-2 z-10">
-          <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-            <Box className="w-5 h-5 text-white" />
-          </div>
+          <img src="/Favicon.png" alt="ProductHuntr" className="w-8 h-8 rounded-lg" />
           <span className="font-bold text-xl">ProductHuntr</span>
         </div>
 
@@ -69,8 +67,8 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 bg-white p-8 lg:p-12 flex flex-col justify-center items-center">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <div className="mx-auto w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4 lg:hidden">
-              <Box className="w-6 h-6 text-orange-600" />
+            <div className="mx-auto w-12 h-12 flex items-center justify-center mb-4 lg:hidden">
+              <img src="/Favicon.png" alt="ProductHuntr" className="w-10 h-10" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">
               Welcome to ProductHuntr

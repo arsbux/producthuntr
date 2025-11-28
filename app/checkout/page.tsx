@@ -13,10 +13,16 @@ export default function CheckoutPage() {
         <div className="min-h-screen flex flex-col lg:flex-row font-sans">
             {/* LEFT SIDE - Dark (Order Summary) */}
             <div className="w-full lg:w-1/2 bg-[#1a1a1a] text-white p-8 lg:p-12 flex flex-col relative">
-                <Link href="/pricing" className="absolute top-8 left-8 text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                    <ArrowLeft className="w-4 h-4" />
-                    <span className="text-sm font-medium">Back</span>
-                </Link>
+                <div className="absolute top-8 left-8 flex items-center gap-6">
+                    <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2">
+                        <ArrowLeft className="w-4 h-4" />
+                        <span className="text-sm font-medium">Back</span>
+                    </Link>
+                    <div className="flex items-center gap-2">
+                        <img src="/Favicon.png" alt="ProductHuntr" className="w-6 h-6 rounded" />
+                        <span className="font-bold text-lg">ProductHuntr</span>
+                    </div>
+                </div>
 
                 <div className="mt-16 lg:mt-24 max-w-md mx-auto w-full flex-1">
                     <div className="mb-8">
