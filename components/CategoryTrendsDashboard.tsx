@@ -81,16 +81,7 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
                                 <div className={`${isFeatured ? 'h-48' : 'h-32'} mb-4`}>
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={category.timeSeriesData}>
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: '#0F0F0F',
-                                                    border: '1px solid #27272a',
-                                                    borderRadius: '8px',
-                                                    color: '#E4E4E7'
-                                                }}
-                                                itemStyle={{ color: '#E4E4E7' }}
-                                                labelStyle={{ color: '#A1A1AA' }}
-                                            />
+
                                             <Line
                                                 type="monotone"
                                                 dataKey="launchCount"
