@@ -25,7 +25,7 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
                         <p className="text-gray-300 leading-relaxed">
-                            We collect information you provide directly to us, including when you create an account,
+                            Flight Labs ("we," "us," or "our") operates ProductHuntr. We collect information you provide directly to us, including when you create an account,
                             subscribe to our service, or contact us for support. This may include your name, email address,
                             and payment information.
                         </p>

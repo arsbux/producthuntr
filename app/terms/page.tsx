@@ -25,7 +25,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
                         <p className="text-gray-300 leading-relaxed">
-                            By accessing and using ProductHuntr, you accept and agree to be bound by the terms
+                            By accessing and using ProductHuntr (a product of Flight Labs), you accept and agree to be bound by the terms
                             and provision of this agreement. If you do not agree to abide by the above, please
                             do not use this service.
                         </p>
@@ -59,8 +59,8 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4">4. Refund Policy</h2>
                         <p className="text-gray-300 leading-relaxed">
-                            We offer a 7-day money-back guarantee. If you are not satisfied with our service,
-                            you may request a full refund within 7 days of your initial purchase by contacting
+                            We offer a 14-day money-back guarantee. If you are not satisfied with our service,
+                            you may request a full refund within 14 days of your initial purchase by contacting
                             support@producthuntr.com.
                         </p>
                     </section>
@@ -87,7 +87,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4">7. Limitations</h2>
                         <p className="text-gray-300 leading-relaxed">
-                            In no event shall ProductHuntr or its suppliers be liable for any damages (including,
+                            In no event shall Flight Labs, ProductHuntr, or its suppliers be liable for any damages (including,
                             without limitation, damages for loss of data or profit, or due to business interruption)
                             arising out of the use or inability to use the materials on ProductHuntr.
                         </p>
