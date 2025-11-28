@@ -178,6 +178,9 @@ export default function DashboardPage() {
               ];
               const gradient = gradients[index % gradients.length];
 
+              const totalLaunches = topCategories.reduce((acc, cat) => acc + cat.launches, 0);
+              const marketShare = totalLaunches > 0 ? ((category.launches / totalLaunches) * 100).toFixed(1) : '0';
+
               return (
                 <Link
                   key={category.category}
@@ -203,13 +206,13 @@ export default function DashboardPage() {
                       </h3>
                     </div>
 
-                    {/* Launch Count Badge */}
+                    {/* Market Share Badge */}
                     <span className="text-xs font-bold text-gray-700 dark:text-hunted-muted bg-white/60 dark:bg-hunted-border/50 px-2 py-1 rounded-md shadow-sm border border-white/50 dark:border-hunted-border">
-                      {category.launches}
+                      {marketShare}%
                     </span>
                   </div>
 
-                  {/* Metrics Row - REMOVED as per request */}
+                  {/* Market Share Visual */}
                   <div className="flex items-center justify-between pl-9 text-xs text-gray-500">
                     <div className="w-full h-1 bg-gray-200/50 rounded-full overflow-hidden mt-1">
                       <div

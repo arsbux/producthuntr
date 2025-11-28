@@ -44,7 +44,17 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
                                 <XAxis dataKey="month" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} dy={10} />
                                 <YAxis yAxisId="left" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis yAxisId="right" orientation="right" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#0F0F0F',
+                                        borderRadius: '8px',
+                                        border: '1px solid #27272a',
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        color: '#E4E4E7'
+                                    }}
+                                    itemStyle={{ color: '#E4E4E7' }}
+                                    labelStyle={{ color: '#A1A1AA' }}
+                                />
                                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                                 <Line yAxisId="left" type="monotone" dataKey="launchCount" name="Launches" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
                                 <Line yAxisId="right" type="monotone" dataKey="avgUpvotes" name="Avg Upvotes" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
@@ -65,7 +75,17 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
                                     <XAxis type="number" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                                     <YAxis dataKey="keyword" type="category" width={100} stroke="#4b5563" fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip cursor={{ fill: '#f9fafb' }} contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }} />
+                                    <Tooltip
+                                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                        contentStyle={{
+                                            backgroundColor: '#0F0F0F',
+                                            borderRadius: '8px',
+                                            border: '1px solid #27272a',
+                                            color: '#E4E4E7'
+                                        }}
+                                        itemStyle={{ color: '#E4E4E7' }}
+                                        labelStyle={{ color: '#A1A1AA' }}
+                                    />
                                     <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20} name="Frequency" />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -82,7 +102,16 @@ export default function CategoryProfile({ data }: { data: CategoryDetails }) {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                                     <XAxis dataKey="month" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} dy={10} />
                                     <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }} />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#0F0F0F',
+                                            borderRadius: '8px',
+                                            border: '1px solid #27272a',
+                                            color: '#E4E4E7'
+                                        }}
+                                        itemStyle={{ color: '#E4E4E7' }}
+                                        labelStyle={{ color: '#A1A1AA' }}
+                                    />
                                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                                     {data.keywordTrends.map((k, i) => (
                                         <Line
