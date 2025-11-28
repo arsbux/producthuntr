@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, TrendingUp, MessageCircle, Sparkles, Award, Filter } from 'lucide-react';
+import { ArrowLeft, Calendar, TrendingUp, MessageCircle, Sparkles, Award, Filter, Loader2 } from 'lucide-react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-export default function DailyAnalysisPage() {
+function DailyAnalysisContent() {
     const searchParams = useSearchParams();
     const initialDate = searchParams.get('date');
 
@@ -395,5 +395,13 @@ export default function DailyAnalysisPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function DailyAnalysisPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-gray-900 dark:text-hunted-text" /></div>}>
+            <DailyAnalysisContent />
+        </Suspense>
     );
 }

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useSearchParams } from 'next/navigation';
 import {
     Rocket,
+    Loader2,
     Search,
     Zap,
     Target,
@@ -52,7 +53,7 @@ import PremiumModal from '@/components/PremiumModal';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
-export default function GrowthWorkbenchPage() {
+function GrowthWorkbenchContent() {
     const searchParams = useSearchParams();
     const [query, setQuery] = useState('');
     const initialProduct = searchParams.get('product');
@@ -675,5 +676,13 @@ export default function GrowthWorkbenchPage() {
                 </div>
             </div>
         </>
+    );
+}
+
+export default function GrowthWorkbenchPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
+            <GrowthWorkbenchContent />
+        </Suspense>
     );
 }

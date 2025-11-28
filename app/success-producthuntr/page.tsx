@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase-browser';
 import Link from 'next/link';
 import { Loader2, ArrowRight, Mail, Lock, CheckCircle2 } from 'lucide-react';
 
-export default function SuccessPage() {
+function SuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const supabase = createClient();
@@ -43,6 +43,99 @@ export default function SuccessPage() {
     };
 
     return (
+        <div className="max-w-md w-full relative z-10">
+            {/* Success Icon */}
+            <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                <div className="absolute inset-0 bg-green-500 rounded-full blur-xl opacity-20"></div>
+                <CheckCircle2 className="w-10 h-10 text-green-500 relative z-10" />
+            </div>
+
+            {/* Header */}
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2 tracking-tight">
+                    Payment Successful! 🎉
+                </h1>
+                <p className="text-neutral-400 dark:text-hunted-muted">
+                    Create your account to access Product Huntr Pro
+                </p>
+            </div>
+
+            {/* Signup Form */}
+            <div className="bg-neutral-900/50 dark:bg-hunted-card backdrop-blur-xl border border-neutral-800 dark:border-hunted-border rounded-2xl p-8 shadow-2xl">
+
+                <form onSubmit={handleSignup} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-300 dark:text-hunted-text mb-1.5">Email</label>
+                        <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-neutral-950 dark:bg-hunted-dark border border-neutral-800 dark:border-hunted-border rounded-xl py-3 pl-10 pr-4 text-white dark:text-hunted-text placeholder-neutral-500 dark:placeholder-hunted-muted focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
+                                placeholder="you@example.com"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-300 dark:text-hunted-text mb-1.5">Password</label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-neutral-950 dark:bg-hunted-dark border border-neutral-800 dark:border-hunted-border rounded-xl py-3 pl-10 pr-4 text-white dark:text-hunted-text placeholder-neutral-500 dark:placeholder-hunted-muted focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
+                                placeholder="••••••••"
+                                minLength={6}
+                            />
+                        </div>
+                        <p className="text-xs text-neutral-500 dark:text-hunted-muted mt-1">Minimum 6 characters</p>
+                    </div>
+
+                    {error && (
+                        <div className="p-3 rounded-lg text-sm bg-red-500/10 text-red-400 border border-red-500/20">
+                            {error}
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-green-900/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <>
+                                Create Account & Continue <ArrowRight className="w-5 h-5" />
+                            </>
+                        )}
+                    </button>
+                </form>
+
+                <div className="mt-6 pt-6 border-t border-neutral-800 dark:border-hunted-border">
+                    <p className="text-center text-sm text-neutral-400 dark:text-hunted-muted">
+                        Already have an account?{' '}
+                        <Link href="/login" className="text-green-500 hover:text-green-400 font-medium transition-colors">
+                            Sign in
+                        </Link>
+                    </p>
+                </div>
+            </div>
+
+            <p className="text-center text-xs text-neutral-500 dark:text-hunted-muted mt-6">
+                By creating an account, you agree to our Terms of Service and Privacy Policy.
+            </p>
+        </div>
+    );
+}
+
+export default function SuccessPage() {
+    return (
         <div className="min-h-screen bg-black dark:bg-hunted-dark text-white dark:text-hunted-text flex items-center justify-center px-6 relative overflow-hidden">
             {/* Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
@@ -50,94 +143,9 @@ export default function SuccessPage() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-600/20 rounded-full blur-[120px]" />
             </div>
 
-            <div className="max-w-md w-full relative z-10">
-                {/* Success Icon */}
-                <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                    <div className="absolute inset-0 bg-green-500 rounded-full blur-xl opacity-20"></div>
-                    <CheckCircle2 className="w-10 h-10 text-green-500 relative z-10" />
-                </div>
-
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold mb-2 tracking-tight">
-                        Payment Successful! 🎉
-                    </h1>
-                    <p className="text-neutral-400 dark:text-hunted-muted">
-                        Create your account to access Product Huntr Pro
-                    </p>
-                </div>
-
-                {/* Signup Form */}
-                <div className="bg-neutral-900/50 dark:bg-hunted-card backdrop-blur-xl border border-neutral-800 dark:border-hunted-border rounded-2xl p-8 shadow-2xl">
-
-                    <form onSubmit={handleSignup} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-neutral-300 dark:text-hunted-text mb-1.5">Email</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                                <input
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-neutral-950 dark:bg-hunted-dark border border-neutral-800 dark:border-hunted-border rounded-xl py-3 pl-10 pr-4 text-white dark:text-hunted-text placeholder-neutral-500 dark:placeholder-hunted-muted focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
-                                    placeholder="you@example.com"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-neutral-300 dark:text-hunted-text mb-1.5">Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                                <input
-                                    type="password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-neutral-950 dark:bg-hunted-dark border border-neutral-800 dark:border-hunted-border rounded-xl py-3 pl-10 pr-4 text-white dark:text-hunted-text placeholder-neutral-500 dark:placeholder-hunted-muted focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
-                                    placeholder="••••••••"
-                                    minLength={6}
-                                />
-                            </div>
-                            <p className="text-xs text-neutral-500 dark:text-hunted-muted mt-1">Minimum 6 characters</p>
-                        </div>
-
-                        {error && (
-                            <div className="p-3 rounded-lg text-sm bg-red-500/10 text-red-400 border border-red-500/20">
-                                {error}
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-green-900/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <>
-                                    Create Account & Continue <ArrowRight className="w-5 h-5" />
-                                </>
-                            )}
-                        </button>
-                    </form>
-
-                    <div className="mt-6 pt-6 border-t border-neutral-800 dark:border-hunted-border">
-                        <p className="text-center text-sm text-neutral-400 dark:text-hunted-muted">
-                            Already have an account?{' '}
-                            <Link href="/login" className="text-green-500 hover:text-green-400 font-medium transition-colors">
-                                Sign in
-                            </Link>
-                        </p>
-                    </div>
-                </div>
-
-                <p className="text-center text-xs text-neutral-500 dark:text-hunted-muted mt-6">
-                    By creating an account, you agree to our Terms of Service and Privacy Policy.
-                </p>
-            </div>
+            <Suspense fallback={<div className="flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-green-500" /></div>}>
+                <SuccessContent />
+            </Suspense>
         </div>
     );
 }

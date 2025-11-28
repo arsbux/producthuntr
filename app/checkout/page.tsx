@@ -1,13 +1,50 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, CreditCard, Check } from 'lucide-react';
+import { ArrowLeft, CreditCard, Check, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { PaymentForm, CreditCard as SquareCreditCard } from 'react-square-web-payments-sdk';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
-    const [email, setEmail] = useState('franciskatale87@gmail.com');
-    const [name, setName] = useState('');
-    const [country, setCountry] = useState('Uganda');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+    const supabase = createClientComponentClient();
+
+    const handlePaymentSuccess = async (token: any) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            // Call your backend to process the payment
+            const response = await fetch('/api/subscription/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sourceId: token.token,
+                    userId: user?.id,
+                    email: user?.email,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Payment processing failed');
+            }
+
+            // Redirect to success or dashboard
+            router.push('/desk/idea-validator?success=true');
+        } catch (err) {
+            console.error(err);
+            setError('Payment failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen flex flex-col lg:flex-row font-sans">
@@ -28,7 +65,7 @@ export default function CheckoutPage() {
                     <div className="mb-8">
                         <p className="text-gray-400 text-sm mb-2">Subscribe to Pro Monthly Membership</p>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-4xl font-bold">CA$45.00</span>
+                            <span className="text-4xl font-bold">$29.00</span>
                             <span className="text-gray-400 text-sm">per month</span>
                         </div>
                     </div>
@@ -41,24 +78,24 @@ export default function CheckoutPage() {
                                 <p className="text-sm text-gray-400 mt-1">Get access to everything in the Pro Tier</p>
                                 <p className="text-sm text-gray-400">Billed monthly</p>
                             </div>
-                            <span className="font-medium">CA$45.00</span>
+                            <span className="font-medium">$29.00</span>
                         </div>
 
                         {/* Subtotal */}
                         <div className="flex justify-between items-center py-4 border-t border-gray-800">
                             <span className="text-gray-300">Subtotal</span>
-                            <span className="font-medium">CA$45.00</span>
+                            <span className="font-medium">$29.00</span>
                         </div>
 
                         {/* Promo Code */}
-                        <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                        <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors text-left">
                             Add promotion code
                         </button>
 
                         {/* Total */}
                         <div className="flex justify-between items-center py-6 border-t border-gray-800 mt-4">
                             <span className="text-gray-300 font-medium">Total due today</span>
-                            <span className="text-2xl font-bold">CA$45.00</span>
+                            <span className="text-2xl font-bold">$29.00</span>
                         </div>
                     </div>
                 </div>
@@ -67,126 +104,73 @@ export default function CheckoutPage() {
             {/* RIGHT SIDE - Light (Payment Form) */}
             <div className="w-full lg:w-1/2 bg-white p-8 lg:p-12 flex flex-col">
                 <div className="max-w-md mx-auto w-full mt-8 lg:mt-16">
-                    {/* Link Pay Button */}
-                    <button className="w-full bg-[#00D66F] hover:bg-[#00c465] text-black font-bold py-3 px-4 rounded-md transition-colors flex items-center justify-center gap-2 mb-6">
-                        Pay with <span className="font-bold italic">Link</span>
-                    </button>
-
-                    <div className="relative mb-6">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">OR</span>
-                        </div>
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Details</h2>
+                        <p className="text-gray-600 text-sm">Complete your subscription to unlock full access.</p>
                     </div>
 
-                    <form className="space-y-6">
-                        {/* Email */}
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            />
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                            {error}
                         </div>
+                    )}
 
-                        {/* Payment Method */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Payment method</label>
-                            <div className="space-y-3">
-                                <p className="text-xs text-gray-500">Card information</p>
-                                <div className="border border-gray-300 rounded-md overflow-hidden">
-                                    <div className="flex items-center px-3 py-2 border-b border-gray-300 bg-white">
-                                        <CreditCard className="w-5 h-5 text-gray-400 mr-2" />
-                                        <input
-                                            type="text"
-                                            placeholder="1234 1234 1234 1234"
-                                            className="flex-1 outline-none text-sm"
-                                        />
-                                        <div className="flex gap-1">
-                                            <div className="w-8 h-5 bg-gray-100 rounded border border-gray-200"></div>
-                                            <div className="w-8 h-5 bg-gray-100 rounded border border-gray-200"></div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center bg-white">
-                                        <input
-                                            type="text"
-                                            placeholder="MM / YY"
-                                            className="w-1/2 px-3 py-2 border-r border-gray-300 outline-none text-sm"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="CVC"
-                                            className="w-1/2 px-3 py-2 outline-none text-sm"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Cardholder Name */}
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Cardholder name</label>
-                            <input
-                                type="text"
-                                id="name"
-                                placeholder="Full name on card"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-
-                        {/* Country */}
-                        <div>
-                            <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">Country or region</label>
-                            <select
-                                id="country"
-                                value={country}
-                                onChange={(e) => setCountry(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    {/* Square Payment Form */}
+                    <div className="min-h-[100px]">
+                        {process.env.NEXT_PUBLIC_SQUARE_APP_ID &&
+                            process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID &&
+                            !process.env.NEXT_PUBLIC_SQUARE_APP_ID.includes('YOUR_APP_ID') ? (
+                            <PaymentForm
+                                applicationId={process.env.NEXT_PUBLIC_SQUARE_APP_ID}
+                                locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID}
+                                cardTokenizeResponseReceived={async (token, verifiedBuyer) => {
+                                    await handlePaymentSuccess(token);
+                                }}
                             >
-                                <option>Uganda</option>
-                                <option>United States</option>
-                                <option>Canada</option>
-                                <option>United Kingdom</option>
-                            </select>
-                        </div>
+                                <SquareCreditCard
+                                    buttonProps={{
+                                        css: {
+                                            backgroundColor: '#000000',
+                                            fontSize: '16px',
+                                            color: '#fff',
+                                            '&:hover': {
+                                                backgroundColor: '#333333',
+                                            },
+                                            padding: '16px',
+                                            borderRadius: '8px',
+                                            fontWeight: '600',
+                                        },
+                                    }}
+                                />
+                            </PaymentForm>
+                        ) : (
+                            <div className="text-center p-8 bg-gray-50 rounded-xl border border-gray-200 border-dashed">
+                                <p className="text-sm text-gray-500 mb-2 font-medium">Square Setup Required</p>
+                                <p className="text-xs text-gray-400 mb-4">
+                                    The payment form cannot load because the Square credentials are invalid or missing in .env.local
+                                </p>
 
-                        {/* Business Checkbox */}
-                        <div className="flex items-center">
-                            <input
-                                id="business"
-                                type="checkbox"
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <label htmlFor="business" className="ml-2 block text-sm text-gray-600">
-                                I'm purchasing as a business
-                            </label>
-                        </div>
-
-                        {/* Submit Button */}
-                        <button
-                            type="submit"
-                            className="w-full bg-[#FF9A7B] hover:bg-[#ff8a65] text-black font-medium py-3 px-4 rounded-md shadow-sm transition-colors text-lg"
-                        >
-                            Subscribe
-                        </button>
-
-                        {/* Footer */}
-                        <div className="text-center text-xs text-gray-500 mt-6 space-y-2">
-                            <p>By subscribing, you authorize ProductHuntr to charge you according to the terms until you cancel.</p>
-                            <div className="flex justify-center gap-4">
-                                <span>Powered by <span className="font-bold">stripe</span></span>
-                                <a href="#" className="hover:underline">Terms</a>
-                                <a href="#" className="hover:underline">Privacy</a>
+                                <button
+                                    onClick={() => handlePaymentSuccess({ token: 'mock-token' })}
+                                    className="w-full px-4 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                    [DEV] Simulate Successful Payment
+                                </button>
                             </div>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="text-center text-xs text-gray-500 mt-8 space-y-2">
+                        <p>By subscribing, you authorize ProductHuntr to charge you according to the terms until you cancel.</p>
+                        <div className="flex justify-center gap-4">
+                            <span>Powered by <span className="font-bold">Square</span></span>
+                            <a href="#" className="hover:underline">Terms</a>
+                            <a href="#" className="hover:underline">Privacy</a>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

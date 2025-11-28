@@ -1,8 +1,6 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { SquareClient, SquareEnvironment } from 'square';
-import { randomUUID } from 'crypto';
 
 export async function POST(request: Request) {
     const supabase = createRouteHandlerClient({ cookies });
@@ -16,26 +14,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // 2. Process Payment with Square
-        if (!sourceId) {
-            return NextResponse.json({ error: 'Payment source required' }, { status: 400 });
-        }
+        // 2. Mock Payment Processing (Square removed)
+        console.log(`Processing mock payment of $29 for user ${email} with source ${sourceId}`);
 
-        console.log(`Processing payment of $29 for user ${email} with source ${sourceId}`);
-
-        const client = new SquareClient({
-            token: process.env.SQUARE_ACCESS_TOKEN?.trim(),
-            environment: SquareEnvironment.Sandbox,
-        });
-
-        const response = await client.payments.create({
-            sourceId,
-            idempotencyKey: randomUUID(),
-            amountMoney: {
-                amount: BigInt(2900),
-                currency: 'USD',
-            },
-        });
+        // Simulate a successful payment delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // 3. Create/Update Subscription Record in Supabase
         // Use service role client to bypass RLS
@@ -71,25 +54,6 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error('Payment processing error:', error);
-
-        // Check for specific Square Auth error
-        if (error instanceof Error && (error.message.includes('401') || JSON.stringify(error).includes('AUTHENTICATION_ERROR'))) {
-            console.error('🚨 SQUARE AUTHENTICATION FAILED 🚨');
-            console.error('Please verify your SQUARE_ACCESS_TOKEN in .env.local');
-            console.error('It should match the Sandbox Access Token from your Square Developer Dashboard.');
-
-            return NextResponse.json({
-                error: 'Configuration Error',
-                details: 'Server failed to authenticate with Square. Please check server logs.'
-            }, { status: 500 });
-        }
-
-        // More detailed error info
-        if (error instanceof Error) {
-            console.error('Error message:', error.message);
-            console.error('Error stack:', error.stack);
-        }
-
         return NextResponse.json({
             error: 'Internal server error',
             details: error instanceof Error ? error.message : 'Unknown error'
