@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ============================================
@@ -79,74 +79,79 @@ function mapNicheToCategory(niche: string): string {
 }
 
 export async function getTopicVelocity(months = 12): Promise<TopicVelocityData[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('ai_analysis, votes_count, comments_count, launched_at')
-        .not('ai_analysis', 'is', null)
-        .gte('launched_at', getMonthsAgo(months));
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('ai_analysis, votes_count, comments_count, launched_at')
+            .not('ai_analysis', 'is', null)
+            .gte('launched_at', getMonthsAgo(months));
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    // Group by niche/topic and month
-    const topicMap = new Map<string, Map<string, { launches: any[], votes: number, comments: number }>>();
+        // Group by niche/topic and month
+        const topicMap = new Map<string, Map<string, { launches: any[], votes: number, comments: number }>>();
 
-    launches.forEach(launch => {
-        const rawNiche = launch.ai_analysis?.niche || 'Unknown';
-        const niche = mapNicheToCategory(rawNiche);
+        launches.forEach(launch => {
+            const rawNiche = launch.ai_analysis?.niche || 'Unknown';
+            const niche = mapNicheToCategory(rawNiche);
 
-        if (niche === 'Other') return; // Skip undefined categories for cleaner chart
+            if (niche === 'Other') return; // Skip undefined categories for cleaner chart
 
-        const monthKey = getMonthKey(launch.launched_at);
+            const monthKey = getMonthKey(launch.launched_at);
 
-        if (!topicMap.has(niche)) {
-            topicMap.set(niche, new Map());
-        }
+            if (!topicMap.has(niche)) {
+                topicMap.set(niche, new Map());
+            }
 
-        const nicheData = topicMap.get(niche)!;
-        if (!nicheData.has(monthKey)) {
-            nicheData.set(monthKey, { launches: [], votes: 0, comments: 0 });
-        }
+            const nicheData = topicMap.get(niche)!;
+            if (!nicheData.has(monthKey)) {
+                nicheData.set(monthKey, { launches: [], votes: 0, comments: 0 });
+            }
 
-        const monthData = nicheData.get(monthKey)!;
-        monthData.launches.push(launch);
-        monthData.votes += launch.votes_count || 0;
-        monthData.comments += launch.comments_count || 0;
-    });
-
-    // Convert to array and calculate metrics
-    const results: TopicVelocityData[] = [];
-
-    topicMap.forEach((monthsData, topic) => {
-        const timeSeriesData = Array.from(monthsData.entries())
-            .map(([month, data]) => ({
-                month,
-                launchCount: data.launches.length,
-                avgUpvotes: Math.round(data.votes / data.launches.length),
-                avgComments: Math.round(data.comments / data.launches.length),
-            }))
-            .sort((a, b) => a.month.localeCompare(b.month));
-
-        const totalLaunches = timeSeriesData.reduce((sum, d) => sum + d.launchCount, 0);
-
-        // Calculate trend
-        const recentHalf = timeSeriesData.slice(-Math.ceil(timeSeriesData.length / 2));
-        const olderHalf = timeSeriesData.slice(0, Math.floor(timeSeriesData.length / 2));
-        const recentAvg = recentHalf.reduce((sum, d) => sum + d.launchCount, 0) / recentHalf.length;
-        const olderAvg = olderHalf.reduce((sum, d) => sum + d.launchCount, 0) / olderHalf.length;
-
-        let trend: 'rising' | 'stable' | 'declining' = 'stable';
-        if (recentAvg > olderAvg * 1.3) trend = 'rising';
-        else if (recentAvg < olderAvg * 0.7) trend = 'declining';
-
-        results.push({
-            topic,
-            timeSeriesData,
-            totalLaunches,
-            trend,
+            const monthData = nicheData.get(monthKey)!;
+            monthData.launches.push(launch);
+            monthData.votes += launch.votes_count || 0;
+            monthData.comments += launch.comments_count || 0;
         });
-    });
 
-    return results.sort((a, b) => b.totalLaunches - a.totalLaunches).slice(0, 10);
+        // Convert to array and calculate metrics
+        const results: TopicVelocityData[] = [];
+
+        topicMap.forEach((monthsData, topic) => {
+            const timeSeriesData = Array.from(monthsData.entries())
+                .map(([month, data]) => ({
+                    month,
+                    launchCount: data.launches.length,
+                    avgUpvotes: Math.round(data.votes / data.launches.length),
+                    avgComments: Math.round(data.comments / data.launches.length),
+                }))
+                .sort((a, b) => a.month.localeCompare(b.month));
+
+            const totalLaunches = timeSeriesData.reduce((sum, d) => sum + d.launchCount, 0);
+
+            // Calculate trend
+            const recentHalf = timeSeriesData.slice(-Math.ceil(timeSeriesData.length / 2));
+            const olderHalf = timeSeriesData.slice(0, Math.floor(timeSeriesData.length / 2));
+            const recentAvg = recentHalf.reduce((sum, d) => sum + d.launchCount, 0) / recentHalf.length;
+            const olderAvg = olderHalf.reduce((sum, d) => sum + d.launchCount, 0) / olderHalf.length;
+
+            let trend: 'rising' | 'stable' | 'declining' = 'stable';
+            if (recentAvg > olderAvg * 1.3) trend = 'rising';
+            else if (recentAvg < olderAvg * 0.7) trend = 'declining';
+
+            results.push({
+                topic,
+                timeSeriesData,
+                totalLaunches,
+                trend,
+            });
+        });
+
+        return results.sort((a, b) => b.totalLaunches - a.totalLaunches).slice(0, 10);
+    } catch (error) {
+        console.error('Error in getTopicVelocity:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -163,71 +168,76 @@ export interface TreemapData {
 }
 
 export async function getMarketTreemap(): Promise<TreemapData[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('ai_analysis, votes_count, launched_at')
-        .not('ai_analysis', 'is', null)
-        .gte('launched_at', getMonthsAgo(12));
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('ai_analysis, votes_count, launched_at')
+            .not('ai_analysis', 'is', null)
+            .gte('launched_at', getMonthsAgo(12));
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const categoryMap = new Map<string, {
-        launches: number;
-        recentLaunches: number;
-        oldLaunches: number;
-        totalVotes: number;
-    }>();
+        const categoryMap = new Map<string, {
+            launches: number;
+            recentLaunches: number;
+            oldLaunches: number;
+            totalVotes: number;
+        }>();
 
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-    launches.forEach(launch => {
-        const rawNiche = launch.ai_analysis?.niche || 'Unknown';
-        const niche = mapNicheToCategory(rawNiche);
+        launches.forEach(launch => {
+            const rawNiche = launch.ai_analysis?.niche || 'Unknown';
+            const niche = mapNicheToCategory(rawNiche);
 
-        if (niche === 'Other') return;
+            if (niche === 'Other') return;
 
-        if (!categoryMap.has(niche)) {
-            categoryMap.set(niche, { launches: 0, recentLaunches: 0, oldLaunches: 0, totalVotes: 0 });
-        }
+            if (!categoryMap.has(niche)) {
+                categoryMap.set(niche, { launches: 0, recentLaunches: 0, oldLaunches: 0, totalVotes: 0 });
+            }
 
-        const data = categoryMap.get(niche)!;
-        data.launches += 1;
-        data.totalVotes += launch.votes_count || 0;
+            const data = categoryMap.get(niche)!;
+            data.launches += 1;
+            data.totalVotes += launch.votes_count || 0;
 
-        if (new Date(launch.launched_at) > sixMonthsAgo) {
-            data.recentLaunches += 1;
-        } else {
-            data.oldLaunches += 1;
-        }
-    });
-
-    const results: TreemapData[] = [];
-
-    categoryMap.forEach((data, name) => {
-        // Calculate growth
-        const growth = data.oldLaunches > 0
-            ? Math.round(((data.recentLaunches - data.oldLaunches) / data.oldLaunches) * 100)
-            : 100;
-
-        const sentiment = Math.round(data.totalVotes / data.launches);
-
-        results.push({
-            name,
-            size: data.launches,
-            growth,
-            sentiment
+            if (new Date(launch.launched_at) > sixMonthsAgo) {
+                data.recentLaunches += 1;
+            } else {
+                data.oldLaunches += 1;
+            }
         });
-    });
 
-    // Wrap in a root node to ensure Recharts handles depth correctly (Root = 0, Categories = 1)
-    return [{
-        name: 'Market',
-        size: 0, // Recharts will calculate this based on children
-        growth: 0,
-        sentiment: 0,
-        children: results.sort((a, b) => b.size - a.size)
-    }];
+        const results: TreemapData[] = [];
+
+        categoryMap.forEach((data, name) => {
+            // Calculate growth
+            const growth = data.oldLaunches > 0
+                ? Math.round(((data.recentLaunches - data.oldLaunches) / data.oldLaunches) * 100)
+                : 100;
+
+            const sentiment = Math.round(data.totalVotes / data.launches);
+
+            results.push({
+                name,
+                size: data.launches,
+                growth,
+                sentiment
+            });
+        });
+
+        // Wrap in a root node to ensure Recharts handles depth correctly (Root = 0, Categories = 1)
+        return [{
+            name: 'Market',
+            size: 0, // Recharts will calculate this based on children
+            growth: 0,
+            sentiment: 0,
+            children: results.sort((a, b) => b.size - a.size)
+        }];
+    } catch (error) {
+        console.error('Error in getMarketTreemap:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -247,55 +257,60 @@ export interface KeywordTrendData {
 }
 
 export async function getKeywordTrends(keyword: string, months = 12): Promise<KeywordTrendData | null> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('name, description, tagline, votes_count, launched_at, ai_analysis')
-        .gte('launched_at', getMonthsAgo(months));
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('name, description, tagline, votes_count, launched_at, ai_analysis')
+            .gte('launched_at', getMonthsAgo(months));
 
-    if (!launches) return null;
+        if (!launches) return null;
 
-    const keywordLower = keyword.toLowerCase();
-    const matchingLaunches = launches.filter(l => {
-        const searchText = [l.name, l.description, l.tagline, l.ai_analysis?.problem].join(' ').toLowerCase();
-        return searchText.includes(keywordLower);
-    });
+        const keywordLower = keyword.toLowerCase();
+        const matchingLaunches = launches.filter(l => {
+            const searchText = [l.name, l.description, l.tagline, l.ai_analysis?.problem].join(' ').toLowerCase();
+            return searchText.includes(keywordLower);
+        });
 
-    // Group by month
-    const monthMap = new Map<string, { launches: any[], totalVotes: number }>();
+        // Group by month
+        const monthMap = new Map<string, { launches: any[], totalVotes: number }>();
 
-    matchingLaunches.forEach(launch => {
-        const monthKey = getMonthKey(launch.launched_at);
-        if (!monthMap.has(monthKey)) {
-            monthMap.set(monthKey, { launches: [], totalVotes: 0 });
-        }
+        matchingLaunches.forEach(launch => {
+            const monthKey = getMonthKey(launch.launched_at);
+            if (!monthMap.has(monthKey)) {
+                monthMap.set(monthKey, { launches: [], totalVotes: 0 });
+            }
 
-        const monthData = monthMap.get(monthKey)!;
-        monthData.launches.push(launch);
-        monthData.totalVotes += launch.votes_count || 0;
-    });
+            const monthData = monthMap.get(monthKey)!;
+            monthData.launches.push(launch);
+            monthData.totalVotes += launch.votes_count || 0;
+        });
 
-    const monthlyData = Array.from(monthMap.entries())
-        .map(([month, data]) => ({
-            month,
-            mentions: data.launches.length,
-            avgUpvotes: data.launches.length > 0 ? Math.round(data.totalVotes / data.launches.length) : 0,
-            products: data.launches
-                .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
-                .slice(0, 5)
-                .map(l => ({ name: l.name, votes: l.votes_count || 0 })),
-        }))
-        .sort((a, b) => a.month.localeCompare(b.month));
+        const monthlyData = Array.from(monthMap.entries())
+            .map(([month, data]) => ({
+                month,
+                mentions: data.launches.length,
+                avgUpvotes: data.launches.length > 0 ? Math.round(data.totalVotes / data.launches.length) : 0,
+                products: data.launches
+                    .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
+                    .slice(0, 5)
+                    .map(l => ({ name: l.name, votes: l.votes_count || 0 })),
+            }))
+            .sort((a, b) => a.month.localeCompare(b.month));
 
-    const totalMentions = matchingLaunches.length;
-    const totalVotes = matchingLaunches.reduce((sum, l) => sum + (l.votes_count || 0), 0);
-    const averageSuccess = totalMentions > 0 ? Math.round(totalVotes / totalMentions) : 0;
+        const totalMentions = matchingLaunches.length;
+        const totalVotes = matchingLaunches.reduce((sum, l) => sum + (l.votes_count || 0), 0);
+        const averageSuccess = totalMentions > 0 ? Math.round(totalVotes / totalMentions) : 0;
 
-    return {
-        keyword,
-        monthlyData,
-        totalMentions,
-        averageSuccess,
-    };
+        return {
+            keyword,
+            monthlyData,
+            totalMentions,
+            averageSuccess,
+        };
+    } catch (error) {
+        console.error('Error in getKeywordTrends:', error);
+        return null;
+    }
 }
 
 // ============================================
@@ -311,49 +326,54 @@ export interface CategoryPerformanceData {
 }
 
 export async function getCategoryPerformanceMatrix(): Promise<CategoryPerformanceData[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('ai_analysis, votes_count, comments_count')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('ai_analysis, votes_count, comments_count')
+            .not('ai_analysis', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const categoryMap = new Map<string, { launches: any[], totalVotes: number, totalComments: number }>();
+        const categoryMap = new Map<string, { launches: any[], totalVotes: number, totalComments: number }>();
 
-    launches.forEach(launch => {
-        const niche = launch.ai_analysis?.niche || 'Unknown';
-        if (!categoryMap.has(niche)) {
-            categoryMap.set(niche, { launches: [], totalVotes: 0, totalComments: 0 });
-        }
+        launches.forEach(launch => {
+            const niche = launch.ai_analysis?.niche || 'Unknown';
+            if (!categoryMap.has(niche)) {
+                categoryMap.set(niche, { launches: [], totalVotes: 0, totalComments: 0 });
+            }
 
-        const catData = categoryMap.get(niche)!;
-        catData.launches.push(launch);
-        catData.totalVotes += launch.votes_count || 0;
-        catData.totalComments += launch.comments_count || 0;
-    });
-
-    const results: CategoryPerformanceData[] = [];
-
-    categoryMap.forEach((data, category) => {
-        const launchCount = data.launches.length;
-        const avgUpvotes = Math.round(data.totalVotes / launchCount);
-        const avgComments = Math.round(data.totalComments / launchCount);
-
-        // Saturation score: high launches + low engagement = saturated
-        const normalizedLaunches = Math.min(launchCount / 100, 1); // Cap at 100 launches
-        const normalizedEngagement = Math.min(avgUpvotes / 500, 1); // Cap at 500 upvotes
-        const saturationScore = Math.round((normalizedLaunches * 70 + (1 - normalizedEngagement) * 30) * 100);
-
-        results.push({
-            category,
-            launchCount,
-            avgUpvotes,
-            avgComments,
-            saturationScore,
+            const catData = categoryMap.get(niche)!;
+            catData.launches.push(launch);
+            catData.totalVotes += launch.votes_count || 0;
+            catData.totalComments += launch.comments_count || 0;
         });
-    });
 
-    return results.filter(r => r.launchCount >= 5).sort((a, b) => b.launchCount - a.launchCount);
+        const results: CategoryPerformanceData[] = [];
+
+        categoryMap.forEach((data, category) => {
+            const launchCount = data.launches.length;
+            const avgUpvotes = Math.round(data.totalVotes / launchCount);
+            const avgComments = Math.round(data.totalComments / launchCount);
+
+            // Saturation score: high launches + low engagement = saturated
+            const normalizedLaunches = Math.min(launchCount / 100, 1); // Cap at 100 launches
+            const normalizedEngagement = Math.min(avgUpvotes / 500, 1); // Cap at 500 upvotes
+            const saturationScore = Math.round((normalizedLaunches * 70 + (1 - normalizedEngagement) * 30) * 100);
+
+            results.push({
+                category,
+                launchCount,
+                avgUpvotes,
+                avgComments,
+                saturationScore,
+            });
+        });
+
+        return results.filter(r => r.launchCount >= 5).sort((a, b) => b.launchCount - a.launchCount);
+    } catch (error) {
+        console.error('Error in getCategoryPerformanceMatrix:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -376,50 +396,55 @@ export interface NicheHistogramData {
 }
 
 export async function getNicheSuccessHistogram(niche: string): Promise<NicheHistogramData | null> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('votes_count, ai_analysis')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('votes_count, ai_analysis')
+            .not('ai_analysis', 'is', null);
 
-    if (!launches) return null;
+        if (!launches) return null;
 
-    const nicheLaunches = launches.filter(l => l.ai_analysis?.niche === niche);
+        const nicheLaunches = launches.filter(l => l.ai_analysis?.niche === niche);
 
-    if (nicheLaunches.length === 0) return null;
+        if (nicheLaunches.length === 0) return null;
 
-    const votes = nicheLaunches.map(l => l.votes_count || 0).sort((a, b) => a - b);
+        const votes = nicheLaunches.map(l => l.votes_count || 0).sort((a, b) => a - b);
 
-    // Define buckets
-    const bucketRanges = [
-        { range: '0-50', min: 0, max: 50 },
-        { range: '51-100', min: 51, max: 100 },
-        { range: '101-200', min: 101, max: 200 },
-        { range: '201-500', min: 201, max: 500 },
-        { range: '501-1000', min: 501, max: 1000 },
-        { range: '1000+', min: 1001, max: Infinity },
-    ];
+        // Define buckets
+        const bucketRanges = [
+            { range: '0-50', min: 0, max: 50 },
+            { range: '51-100', min: 51, max: 100 },
+            { range: '101-200', min: 101, max: 200 },
+            { range: '201-500', min: 201, max: 500 },
+            { range: '501-1000', min: 501, max: 1000 },
+            { range: '1000+', min: 1001, max: Infinity },
+        ];
 
-    const buckets = bucketRanges.map(({ range, min, max }) => {
-        const count = votes.filter(v => v >= min && v <= max).length;
-        const percentage = Math.round((count / votes.length) * 100);
-        return { range, count, percentage };
-    });
+        const buckets = bucketRanges.map(({ range, min, max }) => {
+            const count = votes.filter(v => v >= min && v <= max).length;
+            const percentage = Math.round((count / votes.length) * 100);
+            return { range, count, percentage };
+        });
 
-    // Calculate percentiles
-    const median = percentile(votes, 50);
-    const p90 = percentile(votes, 90);
-    const p99 = percentile(votes, 99);
+        // Calculate percentiles
+        const median = percentile(votes, 50);
+        const p90 = percentile(votes, 90);
+        const p99 = percentile(votes, 99);
 
-    return {
-        niche,
-        buckets,
-        stats: {
-            median,
-            p90,
-            p99,
-            total: votes.length,
-        },
-    };
+        return {
+            niche,
+            buckets,
+            stats: {
+                median,
+                p90,
+                p99,
+                total: votes.length,
+            },
+        };
+    } catch (error) {
+        console.error('Error in getNicheSuccessHistogram:', error);
+        return null;
+    }
 }
 
 // ============================================
@@ -435,40 +460,45 @@ export interface ProductScatterPoint {
 }
 
 export async function getProductScatterData(category?: string): Promise<ProductScatterPoint[]> {
-    let query = supabase
-        .from('ph_launches')
-        .select('name, votes_count, comments_count, ai_analysis')
-        .not('ai_analysis', 'is', null)
-        .gte('votes_count', 50); // Only show products with meaningful data
+    try {
+        let query = supabase
+            .from('ph_launches')
+            .select('name, votes_count, comments_count, ai_analysis')
+            .not('ai_analysis', 'is', null)
+            .gte('votes_count', 50); // Only show products with meaningful data
 
-    const { data: launches } = await query;
+        const { data: launches } = await query;
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    let filtered = launches;
-    if (category) {
-        filtered = launches.filter(l => l.ai_analysis?.niche === category);
+        let filtered = launches;
+        if (category) {
+            filtered = launches.filter(l => l.ai_analysis?.niche === category);
+        }
+
+        return filtered.map(l => {
+            const votes = l.votes_count || 0;
+            const comments = l.comments_count || 0;
+            const commentToVoteRatio = votes > 0 ? comments / votes : 0;
+
+            let productType: ProductScatterPoint['productType'] = 'Niche Product';
+
+            if (votes > 400 && comments > 100) productType = 'Community Darling';
+            else if (votes > 300 && commentToVoteRatio < 0.15) productType = 'Pure Utility';
+            else if (votes < 150 && comments < 30) productType = 'Low Engagement';
+
+            return {
+                name: l.name,
+                votes,
+                comments,
+                niche: l.ai_analysis?.niche || 'Unknown',
+                productType,
+            };
+        });
+    } catch (error) {
+        console.error('Error in getProductScatterData:', error);
+        return [];
     }
-
-    return filtered.map(l => {
-        const votes = l.votes_count || 0;
-        const comments = l.comments_count || 0;
-        const commentToVoteRatio = votes > 0 ? comments / votes : 0;
-
-        let productType: ProductScatterPoint['productType'] = 'Niche Product';
-
-        if (votes > 400 && comments > 100) productType = 'Community Darling';
-        else if (votes > 300 && commentToVoteRatio < 0.15) productType = 'Pure Utility';
-        else if (votes < 150 && comments < 30) productType = 'Low Engagement';
-
-        return {
-            name: l.name,
-            votes,
-            comments,
-            niche: l.ai_analysis?.niche || 'Unknown',
-            productType,
-        };
-    });
 }
 
 // ============================================
@@ -484,66 +514,71 @@ export interface FeatureCorrelation {
 }
 
 export async function getFeatureCorrelation(category: string): Promise<FeatureCorrelation[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('description, tagline, votes_count, ai_analysis')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('description, tagline, votes_count, ai_analysis')
+            .not('ai_analysis', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const categoryLaunches = launches.filter(l => l.ai_analysis?.niche === category);
+        const categoryLaunches = launches.filter(l => l.ai_analysis?.niche === category);
 
-    // Common keywords to test
-    const keywords = [
-        'AI',
-        'AI-powered',
-        'free',
-        'open source',
-        'no-code',
-        'automation',
-        'analytics',
-        'collaboration',
-        'real-time',
-        'integration',
-        'Chrome extension',
-        'API',
-        'dashboard',
-        'mobile',
-    ];
+        // Common keywords to test
+        const keywords = [
+            'AI',
+            'AI-powered',
+            'free',
+            'open source',
+            'no-code',
+            'automation',
+            'analytics',
+            'collaboration',
+            'real-time',
+            'integration',
+            'Chrome extension',
+            'API',
+            'dashboard',
+            'mobile',
+        ];
 
-    const results: FeatureCorrelation[] = [];
+        const results: FeatureCorrelation[] = [];
 
-    keywords.forEach(keyword => {
-        const keywordLower = keyword.toLowerCase();
-        const withKeyword = categoryLaunches.filter(l => {
-            const text = [l.description, l.tagline].join(' ').toLowerCase();
-            return text.includes(keywordLower);
+        keywords.forEach(keyword => {
+            const keywordLower = keyword.toLowerCase();
+            const withKeyword = categoryLaunches.filter(l => {
+                const text = [l.description, l.tagline].join(' ').toLowerCase();
+                return text.includes(keywordLower);
+            });
+
+            const withoutKeyword = categoryLaunches.filter(l => {
+                const text = [l.description, l.tagline].join(' ').toLowerCase();
+                return !text.includes(keywordLower);
+            });
+
+            if (withKeyword.length < 3) return; // Need at least 3 samples
+
+            const avgWithKeyword = withKeyword.reduce((sum, l) => sum + (l.votes_count || 0), 0) / withKeyword.length;
+            const avgWithout = withoutKeyword.length > 0
+                ? withoutKeyword.reduce((sum, l) => sum + (l.votes_count || 0), 0) / withoutKeyword.length
+                : 0;
+
+            const uplift = avgWithout > 0 ? Math.round(((avgWithKeyword - avgWithout) / avgWithout) * 100) : 0;
+
+            results.push({
+                keyword,
+                occurrences: withKeyword.length,
+                avgUpvotesWithKeyword: Math.round(avgWithKeyword),
+                avgUpvotesWithout: Math.round(avgWithout),
+                uplift,
+            });
         });
 
-        const withoutKeyword = categoryLaunches.filter(l => {
-            const text = [l.description, l.tagline].join(' ').toLowerCase();
-            return !text.includes(keywordLower);
-        });
-
-        if (withKeyword.length < 3) return; // Need at least 3 samples
-
-        const avgWithKeyword = withKeyword.reduce((sum, l) => sum + (l.votes_count || 0), 0) / withKeyword.length;
-        const avgWithout = withoutKeyword.length > 0
-            ? withoutKeyword.reduce((sum, l) => sum + (l.votes_count || 0), 0) / withoutKeyword.length
-            : 0;
-
-        const uplift = avgWithout > 0 ? Math.round(((avgWithKeyword - avgWithout) / avgWithout) * 100) : 0;
-
-        results.push({
-            keyword,
-            occurrences: withKeyword.length,
-            avgUpvotesWithKeyword: Math.round(avgWithKeyword),
-            avgUpvotesWithout: Math.round(avgWithout),
-            uplift,
-        });
-    });
-
-    return results.filter(r => Math.abs(r.uplift) > 5).sort((a, b) => b.uplift - a.uplift);
+        return results.filter(r => Math.abs(r.uplift) > 5).sort((a, b) => b.uplift - a.uplift);
+    } catch (error) {
+        console.error('Error in getFeatureCorrelation:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -558,32 +593,37 @@ export interface AudienceImpactPoint {
 }
 
 export async function getAudienceImpact(): Promise<AudienceImpactPoint[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('name, votes_count, makers')
-        .not('makers', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('name, votes_count, makers')
+            .not('makers', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const points: AudienceImpactPoint[] = [];
+        const points: AudienceImpactPoint[] = [];
 
-    launches.forEach(launch => {
-        const makers = launch.makers as any[];
-        if (!makers || !Array.isArray(makers)) return;
+        launches.forEach(launch => {
+            const makers = launch.makers as any[];
+            if (!makers || !Array.isArray(makers)) return;
 
-        makers.forEach(maker => {
-            if (maker.twitter_username && maker.twitter_followers) {
-                points.push({
-                    makerName: maker.name || maker.twitter_username,
-                    productName: launch.name,
-                    followers: maker.twitter_followers,
-                    upvotes: launch.votes_count || 0,
-                });
-            }
+            makers.forEach(maker => {
+                if (maker.twitter_username && maker.twitter_followers) {
+                    points.push({
+                        makerName: maker.name || maker.twitter_username,
+                        productName: launch.name,
+                        followers: maker.twitter_followers,
+                        upvotes: launch.votes_count || 0,
+                    });
+                }
+            });
         });
-    });
 
-    return points.filter(p => p.followers > 0 && p.upvotes > 0);
+        return points.filter(p => p.followers > 0 && p.upvotes > 0);
+    } catch (error) {
+        console.error('Error in getAudienceImpact:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -597,66 +637,71 @@ export interface SerialMakerData {
 }
 
 export async function getSerialMakerSuccess(): Promise<SerialMakerData[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('votes_count, makers, launched_at')
-        .not('makers', 'is', null)
-        .order('launched_at', { ascending: true });
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('votes_count, makers, launched_at')
+            .not('makers', 'is', null)
+            .order('launched_at', { ascending: true });
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    // Track maker launch history
-    const makerHistory = new Map<string, { launches: { votes: number; date: string }[] }>();
+        // Track maker launch history
+        const makerHistory = new Map<string, { launches: { votes: number; date: string }[] }>();
 
-    launches.forEach(launch => {
-        const makers = launch.makers as any[];
-        if (!makers || !Array.isArray(makers)) return;
+        launches.forEach(launch => {
+            const makers = launch.makers as any[];
+            if (!makers || !Array.isArray(makers)) return;
 
-        makers.forEach(maker => {
-            const makerKey = maker.twitter_username || maker.name;
-            if (!makerKey) return;
+            makers.forEach(maker => {
+                const makerKey = maker.twitter_username || maker.name;
+                if (!makerKey) return;
 
-            if (!makerHistory.has(makerKey)) {
-                makerHistory.set(makerKey, { launches: [] });
-            }
+                if (!makerHistory.has(makerKey)) {
+                    makerHistory.set(makerKey, { launches: [] });
+                }
 
-            makerHistory.get(makerKey)!.launches.push({
-                votes: launch.votes_count || 0,
-                date: launch.launched_at,
+                makerHistory.get(makerKey)!.launches.push({
+                    votes: launch.votes_count || 0,
+                    date: launch.launched_at,
+                });
             });
         });
-    });
 
-    // Calculate averages by launch number
-    const launchNumberData = new Map<number, { totalVotes: number; count: number }>();
+        // Calculate averages by launch number
+        const launchNumberData = new Map<number, { totalVotes: number; count: number }>();
 
-    makerHistory.forEach(history => {
-        if (history.launches.length < 2) return; // Only serial makers
+        makerHistory.forEach(history => {
+            if (history.launches.length < 2) return; // Only serial makers
 
-        history.launches.forEach((launch, index) => {
-            const launchNum = index + 1;
-            if (!launchNumberData.has(launchNum)) {
-                launchNumberData.set(launchNum, { totalVotes: 0, count: 0 });
-            }
+            history.launches.forEach((launch, index) => {
+                const launchNum = index + 1;
+                if (!launchNumberData.has(launchNum)) {
+                    launchNumberData.set(launchNum, { totalVotes: 0, count: 0 });
+                }
 
-            const data = launchNumberData.get(launchNum)!;
-            data.totalVotes += launch.votes;
-            data.count += 1;
-        });
-    });
-
-    const results: SerialMakerData[] = [];
-    launchNumberData.forEach((data, launchNum) => {
-        if (launchNum <= 5) { // Only show first 5 launches
-            results.push({
-                launchNumber: launchNum === 1 ? '1st' : launchNum === 2 ? '2nd' : launchNum === 3 ? '3rd' : `${launchNum}th`,
-                avgUpvotes: Math.round(data.totalVotes / data.count),
-                count: data.count,
+                const data = launchNumberData.get(launchNum)!;
+                data.totalVotes += launch.votes;
+                data.count += 1;
             });
-        }
-    });
+        });
 
-    return results.sort((a, b) => parseInt(a.launchNumber) - parseInt(b.launchNumber));
+        const results: SerialMakerData[] = [];
+        launchNumberData.forEach((data, launchNum) => {
+            if (launchNum <= 5) { // Only show first 5 launches
+                results.push({
+                    launchNumber: launchNum === 1 ? '1st' : launchNum === 2 ? '2nd' : launchNum === 3 ? '3rd' : `${launchNum}th`,
+                    avgUpvotes: Math.round(data.totalVotes / data.count),
+                    count: data.count,
+                });
+            }
+        });
+
+        return results.sort((a, b) => parseInt(a.launchNumber) - parseInt(b.launchNumber));
+    } catch (error) {
+        console.error('Error in getSerialMakerSuccess:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -671,45 +716,50 @@ export interface LaunchTimeData {
 }
 
 export async function getLaunchTimeHeatmap(): Promise<LaunchTimeData[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('votes_count, launched_at, rank_of_day')
-        .gte('rank_of_day', 1)
-        .lte('rank_of_day', 5); // Only look at top 5 products of the day
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('votes_count, launched_at, rank_of_day')
+            .gte('rank_of_day', 1)
+            .lte('rank_of_day', 5); // Only look at top 5 products of the day
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const heatmapData = new Map<string, { totalVotes: number; count: number }>();
+        const heatmapData = new Map<string, { totalVotes: number; count: number }>();
 
-    launches.forEach(launch => {
-        const date = new Date(launch.launched_at);
-        const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getUTCDay()];
-        const hour = date.getUTCHours(); // PST is typically UTC-8 or UTC-7, but we'll use UTC for global launches
+        launches.forEach(launch => {
+            const date = new Date(launch.launched_at);
+            const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getUTCDay()];
+            const hour = date.getUTCHours(); // PST is typically UTC-8 or UTC-7, but we'll use UTC for global launches
 
-        const key = `${day}-${hour}`;
+            const key = `${day}-${hour}`;
 
-        if (!heatmapData.has(key)) {
-            heatmapData.set(key, { totalVotes: 0, count: 0 });
-        }
+            if (!heatmapData.has(key)) {
+                heatmapData.set(key, { totalVotes: 0, count: 0 });
+            }
 
-        const data = heatmapData.get(key)!;
-        data.totalVotes += launch.votes_count || 0;
-        data.count += 1;
-    });
-
-    const results: LaunchTimeData[] = [];
-
-    heatmapData.forEach((data, key) => {
-        const [day, hourStr] = key.split('-');
-        results.push({
-            day,
-            hour: parseInt(hourStr),
-            avgUpvotes: Math.round(data.totalVotes / data.count),
-            launchCount: data.count,
+            const data = heatmapData.get(key)!;
+            data.totalVotes += launch.votes_count || 0;
+            data.count += 1;
         });
-    });
 
-    return results;
+        const results: LaunchTimeData[] = [];
+
+        heatmapData.forEach((data, key) => {
+            const [day, hourStr] = key.split('-');
+            results.push({
+                day,
+                hour: parseInt(hourStr),
+                avgUpvotes: Math.round(data.totalVotes / data.count),
+                launchCount: data.count,
+            });
+        });
+
+        return results;
+    } catch (error) {
+        console.error('Error in getLaunchTimeHeatmap:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -727,73 +777,78 @@ export interface MarketGap {
 }
 
 export async function getMarketGaps(): Promise<MarketGap[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('votes_count, comments_count, ai_analysis')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('votes_count, comments_count, ai_analysis')
+            .not('ai_analysis', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    // Group by ICP + Problem combination
-    const combinationMap = new Map<string, {
-        icp: string;
-        problem: string;
-        niche: string;
-        products: any[];
-        totalEngagement: number;
-    }>();
+        // Group by ICP + Problem combination
+        const combinationMap = new Map<string, {
+            icp: string;
+            problem: string;
+            niche: string;
+            products: any[];
+            totalEngagement: number;
+        }>();
 
-    launches.forEach(launch => {
-        const icp = launch.ai_analysis?.icp;
-        const problem = launch.ai_analysis?.problem;
-        const niche = launch.ai_analysis?.niche;
+        launches.forEach(launch => {
+            const icp = launch.ai_analysis?.icp;
+            const problem = launch.ai_analysis?.problem;
+            const niche = launch.ai_analysis?.niche;
 
-        if (!icp || !problem || !niche) return;
+            if (!icp || !problem || !niche) return;
 
-        const key = `${icp}|${problem}`;
+            const key = `${icp}|${problem}`;
 
-        if (!combinationMap.has(key)) {
-            combinationMap.set(key, {
-                icp,
-                problem,
-                niche,
-                products: [],
-                totalEngagement: 0,
-            });
-        }
+            if (!combinationMap.has(key)) {
+                combinationMap.set(key, {
+                    icp,
+                    problem,
+                    niche,
+                    products: [],
+                    totalEngagement: 0,
+                });
+            }
 
-        const data = combinationMap.get(key)!;
-        data.products.push(launch);
-        data.totalEngagement += (launch.votes_count || 0) + (launch.comments_count || 0) * 2;
-    });
+            const data = combinationMap.get(key)!;
+            data.products.push(launch);
+            data.totalEngagement += (launch.votes_count || 0) + (launch.comments_count || 0) * 2;
+        });
 
-    // Find gaps: low product count + high engagement potential
-    const gaps: MarketGap[] = [];
+        // Find gaps: low product count + high engagement potential
+        const gaps: MarketGap[] = [];
 
-    combinationMap.forEach(data => {
-        const productCount = data.products.length;
-        const avgEngagement = Math.round(data.totalEngagement / productCount);
+        combinationMap.forEach(data => {
+            const productCount = data.products.length;
+            const avgEngagement = Math.round(data.totalEngagement / productCount);
 
-        // Opportunity = high engagement but low competition
-        if (productCount <= 3 && avgEngagement > 200) {
-            const opportunityScore = Math.round(
-                (avgEngagement * 0.6) + // Higher engagement = better
-                ((10 - productCount) * 50) // Fewer products = better
-            );
+            // Opportunity = high engagement but low competition
+            if (productCount <= 3 && avgEngagement > 200) {
+                const opportunityScore = Math.round(
+                    (avgEngagement * 0.6) + // Higher engagement = better
+                    ((10 - productCount) * 50) // Fewer products = better
+                );
 
-            gaps.push({
-                problem: data.problem,
-                icp: data.icp,
-                niche: data.niche,
-                currentProducts: productCount,
-                avgEngagement,
-                opportunityScore,
-                reasoning: `Only ${productCount} product(s) addressing this for ${data.icp}, with ${avgEngagement} avg engagement. Clear demand with low supply.`,
-            });
-        }
-    });
+                gaps.push({
+                    problem: data.problem,
+                    icp: data.icp,
+                    niche: data.niche,
+                    currentProducts: productCount,
+                    avgEngagement,
+                    opportunityScore,
+                    reasoning: `Only ${productCount} product(s) addressing this for ${data.icp}, with ${avgEngagement} avg engagement. Clear demand with low supply.`,
+                });
+            }
+        });
 
-    return gaps.sort((a, b) => b.opportunityScore - a.opportunityScore).slice(0, 20);
+        return gaps.sort((a, b) => b.opportunityScore - a.opportunityScore).slice(0, 20);
+    } catch (error) {
+        console.error('Error in getMarketGaps:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -802,140 +857,155 @@ export async function getMarketGaps(): Promise<MarketGap[]> {
 
 // Team Size Impact
 export async function getTeamSizeImpact() {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('votes_count, makers')
-        .not('makers', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('votes_count, makers')
+            .not('makers', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const teamSizeMap = new Map<number, { totalVotes: number; count: number }>();
+        const teamSizeMap = new Map<number, { totalVotes: number; count: number }>();
 
-    launches.forEach(launch => {
-        const makers = launch.makers as any[];
-        if (!makers || !Array.isArray(makers)) return;
+        launches.forEach(launch => {
+            const makers = launch.makers as any[];
+            if (!makers || !Array.isArray(makers)) return;
 
-        const teamSize = Math.min(makers.length, 5); // Cap at 5+
+            const teamSize = Math.min(makers.length, 5); // Cap at 5+
 
-        if (!teamSizeMap.has(teamSize)) {
-            teamSizeMap.set(teamSize, { totalVotes: 0, count: 0 });
-        }
+            if (!teamSizeMap.has(teamSize)) {
+                teamSizeMap.set(teamSize, { totalVotes: 0, count: 0 });
+            }
 
-        const data = teamSizeMap.get(teamSize)!;
-        data.totalVotes += launch.votes_count || 0;
-        data.count += 1;
-    });
+            const data = teamSizeMap.get(teamSize)!;
+            data.totalVotes += launch.votes_count || 0;
+            data.count += 1;
+        });
 
-    const results = Array.from(teamSizeMap.entries()).map(([size, data]) => ({
-        teamSize: size >= 5 ? '5+' : size.toString(),
-        avgUpvotes: Math.round(data.totalVotes / data.count),
-        productCount: data.count,
-    }));
+        const results = Array.from(teamSizeMap.entries()).map(([size, data]) => ({
+            teamSize: size >= 5 ? '5+' : size.toString(),
+            avgUpvotes: Math.round(data.totalVotes / data.count),
+            productCount: data.count,
+        }));
 
-    return results.sort((a, b) => parseInt(a.teamSize) - parseInt(b.teamSize));
+        return results.sort((a, b) => parseInt(a.teamSize) - parseInt(b.teamSize));
+    } catch (error) {
+        console.error('Error in getTeamSizeImpact:', error);
+        return [];
+    }
 }
 
 // Market Health Metrics
 export async function getMarketHealth() {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('votes_count, comments_count, launched_at')
-        .gte('launched_at', getMonthsAgo(6));
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('votes_count, comments_count, launched_at')
+            .gte('launched_at', getMonthsAgo(6));
 
-    if (!launches) return null;
+        if (!launches) return null;
 
-    const totalProducts = launches.length;
-    const avgUpvotes = Math.round(launches.reduce((sum, l) => sum + (l.votes_count || 0), 0) / totalProducts);
-    const avgComments = Math.round(launches.reduce((sum, l) => sum + (l.comments_count || 0), 0) / totalProducts);
+        const totalProducts = launches.length;
+        const avgUpvotes = Math.round(launches.reduce((sum, l) => sum + (l.votes_count || 0), 0) / totalProducts);
+        const avgComments = Math.round(launches.reduce((sum, l) => sum + (l.comments_count || 0), 0) / totalProducts);
 
-    const highPerformers = launches.filter(l => (l.votes_count || 0) > 500).length;
-    const successRate = Math.round((highPerformers / totalProducts) * 100);
+        const highPerformers = launches.filter(l => (l.votes_count || 0) > 500).length;
+        const successRate = Math.round((highPerformers / totalProducts) * 100);
 
-    return {
-        totalProducts,
-        avgUpvotes,
-        avgComments,
-        highPerformers,
-        successRate,
-    };
+        return {
+            totalProducts,
+            avgUpvotes,
+            avgComments,
+            highPerformers,
+            successRate,
+        };
+    } catch (error) {
+        console.error('Error in getMarketHealth:', error);
+        return null;
+    }
 }
 
 // Top Categories by Various Metrics
 export async function getTopCategories(metric: 'launches' | 'engagement' | 'growth' = 'launches', limit: number = 10) {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('ai_analysis, votes_count, comments_count, launched_at')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('ai_analysis, votes_count, comments_count, launched_at')
+            .not('ai_analysis', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const categoryMap = new Map<string, {
-        launches: number;
-        totalEngagement: number;
-        totalVotes: number;
-        totalComments: number;
-        recentLaunches: number;
-        oldLaunches: number;
-    }>();
+        const categoryMap = new Map<string, {
+            launches: number;
+            totalEngagement: number;
+            totalVotes: number;
+            totalComments: number;
+            recentLaunches: number;
+            oldLaunches: number;
+        }>();
 
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-    launches.forEach(launch => {
-        const niche = launch.ai_analysis?.niche || 'Unknown';
-        if (!categoryMap.has(niche)) {
-            categoryMap.set(niche, {
-                launches: 0,
-                totalEngagement: 0,
-                totalVotes: 0,
-                totalComments: 0,
-                recentLaunches: 0,
-                oldLaunches: 0
-            });
-        }
+        launches.forEach(launch => {
+            const niche = launch.ai_analysis?.niche || 'Unknown';
+            if (!categoryMap.has(niche)) {
+                categoryMap.set(niche, {
+                    launches: 0,
+                    totalEngagement: 0,
+                    totalVotes: 0,
+                    totalComments: 0,
+                    recentLaunches: 0,
+                    oldLaunches: 0
+                });
+            }
 
-        const data = categoryMap.get(niche)!;
-        data.launches += 1;
-        data.totalVotes += (launch.votes_count || 0);
-        data.totalComments += (launch.comments_count || 0);
-        data.totalEngagement += (launch.votes_count || 0) + (launch.comments_count || 0) * 2;
+            const data = categoryMap.get(niche)!;
+            data.launches += 1;
+            data.totalVotes += (launch.votes_count || 0);
+            data.totalComments += (launch.comments_count || 0);
+            data.totalEngagement += (launch.votes_count || 0) + (launch.comments_count || 0) * 2;
 
-        if (new Date(launch.launched_at) > sixMonthsAgo) {
-            data.recentLaunches += 1;
+            if (new Date(launch.launched_at) > sixMonthsAgo) {
+                data.recentLaunches += 1;
+            } else {
+                data.oldLaunches += 1;
+            }
+        });
+
+        const results = Array.from(categoryMap.entries()).map(([category, data]) => {
+            const growthRate = data.oldLaunches > 0
+                ? Math.round(((data.recentLaunches - data.oldLaunches) / data.oldLaunches) * 100)
+                : 100;
+
+            return {
+                category,
+                launches: data.launches,
+                totalVotes: data.totalVotes,
+                totalComments: data.totalComments,
+                avgEngagement: Math.round(data.totalEngagement / data.launches),
+                growthRate,
+            };
+        });
+
+        // Sort by selected metric
+        let sortedResults;
+        if (metric === 'launches') {
+            sortedResults = results.sort((a, b) => b.launches - a.launches);
+        } else if (metric === 'engagement') {
+            sortedResults = results.sort((a, b) => b.avgEngagement - a.avgEngagement);
         } else {
-            data.oldLaunches += 1;
+            sortedResults = results.sort((a, b) => b.growthRate - a.growthRate);
         }
-    });
 
-    const results = Array.from(categoryMap.entries()).map(([category, data]) => {
-        const growthRate = data.oldLaunches > 0
-            ? Math.round(((data.recentLaunches - data.oldLaunches) / data.oldLaunches) * 100)
-            : 100;
-
-        return {
-            category,
-            launches: data.launches,
-            totalVotes: data.totalVotes,
-            totalComments: data.totalComments,
-            avgEngagement: Math.round(data.totalEngagement / data.launches),
-            growthRate,
-        };
-    });
-
-    // Sort by selected metric
-    let sortedResults;
-    if (metric === 'launches') {
-        sortedResults = results.sort((a, b) => b.launches - a.launches);
-    } else if (metric === 'engagement') {
-        sortedResults = results.sort((a, b) => b.avgEngagement - a.avgEngagement);
-    } else {
-        sortedResults = results.sort((a, b) => b.growthRate - a.growthRate);
+        if (limit > 0) {
+            return sortedResults.slice(0, limit);
+        }
+        return sortedResults;
+    } catch (error) {
+        console.error('Error in getTopCategories:', error);
+        return [];
     }
-
-    if (limit > 0) {
-        return sortedResults.slice(0, limit);
-    }
-    return sortedResults;
 }
 
 // ============================================
@@ -952,72 +1022,77 @@ export interface MarketGapMatrix {
 }
 
 export async function getMarketGapMatrix(): Promise<MarketGapMatrix[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('ai_analysis, votes_count, comments_count')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('ai_analysis, votes_count, comments_count')
+            .not('ai_analysis', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const categoryMap = new Map<string, { launches: any[], totalVotes: number, totalComments: number }>();
+        const categoryMap = new Map<string, { launches: any[], totalVotes: number, totalComments: number }>();
 
-    launches.forEach(launch => {
-        const category = launch.ai_analysis?.niche || 'Unknown';
-        if (!categoryMap.has(category)) {
-            categoryMap.set(category, { launches: [], totalVotes: 0, totalComments: 0 });
-        }
+        launches.forEach(launch => {
+            const category = launch.ai_analysis?.niche || 'Unknown';
+            if (!categoryMap.has(category)) {
+                categoryMap.set(category, { launches: [], totalVotes: 0, totalComments: 0 });
+            }
 
-        const data = categoryMap.get(category)!;
-        data.launches.push(launch);
-        data.totalVotes += launch.votes_count || 0;
-        data.totalComments += launch.comments_count || 0;
-    });
-
-    const results: MarketGapMatrix[] = [];
-
-    // Calculate median values for quadrant assignment
-    const allVolumes = Array.from(categoryMap.values()).map(d => d.launches.length);
-    const allAvgUpvotes = Array.from(categoryMap.values()).map(d => d.totalVotes / d.launches.length);
-    const medianVolume = median(allVolumes);
-    const medianUpvotes = median(allAvgUpvotes);
-
-    categoryMap.forEach((data, category) => {
-        const launchVolume = data.launches.length;
-        const avgUpvotes = Math.round(data.totalVotes / launchVolume);
-        const avgComments = Math.round(data.totalComments / launchVolume);
-
-        // Determine quadrant
-        let quadrant: MarketGapMatrix['quadrant'];
-        if (launchVolume < medianVolume && avgUpvotes > medianUpvotes) {
-            quadrant = 'blue-ocean'; // LOW competition, HIGH demand
-        } else if (launchVolume > medianVolume && avgUpvotes > medianUpvotes) {
-            quadrant = 'red-ocean'; // HIGH competition, HIGH demand
-        } else if (launchVolume < medianVolume && avgUpvotes < medianUpvotes) {
-            quadrant = 'niche'; // LOW competition, LOW demand
-        } else {
-            quadrant = 'emerging'; // HIGH competition, LOW demand
-        }
-
-        // Opportunity score (higher = better opportunity)
-        // Blue ocean gets highest score, red ocean gets moderate, rest gets low
-        const demandScore = (avgUpvotes / medianUpvotes) * 100;
-        const competitionPenalty = (launchVolume / medianVolume) * 50;
-        const opportunityScore = Math.round(demandScore - competitionPenalty);
-
-        results.push({
-            category,
-            launchVolume,
-            avgUpvotes,
-            avgComments,
-            quadrant,
-            opportunityScore
+            const data = categoryMap.get(category)!;
+            data.launches.push(launch);
+            data.totalVotes += launch.votes_count || 0;
+            data.totalComments += launch.comments_count || 0;
         });
-    });
 
-    // Filter to categories with at least 5 products
-    return results
-        .filter(r => r.launchVolume >= 5)
-        .sort((a, b) => b.opportunityScore - a.opportunityScore);
+        const results: MarketGapMatrix[] = [];
+
+        // Calculate median values for quadrant assignment
+        const allVolumes = Array.from(categoryMap.values()).map(d => d.launches.length);
+        const allAvgUpvotes = Array.from(categoryMap.values()).map(d => d.totalVotes / d.launches.length);
+        const medianVolume = median(allVolumes);
+        const medianUpvotes = median(allAvgUpvotes);
+
+        categoryMap.forEach((data, category) => {
+            const launchVolume = data.launches.length;
+            const avgUpvotes = Math.round(data.totalVotes / launchVolume);
+            const avgComments = Math.round(data.totalComments / launchVolume);
+
+            // Determine quadrant
+            let quadrant: MarketGapMatrix['quadrant'];
+            if (launchVolume < medianVolume && avgUpvotes > medianUpvotes) {
+                quadrant = 'blue-ocean'; // LOW competition, HIGH demand
+            } else if (launchVolume > medianVolume && avgUpvotes > medianUpvotes) {
+                quadrant = 'red-ocean'; // HIGH competition, HIGH demand
+            } else if (launchVolume < medianVolume && avgUpvotes < medianUpvotes) {
+                quadrant = 'niche'; // LOW competition, LOW demand
+            } else {
+                quadrant = 'emerging'; // HIGH competition, LOW demand
+            }
+
+            // Opportunity score (higher = better opportunity)
+            // Blue ocean gets highest score, red ocean gets moderate, rest gets low
+            const demandScore = (avgUpvotes / medianUpvotes) * 100;
+            const competitionPenalty = (launchVolume / medianVolume) * 50;
+            const opportunityScore = Math.round(demandScore - competitionPenalty);
+
+            results.push({
+                category,
+                launchVolume,
+                avgUpvotes,
+                avgComments,
+                quadrant,
+                opportunityScore
+            });
+        });
+
+        // Filter to categories with at least 5 products
+        return results
+            .filter(r => r.launchVolume >= 5)
+            .sort((a, b) => b.opportunityScore - a.opportunityScore);
+    } catch (error) {
+        console.error('Error in getMarketGapMatrix:', error);
+        return [];
+    }
 }
 
 // Helper function for median
@@ -1041,37 +1116,42 @@ export interface Top3CategoryData {
 }
 
 export async function getTop3Categories(): Promise<Top3CategoryData[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('ai_analysis, votes_count')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('ai_analysis, votes_count')
+            .not('ai_analysis', 'is', null);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    const categoryMap = new Map<string, { totalUpvotes: number; productCount: number }>();
+        const categoryMap = new Map<string, { totalUpvotes: number; productCount: number }>();
 
-    launches.forEach(launch => {
-        const niche = launch.ai_analysis?.niche || 'Unknown';
-        if (!categoryMap.has(niche)) {
-            categoryMap.set(niche, { totalUpvotes: 0, productCount: 0 });
-        }
+        launches.forEach(launch => {
+            const niche = launch.ai_analysis?.niche || 'Unknown';
+            if (!categoryMap.has(niche)) {
+                categoryMap.set(niche, { totalUpvotes: 0, productCount: 0 });
+            }
 
-        const data = categoryMap.get(niche)!;
-        data.totalUpvotes += launch.votes_count || 0;
-        data.productCount += 1;
-    });
+            const data = categoryMap.get(niche)!;
+            data.totalUpvotes += launch.votes_count || 0;
+            data.productCount += 1;
+        });
 
-    const results: Top3CategoryData[] = Array.from(categoryMap.entries())
-        .map(([category, data]) => ({
-            category,
-            totalUpvotes: data.totalUpvotes,
-            productCount: data.productCount,
-            avgUpvotes: Math.round(data.totalUpvotes / data.productCount),
-        }))
-        .sort((a, b) => b.totalUpvotes - a.totalUpvotes)
-        .slice(0, 3);
+        const results: Top3CategoryData[] = Array.from(categoryMap.entries())
+            .map(([category, data]) => ({
+                category,
+                totalUpvotes: data.totalUpvotes,
+                productCount: data.productCount,
+                avgUpvotes: Math.round(data.totalUpvotes / data.productCount),
+            }))
+            .sort((a, b) => b.totalUpvotes - a.totalUpvotes)
+            .slice(0, 3);
 
-    return results;
+        return results;
+    } catch (error) {
+        console.error('Error in getTop3Categories:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -1086,26 +1166,31 @@ export interface VoteDistributionData {
 }
 
 export async function getVoteDistribution(): Promise<VoteDistributionData[]> {
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('name, votes_count, topics')
-        .gte('votes_count', 50) // Only meaningful products
-        .order('votes_count', { ascending: false })
-        .limit(100);
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('name, votes_count, topics')
+            .gte('votes_count', 50) // Only meaningful products
+            .order('votes_count', { ascending: false })
+            .limit(100);
 
-    if (!launches) return [];
+        if (!launches) return [];
 
-    return launches.map(launch => {
-        const topics = launch.topics as any[];
-        const tags = topics ? topics.map((t: any) => t.name || t).filter(Boolean) : [];
+        return launches.map(launch => {
+            const topics = launch.topics as any[];
+            const tags = topics ? topics.map((t: any) => t.name || t).filter(Boolean) : [];
 
-        return {
-            productName: launch.name,
-            votes: launch.votes_count || 0,
-            tags,
-            tagCount: tags.length,
-        };
-    });
+            return {
+                productName: launch.name,
+                votes: launch.votes_count || 0,
+                tags,
+                tagCount: tags.length,
+            };
+        });
+    } catch (error) {
+        console.error('Error in getVoteDistribution:', error);
+        return [];
+    }
 }
 
 // ============================================
@@ -1145,73 +1230,78 @@ export interface SuccessPattern {
 }
 
 export async function getSuccessPatterns(): Promise<SuccessPattern[]> {
-    const { data: launches, error } = await supabase
-        .from('ph_launches')
-        .select('ai_analysis, votes_count, comments_count')
-        .not('ai_analysis', 'is', null);
+    try {
+        const { data: launches, error } = await supabase
+            .from('ph_launches')
+            .select('ai_analysis, votes_count, comments_count')
+            .not('ai_analysis', 'is', null);
 
-    if (error || !launches) {
-        console.error('Error fetching patterns:', error);
+        if (error || !launches) {
+            console.error('Error fetching patterns:', error);
+            return [];
+        }
+
+        // Group by ICP + Problem + Niche combination
+        const patternMap = new Map<string, {
+            count: number;
+            totalVotes: number;
+            totalComments: number;
+            icp: string;
+            problem: string;
+            niche: string;
+        }>();
+
+        launches.forEach(launch => {
+            const analysis = launch.ai_analysis;
+            if (!analysis) return;
+
+            const icp = analysis.icp || 'Unknown ICP';
+            const problem = analysis.problem || 'Unknown Problem';
+            const niche = analysis.niche || 'Unknown Niche';
+
+            const key = `${icp}|${problem}|${niche}`;
+
+            const existing = patternMap.get(key) || {
+                count: 0,
+                totalVotes: 0,
+                totalComments: 0,
+                icp,
+                problem,
+                niche,
+            };
+
+            existing.count++;
+            existing.totalVotes += launch.votes_count || 0;
+            existing.totalComments += launch.comments_count || 0;
+
+            patternMap.set(key, existing);
+        });
+
+        // Convert to array and calculate success score
+        return Array.from(patternMap.values())
+            .filter(p => {
+                // Show all patterns, but filter out "Unknown" combinations
+                return p.icp !== 'Unknown ICP' && p.problem !== 'Unknown Problem';
+            })
+            .map(p => ({
+                icp: p.icp,
+                problem: p.problem,
+                niche: p.niche,
+                count: p.count,
+                avgVotes: Math.round(p.totalVotes / p.count),
+                avgComments: Math.round(p.totalComments / p.count),
+                successScore: Math.round(
+                    (p.totalVotes / p.count * 0.6) +
+                    (p.totalComments / p.count * 0.3 * 5) +
+                    (Math.min(p.count, 10) * 10)
+                ),
+            }))
+            .sort((a, b) => b.successScore - a.successScore)
+            .slice(0, 50);
+    } catch (error) {
+        console.error('Error in getSuccessPatterns:', error);
         return [];
     }
-
-    // Group by ICP + Problem + Niche combination
-    const patternMap = new Map<string, {
-        count: number;
-        totalVotes: number;
-        totalComments: number;
-        icp: string;
-        problem: string;
-        niche: string;
-    }>();
-
-    launches.forEach(launch => {
-        const analysis = launch.ai_analysis;
-        if (!analysis) return;
-
-        const icp = analysis.icp || 'Unknown ICP';
-        const problem = analysis.problem || 'Unknown Problem';
-        const niche = analysis.niche || 'Unknown Niche';
-
-        const key = `${icp}|${problem}|${niche}`;
-
-        const existing = patternMap.get(key) || {
-            count: 0,
-            totalVotes: 0,
-            totalComments: 0,
-            icp,
-            problem,
-            niche,
-        };
-
-        existing.count++;
-        existing.totalVotes += launch.votes_count || 0;
-        existing.totalComments += launch.comments_count || 0;
-
-        patternMap.set(key, existing);
-    });
-
-    // Convert to array and calculate success score
-    return Array.from(patternMap.values())
-        .filter(p => {
-            // Show all patterns, but filter out "Unknown" combinations
-            return p.icp !== 'Unknown ICP' && p.problem !== 'Unknown Problem';
-        })
-        .map(p => ({
-            icp: p.icp,
-            problem: p.problem,
-            niche: p.niche,
-            count: p.count,
-            avgVotes: Math.round(p.totalVotes / p.count),
-            avgComments: Math.round(p.totalComments / p.count),
-            successScore: Math.round(
-                (p.totalVotes / p.count * 0.6) +
-                (p.totalComments / p.count * 0.3 * 5) +
-                (Math.min(p.count, 10) * 10)
-            ),
-        }))
-        .sort((a, b) => b.successScore - a.successScore)
-        .slice(0, 50);
 }
 
 // ============================================
@@ -1229,6 +1319,7 @@ export interface YesterdayData {
         thumbnail_url?: string;
         website_url?: string;
         launched_at: string;
+        id: string;
     }[];
     metrics: {
         totalLaunches: number;
@@ -1265,164 +1356,184 @@ function getColorForCategory(category: string): string {
 }
 
 export async function getYesterdayLaunchesData(): Promise<YesterdayData> {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
+    try {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(0, 0, 0, 0);
 
-    const endOfYesterday = new Date(yesterday);
-    endOfYesterday.setHours(23, 59, 59, 999);
+        const endOfYesterday = new Date(yesterday);
+        endOfYesterday.setHours(23, 59, 59, 999);
 
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('name, votes_count, comments_count, tagline, ai_analysis, launched_at, thumbnail_url, website_url')
-        .gte('launched_at', yesterday.toISOString())
-        .lte('launched_at', endOfYesterday.toISOString())
-        .order('votes_count', { ascending: false });
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('id, name, votes_count, comments_count, tagline, ai_analysis, launched_at, thumbnail_url, website_url')
+            .gte('launched_at', yesterday.toISOString())
+            .lte('launched_at', endOfYesterday.toISOString())
+            .order('votes_count', { ascending: false });
 
-    if (!launches || launches.length === 0) {
+        if (!launches || launches.length === 0) {
+            return {
+                chartData: [],
+                topLaunches: [],
+                metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
+            };
+        }
+
+        // Process Categories
+        const categoryMap = new Map<string, number>();
+        let aiCount = 0;
+        let totalVotes = 0;
+
+        launches.forEach(launch => {
+            const niche = launch.ai_analysis?.niche || 'Other';
+            const category = mapNicheToCategory(niche);
+            categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+
+            // Check for AI
+            const isAI = niche.toLowerCase().includes('ai') ||
+                launch.name.toLowerCase().includes('ai') ||
+                launch.tagline.toLowerCase().includes('ai');
+            if (isAI) aiCount++;
+
+            totalVotes += launch.votes_count || 0;
+        });
+
+        // Format Chart Data
+        const chartData = Array.from(categoryMap.entries())
+            .map(([name, value]) => ({
+                name,
+                value,
+                color: getColorForCategory(name)
+            }))
+            .sort((a, b) => b.value - a.value);
+
+        // Metrics
+        const totalLaunches = launches.length;
+        const aiPercentage = Math.round((aiCount / totalLaunches) * 100);
+        const avgVotes = Math.round(totalVotes / totalLaunches);
+        const topCategory = chartData.length > 0 ? chartData[0].name : 'N/A';
+
+        // Top 50 Launches
+        const topLaunches = launches.slice(0, 50).map(l => ({
+            name: l.name,
+            votes: l.votes_count || 0,
+            comments: l.comments_count || 0,
+            niche: l.ai_analysis?.niche || 'Unknown',
+            tagline: l.tagline,
+            thumbnail_url: l.thumbnail_url,
+            website_url: l.website_url,
+            launched_at: l.launched_at,
+            id: l.id
+        }));
+
+        return {
+            chartData,
+            topLaunches,
+            metrics: {
+                totalLaunches,
+                aiPercentage,
+                avgVotes,
+                topCategory
+            }
+        };
+    } catch (error) {
+        console.error('Error in getYesterdayLaunchesData:', error);
         return {
             chartData: [],
             topLaunches: [],
             metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
         };
     }
-
-    // Process Categories
-    const categoryMap = new Map<string, number>();
-    let aiCount = 0;
-    let totalVotes = 0;
-
-    launches.forEach(launch => {
-        const niche = launch.ai_analysis?.niche || 'Other';
-        const category = mapNicheToCategory(niche);
-        categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
-
-        // Check for AI
-        const isAI = niche.toLowerCase().includes('ai') ||
-            launch.name.toLowerCase().includes('ai') ||
-            launch.tagline.toLowerCase().includes('ai');
-        if (isAI) aiCount++;
-
-        totalVotes += launch.votes_count || 0;
-    });
-
-    // Format Chart Data
-    const chartData = Array.from(categoryMap.entries())
-        .map(([name, value]) => ({
-            name,
-            value,
-            color: getColorForCategory(name)
-        }))
-        .sort((a, b) => b.value - a.value);
-
-    // Metrics
-    const totalLaunches = launches.length;
-    const aiPercentage = Math.round((aiCount / totalLaunches) * 100);
-    const avgVotes = Math.round(totalVotes / totalLaunches);
-    const topCategory = chartData.length > 0 ? chartData[0].name : 'N/A';
-
-    // Top 50 Launches
-    const topLaunches = launches.slice(0, 50).map(l => ({
-        name: l.name,
-        votes: l.votes_count || 0,
-        comments: l.comments_count || 0,
-        niche: l.ai_analysis?.niche || 'Unknown',
-        tagline: l.tagline,
-        thumbnail_url: l.thumbnail_url,
-        website_url: l.website_url,
-        launched_at: l.launched_at
-    }));
-
-    return {
-        chartData,
-        topLaunches,
-        metrics: {
-            totalLaunches,
-            aiPercentage,
-            avgVotes,
-            topCategory
-        }
-    };
 }
 
 // Get Today's Live Launches Data
 export async function getTodayLiveLaunchesData(): Promise<YesterdayData> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    const now = new Date();
+        const now = new Date();
 
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('name, votes_count, comments_count, tagline, ai_analysis, launched_at, thumbnail_url, website_url')
-        .gte('launched_at', today.toISOString())
-        .lte('launched_at', now.toISOString())
-        .order('votes_count', { ascending: false });
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('id, name, votes_count, comments_count, tagline, ai_analysis, launched_at, thumbnail_url, website_url')
+            .gte('launched_at', today.toISOString())
+            .lte('launched_at', now.toISOString())
+            .order('votes_count', { ascending: false });
 
-    if (!launches || launches.length === 0) {
+        if (!launches || launches.length === 0) {
+            return {
+                chartData: [],
+                topLaunches: [],
+                metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
+            };
+        }
+
+        // Process Categories
+        const categoryMap = new Map<string, number>();
+        let aiCount = 0;
+        let totalVotes = 0;
+
+        launches.forEach(launch => {
+            const niche = launch.ai_analysis?.niche || 'Other';
+            const category = mapNicheToCategory(niche);
+            categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+
+            // Check for AI
+            const isAI = niche.toLowerCase().includes('ai') ||
+                launch.name.toLowerCase().includes('ai') ||
+                launch.tagline.toLowerCase().includes('ai');
+            if (isAI) aiCount++;
+
+            totalVotes += launch.votes_count || 0;
+        });
+
+        // Format Chart Data
+        const chartData = Array.from(categoryMap.entries())
+            .map(([name, value]) => ({
+                name,
+                value,
+                color: getColorForCategory(name)
+            }))
+            .sort((a, b) => b.value - a.value);
+
+        // Metrics
+        const totalLaunches = launches.length;
+        const aiPercentage = Math.round((aiCount / totalLaunches) * 100);
+        const avgVotes = Math.round(totalVotes / totalLaunches);
+        const topCategory = chartData.length > 0 ? chartData[0].name : 'N/A';
+
+        // Top 50 Launches
+        const topLaunches = launches.slice(0, 50).map(l => ({
+            name: l.name,
+            votes: l.votes_count || 0,
+            comments: l.comments_count || 0,
+            niche: l.ai_analysis?.niche || 'Unknown',
+            tagline: l.tagline,
+            thumbnail_url: l.thumbnail_url,
+            website_url: l.website_url,
+            launched_at: l.launched_at,
+            id: l.id
+        }));
+
+        return {
+            chartData,
+            topLaunches,
+            metrics: {
+                totalLaunches,
+                aiPercentage,
+                avgVotes,
+                topCategory
+            }
+        };
+    } catch (error) {
+        console.error('Error in getTodayLiveLaunchesData:', error);
         return {
             chartData: [],
             topLaunches: [],
             metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
         };
     }
-
-    // Process Categories
-    const categoryMap = new Map<string, number>();
-    let aiCount = 0;
-    let totalVotes = 0;
-
-    launches.forEach(launch => {
-        const niche = launch.ai_analysis?.niche || 'Other';
-        const category = mapNicheToCategory(niche);
-        categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
-
-        // Check for AI
-        const isAI = niche.toLowerCase().includes('ai') ||
-            launch.name.toLowerCase().includes('ai') ||
-            launch.tagline.toLowerCase().includes('ai');
-        if (isAI) aiCount++;
-
-        totalVotes += launch.votes_count || 0;
-    });
-
-    // Format Chart Data
-    const chartData = Array.from(categoryMap.entries())
-        .map(([name, value]) => ({
-            name,
-            value,
-            color: getColorForCategory(name)
-        }))
-        .sort((a, b) => b.value - a.value);
-
-    // Metrics
-    const totalLaunches = launches.length;
-    const aiPercentage = Math.round((aiCount / totalLaunches) * 100);
-    const avgVotes = Math.round(totalVotes / totalLaunches);
-    const topCategory = chartData.length > 0 ? chartData[0].name : 'N/A';
-
-    // Top 50 Launches
-    const topLaunches = launches.slice(0, 50).map(l => ({
-        name: l.name,
-        votes: l.votes_count || 0,
-        comments: l.comments_count || 0,
-        niche: l.ai_analysis?.niche || 'Unknown',
-        tagline: l.tagline,
-        thumbnail_url: l.thumbnail_url,
-        website_url: l.website_url,
-        launched_at: l.launched_at
-    }));
-
-    return {
-        chartData,
-        topLaunches,
-        metrics: {
-            totalLaunches,
-            aiPercentage,
-            avgVotes,
-            topCategory
-        }
-    };
 }
 
 
@@ -1468,111 +1579,116 @@ export interface DailyLaunchData {
 }
 
 export async function getDailyLaunchData(): Promise<DailyLaunchData | null> {
-    // 1. Get the most recent date with launches
-    const { data: latestLaunch } = await supabase
-        .from('ph_launches')
-        .select('launched_at')
-        .order('launched_at', { ascending: false })
-        .limit(1)
-        .single();
+    try {
+        // 1. Get the most recent date with launches
+        const { data: latestLaunch } = await supabase
+            .from('ph_launches')
+            .select('launched_at')
+            .order('launched_at', { ascending: false })
+            .limit(1)
+            .single();
 
-    if (!latestLaunch) return null;
+        if (!latestLaunch) return null;
 
-    const targetDate = new Date(latestLaunch.launched_at).toISOString().split('T')[0];
+        const targetDate = new Date(latestLaunch.launched_at).toISOString().split('T')[0];
 
-    // 2. Fetch all launches for that date
-    const { data: launches } = await supabase
-        .from('ph_launches')
-        .select('id, name, tagline, votes_count, comments_count, ai_analysis, thumbnail_url')
-        .gte('launched_at', `${targetDate}T00:00:00`)
-        .lt('launched_at', `${targetDate}T23:59:59`)
-        .order('votes_count', { ascending: false });
+        // 2. Fetch all launches for that date
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('id, name, tagline, votes_count, comments_count, ai_analysis, thumbnail_url')
+            .gte('launched_at', `${targetDate}T00:00:00`)
+            .lt('launched_at', `${targetDate}T23:59:59`)
+            .order('votes_count', { ascending: false });
 
-    if (!launches || launches.length === 0) return null;
+        if (!launches || launches.length === 0) return null;
 
-    // 3. Process data
-    const processedLaunches = launches.map((launch, index) => ({
-        id: launch.id,
-        name: launch.name,
-        tagline: launch.tagline,
-        votes: launch.votes_count,
-        comments: launch.comments_count || 0,
-        category: mapNicheToCategory(launch.ai_analysis?.niche || 'Unknown'),
-        rank: index + 1,
-        thumbnail: launch.thumbnail_url
-    }));
+        // 3. Process data
+        const processedLaunches = launches.map((launch, index) => ({
+            id: launch.id,
+            name: launch.name,
+            tagline: launch.tagline,
+            votes: launch.votes_count,
+            comments: launch.comments_count || 0,
+            category: mapNicheToCategory(launch.ai_analysis?.niche || 'Unknown'),
+            rank: index + 1,
+            thumbnail: launch.thumbnail_url
+        }));
 
-    // Category Stats
-    const categoryMap = new Map<string, { count: number; totalVotes: number }>();
-    processedLaunches.forEach(launch => {
-        if (!categoryMap.has(launch.category)) {
-            categoryMap.set(launch.category, { count: 0, totalVotes: 0 });
+        // Category Stats
+        const categoryMap = new Map<string, { count: number; totalVotes: number }>();
+        processedLaunches.forEach(launch => {
+            if (!categoryMap.has(launch.category)) {
+                categoryMap.set(launch.category, { count: 0, totalVotes: 0 });
+            }
+            const stats = categoryMap.get(launch.category)!;
+            stats.count += 1;
+            stats.totalVotes += launch.votes;
+        });
+
+        const categoryStats = Array.from(categoryMap.entries())
+            .map(([name, stats]) => ({
+                name,
+                count: stats.count,
+                totalVotes: stats.totalVotes
+            }))
+            .sort((a, b) => b.count - a.count);
+
+        // Top Highlights
+        const topProduct = processedLaunches[0] ? { name: processedLaunches[0].name, votes: processedLaunches[0].votes } : null;
+
+        // Find most discussed (comments only)
+        const sortedByComments = [...processedLaunches].sort((a, b) => b.comments - a.comments);
+        const mostDiscussed = sortedByComments[0] ? { name: sortedByComments[0].name, comments: sortedByComments[0].comments } : null;
+
+        // Find most engaged (votes + comments * 2)
+        const sortedByEngagement = [...processedLaunches].sort((a, b) => (b.votes + b.comments * 2) - (a.votes + a.comments * 2));
+        const mostEngaged = sortedByEngagement[0] ? {
+            name: sortedByEngagement[0].name,
+            comments: sortedByEngagement[0].comments,
+            votes: sortedByEngagement[0].votes,
+            totalEngagement: sortedByEngagement[0].votes + (sortedByEngagement[0].comments * 2)
+        } : null;
+
+        const topCategory = categoryStats.sort((a, b) => b.totalVotes - a.totalVotes)[0] || null;
+
+        // Generate AI Summary (Opportunity Focused)
+        const totalVotes = processedLaunches.reduce((sum, l) => sum + l.votes, 0);
+        const dominantCategory = categoryStats[0];
+
+        // Find "Blue Ocean" opportunities: Categories with high avg votes but low count (not the top category)
+        const opportunities = categoryStats
+            .filter(c => c.count < categoryStats[0].count && c.count > 0) // Not the most crowded
+            .map(c => ({ ...c, avgVotes: c.totalVotes / c.count }))
+            .sort((a, b) => b.avgVotes - a.avgVotes);
+
+        const topOpportunity = opportunities[0];
+
+        let summary = `Builders, pay attention: While ${dominantCategory.name} is crowded with ${dominantCategory.count} launches, the real opportunity might be in **${topOpportunity?.name || 'niche markets'}**. `;
+
+        if (topOpportunity) {
+            summary += `This category shows high demand (avg ${Math.round(topOpportunity.avgVotes)} votes/launch) but low supply. `;
         }
-        const stats = categoryMap.get(launch.category)!;
-        stats.count += 1;
-        stats.totalVotes += launch.votes;
-    });
 
-    const categoryStats = Array.from(categoryMap.entries())
-        .map(([name, stats]) => ({
-            name,
-            count: stats.count,
-            totalVotes: stats.totalVotes
-        }))
-        .sort((a, b) => b.count - a.count);
+        if (mostDiscussed) {
+            summary += `User discussions are heating up around **${mostDiscussed.name}**, suggesting a specific pain point in the ${mapNicheToCategory(processedLaunches.find(l => l.name === mostDiscussed.name)?.category || '')} space. `;
+        }
 
-    // Top Highlights
-    const topProduct = processedLaunches[0] ? { name: processedLaunches[0].name, votes: processedLaunches[0].votes } : null;
+        summary += `The market is signaling a need for quality over quantity—${processedLaunches.length} products launched, but engagement is concentrating on those solving real problems.`;
 
-    // Find most discussed (comments only)
-    const sortedByComments = [...processedLaunches].sort((a, b) => b.comments - a.comments);
-    const mostDiscussed = sortedByComments[0] ? { name: sortedByComments[0].name, comments: sortedByComments[0].comments } : null;
-
-    // Find most engaged (votes + comments * 2)
-    const sortedByEngagement = [...processedLaunches].sort((a, b) => (b.votes + b.comments * 2) - (a.votes + a.comments * 2));
-    const mostEngaged = sortedByEngagement[0] ? {
-        name: sortedByEngagement[0].name,
-        comments: sortedByEngagement[0].comments,
-        votes: sortedByEngagement[0].votes,
-        totalEngagement: sortedByEngagement[0].votes + (sortedByEngagement[0].comments * 2)
-    } : null;
-
-    const topCategory = categoryStats.sort((a, b) => b.totalVotes - a.totalVotes)[0] || null;
-
-    // Generate AI Summary (Opportunity Focused)
-    const totalVotes = processedLaunches.reduce((sum, l) => sum + l.votes, 0);
-    const dominantCategory = categoryStats[0];
-
-    // Find "Blue Ocean" opportunities: Categories with high avg votes but low count (not the top category)
-    const opportunities = categoryStats
-        .filter(c => c.count < categoryStats[0].count && c.count > 0) // Not the most crowded
-        .map(c => ({ ...c, avgVotes: c.totalVotes / c.count }))
-        .sort((a, b) => b.avgVotes - a.avgVotes);
-
-    const topOpportunity = opportunities[0];
-
-    let summary = `Builders, pay attention: While ${dominantCategory.name} is crowded with ${dominantCategory.count} launches, the real opportunity might be in **${topOpportunity?.name || 'niche markets'}**. `;
-
-    if (topOpportunity) {
-        summary += `This category shows high demand (avg ${Math.round(topOpportunity.avgVotes)} votes/launch) but low supply. `;
+        return {
+            date: targetDate,
+            launches: processedLaunches.slice(0, 50), // Top 50
+            categoryStats,
+            topProduct,
+            mostDiscussed,
+            mostEngaged,
+            topCategory,
+            aiSummary: summary
+        };
+    } catch (error) {
+        console.error('Error in getDailyLaunchData:', error);
+        return null;
     }
-
-    if (mostDiscussed) {
-        summary += `User discussions are heating up around **${mostDiscussed.name}**, suggesting a specific pain point in the ${mapNicheToCategory(processedLaunches.find(l => l.name === mostDiscussed.name)?.category || '')} space. `;
-    }
-
-    summary += `The market is signaling a need for quality over quantity—${processedLaunches.length} products launched, but engagement is concentrating on those solving real problems.`;
-
-    return {
-        date: targetDate,
-        launches: processedLaunches.slice(0, 50), // Top 50
-        categoryStats,
-        topProduct,
-        mostDiscussed,
-        mostEngaged,
-        topCategory,
-        aiSummary: summary
-    };
 }
 
 export interface MarketGapItem {

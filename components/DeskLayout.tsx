@@ -28,16 +28,16 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-hunted-dark flex flex-col">
       {/* Top Navigation Bar */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+      <header className="bg-white dark:bg-hunted-dark border-b border-gray-200 dark:border-hunted-border sticky top-0 z-50">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
           {/* Logo & Branding */}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 relative rounded-lg overflow-hidden">
               <Image src="/Favicon.png" alt="Logo" fill className="object-cover" sizes="32px" />
             </div>
-            <span className="font-bold text-xl text-gray-900 dark:text-white tracking-tight">Product Huntr</span>
+            <span className="font-bold text-xl text-gray-900 dark:text-hunted-text tracking-tight">Product Huntr</span>
           </div>
 
           {/* Desktop Navigation - Centered */}
@@ -61,11 +61,11 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
                   key={item.href}
                   href={item.href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
-                    ? 'bg-gray-900 text-white shadow-sm dark:bg-white dark:text-black'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                    ? 'bg-gray-900 text-white shadow-sm dark:bg-hunted-text dark:text-hunted-dark'
+                    : 'text-gray-600 dark:text-hunted-muted hover:bg-gray-50 dark:hover:bg-hunted-card hover:text-gray-900 dark:hover:text-hunted-text'
                     }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white dark:text-black' : 'text-gray-500 dark:text-gray-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white dark:text-hunted-dark' : 'text-gray-500 dark:text-hunted-muted'}`} />
                   {item.label}
                 </Link>
               );
@@ -75,7 +75,7 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg ml-auto"
+            className="md:hidden p-2 text-gray-600 dark:text-hunted-muted hover:bg-gray-100 dark:hover:bg-hunted-card rounded-lg ml-auto"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -83,7 +83,7 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
 
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-2 space-y-1 shadow-lg">
+          <div className="md:hidden border-t border-gray-100 dark:border-hunted-border bg-white dark:bg-hunted-card px-4 py-2 space-y-1 shadow-lg">
             {navItems.map((item) => {
               const Icon = item.icon;
               let isActive = false;
@@ -103,11 +103,11 @@ export default function DeskLayout({ children }: DeskLayoutProps) {
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
-                    ? 'bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                    ? 'bg-gray-50 dark:bg-hunted-card text-gray-900 dark:text-hunted-text'
+                    : 'text-gray-600 dark:text-hunted-muted hover:bg-gray-50 dark:hover:bg-hunted-card hover:text-gray-900 dark:hover:text-hunted-text'
                     }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-hunted-muted'}`} />
                   {item.label}
                 </Link>
               );

@@ -78,8 +78,8 @@ export default function SubscriptionPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-neutral-400 animate-spin" />
+            <div className="min-h-screen bg-neutral-50 dark:bg-hunted-dark flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-neutral-400 dark:text-hunted-muted animate-spin" />
             </div>
         );
     }
@@ -88,54 +88,54 @@ export default function SubscriptionPage() {
     const StatusIcon = statusDisplay.icon;
 
     return (
-        <div className="min-h-screen bg-neutral-50">
+        <div className="min-h-screen bg-neutral-50 dark:bg-hunted-dark">
             <div className="max-w-4xl mx-auto p-6 sm:p-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <Link href="/desk" className="text-sm text-neutral-600 hover:text-neutral-900 mb-4 inline-block">
+                    <Link href="/desk" className="text-sm text-neutral-600 dark:text-hunted-muted hover:text-neutral-900 dark:hover:text-hunted-text mb-4 inline-block">
                         ← Back to Dashboard
                     </Link>
-                    <h1 className="text-3xl font-bold text-neutral-900">Subscription</h1>
-                    <p className="text-neutral-600 mt-2">Manage your Product Huntr subscription</p>
+                    <h1 className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">Subscription</h1>
+                    <p className="text-neutral-600 dark:text-hunted-muted mt-2">Manage your Product Huntr subscription</p>
                 </div>
 
                 {/* Subscription Status Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-6">
+                <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border p-6 mb-6">
                     <div className="flex items-start justify-between mb-6">
                         <div>
-                            <h2 className="text-xl font-bold text-neutral-900 mb-2">Pro Plan</h2>
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-hunted-text mb-2">Pro Plan</h2>
                             <div className="flex items-center gap-2">
                                 <StatusIcon className={`w-5 h-5 ${statusDisplay.color}`} />
                                 <span className={`font-semibold ${statusDisplay.color}`}>{statusDisplay.text}</span>
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-3xl font-bold text-neutral-900">$15</div>
-                            <div className="text-sm text-neutral-500">per month</div>
+                            <div className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">$15</div>
+                            <div className="text-sm text-neutral-500 dark:text-hunted-muted">per month</div>
                         </div>
                     </div>
 
                     {subscription && subscription.status === 'active' && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-neutral-50 rounded-lg mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg mb-6">
                             <div>
-                                <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Started</div>
-                                <div className="font-semibold text-neutral-900">
+                                <div className="text-xs text-neutral-500 dark:text-hunted-muted uppercase tracking-wider mb-1">Started</div>
+                                <div className="font-semibold text-neutral-900 dark:text-hunted-text">
                                     {subscription.subscription_created_at
                                         ? new Date(subscription.subscription_created_at).toLocaleDateString()
                                         : 'N/A'}
                                 </div>
                             </div>
                             <div>
-                                <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Last Payment</div>
-                                <div className="font-semibold text-neutral-900">
+                                <div className="text-xs text-neutral-500 dark:text-hunted-muted uppercase tracking-wider mb-1">Last Payment</div>
+                                <div className="font-semibold text-neutral-900 dark:text-hunted-text">
                                     {subscription.last_payment_at
                                         ? new Date(subscription.last_payment_at).toLocaleDateString()
                                         : 'N/A'}
                                 </div>
                             </div>
                             <div>
-                                <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Next Billing</div>
-                                <div className="font-semibold text-neutral-900">
+                                <div className="text-xs text-neutral-500 dark:text-hunted-muted uppercase tracking-wider mb-1">Next Billing</div>
+                                <div className="font-semibold text-neutral-900 dark:text-hunted-text">
                                     {subscription.subscription_expires_at
                                         ? new Date(subscription.subscription_expires_at).toLocaleDateString()
                                         : 'Monthly'}
@@ -149,21 +149,21 @@ export default function SubscriptionPage() {
                         href="https://whop.com/hub/memberships"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-lg font-semibold hover:bg-neutral-800 transition-all"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-white text-white dark:text-black rounded-lg font-semibold hover:bg-neutral-800 dark:hover:bg-gray-200 transition-all"
                     >
                         <CreditCard className="w-4 h-4" />
                         Manage Subscription
                         <ExternalLink className="w-4 h-4" />
                     </a>
 
-                    <p className="text-sm text-neutral-500 mt-4">
+                    <p className="text-sm text-neutral-500 dark:text-hunted-muted mt-4">
                         Manage your subscription, update payment method, or cancel anytime on Whop.
                     </p>
                 </div>
 
                 {/* What's Included */}
-                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-                    <h3 className="text-lg font-bold text-neutral-900 mb-4">What's Included</h3>
+                <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border p-6">
+                    <h3 className="text-lg font-bold text-neutral-900 dark:text-hunted-text mb-4">What's Included</h3>
                     <ul className="space-y-3">
                         {[
                             'Real-time trend velocity tracking',
@@ -174,7 +174,7 @@ export default function SubscriptionPage() {
                             'Niche success probability scores',
                             'Priority support',
                         ].map((feature, i) => (
-                            <li key={i} className="flex items-center gap-3 text-neutral-700">
+                            <li key={i} className="flex items-center gap-3 text-neutral-700 dark:text-hunted-muted">
                                 <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                                 <span>{feature}</span>
                             </li>
@@ -183,12 +183,12 @@ export default function SubscriptionPage() {
                 </div>
 
                 {/* Need Help */}
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg">
                     <div className="flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                         <div>
-                            <h4 className="font-semibold text-blue-900 mb-1">Need Help?</h4>
-                            <p className="text-sm text-blue-800">
+                            <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">Need Help?</h4>
+                            <p className="text-sm text-blue-800 dark:text-blue-200">
                                 If you have any questions about your subscription or billing, contact us at{' '}
                                 <a href="mailto:support@producthuntr.com" className="underline font-semibold">
                                     support@producthuntr.com

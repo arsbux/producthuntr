@@ -43,7 +43,7 @@ export default function SuccessPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white flex items-center justify-center px-6 relative overflow-hidden">
+        <div className="min-h-screen bg-black dark:bg-hunted-dark text-white dark:text-hunted-text flex items-center justify-center px-6 relative overflow-hidden">
             {/* Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-green-600/20 rounded-full blur-[120px]" />
@@ -62,17 +62,17 @@ export default function SuccessPage() {
                     <h1 className="text-3xl font-bold mb-2 tracking-tight">
                         Payment Successful! 🎉
                     </h1>
-                    <p className="text-neutral-400">
+                    <p className="text-neutral-400 dark:text-hunted-muted">
                         Create your account to access Product Huntr Pro
                     </p>
                 </div>
 
                 {/* Signup Form */}
-                <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
+                <div className="bg-neutral-900/50 dark:bg-hunted-card backdrop-blur-xl border border-neutral-800 dark:border-hunted-border rounded-2xl p-8 shadow-2xl">
 
                     <form onSubmit={handleSignup} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-neutral-300 mb-1.5">Email</label>
+                            <label className="block text-sm font-medium text-neutral-300 dark:text-hunted-text mb-1.5">Email</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                                 <input
@@ -80,14 +80,14 @@ export default function SuccessPage() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pl-10 pr-4 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
+                                    className="w-full bg-neutral-950 dark:bg-hunted-dark border border-neutral-800 dark:border-hunted-border rounded-xl py-3 pl-10 pr-4 text-white dark:text-hunted-text placeholder-neutral-500 dark:placeholder-hunted-muted focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
                                     placeholder="you@example.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-neutral-300 mb-1.5">Password</label>
+                            <label className="block text-sm font-medium text-neutral-300 dark:text-hunted-text mb-1.5">Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                                 <input
@@ -95,12 +95,12 @@ export default function SuccessPage() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pl-10 pr-4 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
+                                    className="w-full bg-neutral-950 dark:bg-hunted-dark border border-neutral-800 dark:border-hunted-border rounded-xl py-3 pl-10 pr-4 text-white dark:text-hunted-text placeholder-neutral-500 dark:placeholder-hunted-muted focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all"
                                     placeholder="••••••••"
                                     minLength={6}
                                 />
                             </div>
-                            <p className="text-xs text-neutral-500 mt-1">Minimum 6 characters</p>
+                            <p className="text-xs text-neutral-500 dark:text-hunted-muted mt-1">Minimum 6 characters</p>
                         </div>
 
                         {error && (
@@ -124,8 +124,8 @@ export default function SuccessPage() {
                         </button>
                     </form>
 
-                    <div className="mt-6 pt-6 border-t border-neutral-800">
-                        <p className="text-center text-sm text-neutral-400">
+                    <div className="mt-6 pt-6 border-t border-neutral-800 dark:border-hunted-border">
+                        <p className="text-center text-sm text-neutral-400 dark:text-hunted-muted">
                             Already have an account?{' '}
                             <Link href="/login" className="text-green-500 hover:text-green-400 font-medium transition-colors">
                                 Sign in
@@ -134,7 +134,7 @@ export default function SuccessPage() {
                     </div>
                 </div>
 
-                <p className="text-center text-xs text-neutral-500 mt-6">
+                <p className="text-center text-xs text-neutral-500 dark:text-hunted-muted mt-6">
                     By creating an account, you agree to our Terms of Service and Privacy Policy.
                 </p>
             </div>

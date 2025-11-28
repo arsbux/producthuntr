@@ -172,30 +172,30 @@ export default function TrendsPage() {
 
     if (loading) {
         return (
-            <div className="p-8 flex items-center justify-center min-h-screen">
+            <div className="p-8 flex items-center justify-center min-h-screen bg-neutral-50 dark:bg-hunted-dark">
                 <div className="text-center">
                     <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-neutral-600">Loading trends data...</p>
+                    <p className="text-neutral-600 dark:text-hunted-muted">Loading trends data...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="p-4 md:p-8 bg-neutral-50 min-h-screen">
+        <div className="p-4 md:p-8 bg-neutral-50 dark:bg-hunted-dark min-h-screen">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-neutral-900 mb-2">Market Trends</h1>
-                <p className="text-neutral-600">
+                <h1 className="text-3xl font-bold text-neutral-900 dark:text-hunted-text mb-2">Market Trends</h1>
+                <p className="text-neutral-600 dark:text-hunted-muted">
                     Real-time analytics from {stats.totalLaunches} analyzed Product Hunt launches
                 </p>
             </div>
 
             {/* Main Chart - Niche Activity */}
-            <div className="bg-white border border-neutral-200 rounded-xl p-6 mb-8 shadow-sm hover:shadow-lg transition-all">
+            <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6 mb-8 shadow-sm hover:shadow-lg transition-all">
                 <div className="mb-6">
-                    <h3 className="text-xl font-bold text-neutral-900 mb-1">Niche Launch Activity</h3>
-                    <p className="text-sm text-neutral-600">Click on any niche to see all products ranked by performance</p>
+                    <h3 className="text-xl font-bold text-neutral-900 dark:text-hunted-text mb-1">Niche Launch Activity</h3>
+                    <p className="text-sm text-neutral-600 dark:text-hunted-muted">Click on any niche to see all products ranked by performance</p>
                 </div>
                 <ResponsiveContainer width="100%" height={500}>
                     <BarChart
@@ -220,10 +220,11 @@ export default function TrendsPage() {
                         <YAxis stroke="#737373" fontSize={12} />
                         <Tooltip
                             contentStyle={{
-                                backgroundColor: '#fff',
-                                border: '1px solid #e5e5e5',
+                                backgroundColor: '#0F0F0F',
+                                border: '1px solid #27272a',
                                 borderRadius: '8px',
-                                fontSize: '12px'
+                                fontSize: '12px',
+                                color: '#E4E4E7'
                             }}
                             cursor={{ fill: 'rgba(234, 88, 12, 0.1)' }}
                         />
@@ -244,31 +245,31 @@ export default function TrendsPage() {
                         />
                     </BarChart>
                 </ResponsiveContainer>
-                <div className="mt-4 text-center text-sm text-neutral-500">
+                <div className="mt-4 text-center text-sm text-neutral-500 dark:text-hunted-muted">
                     💡 Click on any bar to explore products in that niche
                 </div>
             </div>
 
             {/* Trending Problems - Emphasized */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-8 mb-8 shadow-md">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 border-2 border-blue-200 dark:border-blue-900/30 rounded-xl p-8 mb-8 shadow-md">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
                         <TrendingUp className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <h3 className="text-2xl font-bold text-neutral-900">Trending Problems Being Solved</h3>
-                        <p className="text-sm text-neutral-600">What pain points are getting the most attention</p>
+                        <h3 className="text-2xl font-bold text-neutral-900 dark:text-hunted-text">Trending Problems Being Solved</h3>
+                        <p className="text-sm text-neutral-600 dark:text-hunted-muted">What pain points are getting the most attention</p>
                     </div>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                     {problemData.map((problem, index) => (
-                        <div key={index} className="bg-white rounded-lg p-4 border border-neutral-200 hover:border-blue-400 hover:shadow-md transition-all">
+                        <div key={index} className="bg-white dark:bg-hunted-card rounded-lg p-4 border border-neutral-200 dark:border-hunted-border hover:border-blue-400 hover:shadow-md transition-all">
                             <div className="flex items-start justify-between mb-3">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-700 font-bold text-sm">
+                                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-sm">
                                         #{index + 1}
                                     </div>
-                                    <div className="font-semibold text-neutral-900 text-sm leading-tight flex-1">
+                                    <div className="font-semibold text-neutral-900 dark:text-hunted-text text-sm leading-tight flex-1">
                                         {problem.name}
                                     </div>
                                 </div>
@@ -276,14 +277,14 @@ export default function TrendsPage() {
                             <div className="flex items-center gap-4 text-xs">
                                 <div className="flex items-center gap-1">
                                     <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                    <span className="text-neutral-600">{problem.launches} launches</span>
+                                    <span className="text-neutral-600 dark:text-hunted-muted">{problem.launches} launches</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                                    <span className="text-neutral-600">{problem.avgVotes} avg votes</span>
+                                    <span className="text-neutral-600 dark:text-hunted-muted">{problem.avgVotes} avg votes</span>
                                 </div>
                             </div>
-                            <div className="mt-3 bg-neutral-100 rounded-full h-2 overflow-hidden">
+                            <div className="mt-3 bg-neutral-100 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
                                 <div
                                     className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-500"
                                     style={{ width: `${(problem.avgVotes / 500) * 100}%` }}
@@ -297,34 +298,34 @@ export default function TrendsPage() {
             {/* Secondary Metrics Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Target ICPs */}
-                <div className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all">
+                <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6 shadow-sm hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
                             <Activity className="w-5 h-5 text-purple-600" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-neutral-900">Who's Being Targeted</h3>
-                            <p className="text-xs text-neutral-600">Most common ideal customer profiles</p>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-hunted-text">Who's Being Targeted</h3>
+                            <p className="text-xs text-neutral-600 dark:text-hunted-muted">Most common ideal customer profiles</p>
                         </div>
                     </div>
                     <div className="space-y-3">
                         {icpData.map((icp, index) => (
-                            <div key={index} className="border-b border-neutral-100 pb-3 last:border-0 hover:bg-neutral-50 p-2 rounded-lg transition-all">
+                            <div key={index} className="border-b border-neutral-100 dark:border-hunted-border pb-3 last:border-0 hover:bg-neutral-50 dark:hover:bg-hunted-border p-2 rounded-lg transition-all">
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-neutral-400">#{index + 1}</span>
-                                        <span className="font-medium text-neutral-900 text-sm">{icp.name}</span>
+                                        <span className="text-xs font-bold text-neutral-400 dark:text-hunted-muted">#{index + 1}</span>
+                                        <span className="font-medium text-neutral-900 dark:text-hunted-text text-sm">{icp.name}</span>
                                     </div>
-                                    <div className="text-xs text-neutral-500 font-medium">{icp.count} products</div>
+                                    <div className="text-xs text-neutral-500 dark:text-hunted-muted font-medium">{icp.count} products</div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="flex-1 bg-neutral-100 rounded-full h-2.5 overflow-hidden">
+                                    <div className="flex-1 bg-neutral-100 dark:bg-neutral-800 rounded-full h-2.5 overflow-hidden">
                                         <div
                                             className="bg-gradient-to-r from-purple-600 to-pink-600 h-2.5 rounded-full transition-all duration-500"
                                             style={{ width: `${(icp.count / icpData[0].count) * 100}%` }}
                                         ></div>
                                     </div>
-                                    <div className="text-xs font-semibold text-neutral-700">{icp.avgVotes}</div>
+                                    <div className="text-xs font-semibold text-neutral-700 dark:text-hunted-muted">{icp.avgVotes}</div>
                                 </div>
                             </div>
                         ))}
@@ -332,14 +333,14 @@ export default function TrendsPage() {
                 </div>
 
                 {/* Pricing Distribution */}
-                <div className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all">
+                <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6 shadow-sm hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
                             <PieChart className="w-5 h-5 text-green-600" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-neutral-900">Pricing Models</h3>
-                            <p className="text-xs text-neutral-600">How products are monetizing</p>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-hunted-text">Pricing Models</h3>
+                            <p className="text-xs text-neutral-600 dark:text-hunted-muted">How products are monetizing</p>
                         </div>
                     </div>
 
@@ -352,14 +353,14 @@ export default function TrendsPage() {
                                             className="w-3 h-3 rounded-sm"
                                             style={{ backgroundColor: COLORS[index % COLORS.length] }}
                                         ></div>
-                                        <span className="text-sm font-medium text-neutral-900">{item.name}</span>
+                                        <span className="text-sm font-medium text-neutral-900 dark:text-hunted-text">{item.name}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm font-semibold text-neutral-700">{item.value}</span>
-                                        <span className="text-xs text-neutral-500">({item.percentage}%)</span>
+                                        <span className="text-sm font-semibold text-neutral-700 dark:text-hunted-muted">{item.value}</span>
+                                        <span className="text-xs text-neutral-500 dark:text-hunted-muted">({item.percentage}%)</span>
                                     </div>
                                 </div>
-                                <div className="w-full bg-neutral-100 rounded-full h-2.5 overflow-hidden">
+                                <div className="w-full bg-neutral-100 dark:bg-neutral-800 rounded-full h-2.5 overflow-hidden">
                                     <div
                                         className="h-2.5 rounded-full transition-all duration-500 group-hover:opacity-80"
                                         style={{

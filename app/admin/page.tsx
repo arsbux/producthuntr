@@ -159,82 +159,82 @@ export default function AdminPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-neutral-400 animate-spin" />
+            <div className="min-h-screen bg-neutral-50 dark:bg-hunted-dark flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-neutral-400 dark:text-hunted-muted animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50">
+        <div className="min-h-screen bg-neutral-50 dark:bg-hunted-dark">
             <div className="max-w-7xl mx-auto p-6 sm:p-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-neutral-900">Admin Dashboard</h1>
-                    <p className="text-neutral-600 mt-2">Manage subscribers and revenue</p>
+                    <h1 className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">Admin Dashboard</h1>
+                    <p className="text-neutral-600 dark:text-hunted-muted mt-2">Manage subscribers and revenue</p>
                 </div>
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                    <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <Users className="w-6 h-6 text-blue-600" />
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                             </div>
                         </div>
-                        <div className="text-3xl font-bold text-neutral-900">{stats.totalSubscribers}</div>
-                        <div className="text-sm text-neutral-500 mt-1">Total Subscribers</div>
+                        <div className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">{stats.totalSubscribers}</div>
+                        <div className="text-sm text-neutral-500 dark:text-hunted-muted mt-1">Total Subscribers</div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                    <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <CheckCircle2 className="w-6 h-6 text-green-600" />
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                                <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
                             </div>
                         </div>
-                        <div className="text-3xl font-bold text-neutral-900">{stats.activeSubscribers}</div>
-                        <div className="text-sm text-neutral-500 mt-1">Active</div>
+                        <div className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">{stats.activeSubscribers}</div>
+                        <div className="text-sm text-neutral-500 dark:text-hunted-muted mt-1">Active</div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                    <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <DollarSign className="w-6 h-6 text-orange-600" />
+                            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                                <DollarSign className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                             </div>
                         </div>
-                        <div className="text-3xl font-bold text-neutral-900">${stats.mrr}</div>
-                        <div className="text-sm text-neutral-500 mt-1">MRR</div>
+                        <div className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">${stats.mrr}</div>
+                        <div className="text-sm text-neutral-500 dark:text-hunted-muted mt-1">MRR</div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                    <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                <XCircle className="w-6 h-6 text-red-600" />
+                            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                                <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
                             </div>
                         </div>
-                        <div className="text-3xl font-bold text-neutral-900">{stats.canceledSubscribers}</div>
-                        <div className="text-sm text-neutral-500 mt-1">Canceled</div>
+                        <div className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">{stats.canceledSubscribers}</div>
+                        <div className="text-sm text-neutral-500 dark:text-hunted-muted mt-1">Canceled</div>
                     </div>
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-6">
+                <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border p-6 mb-6">
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 dark:text-hunted-muted" />
                             <input
                                 type="text"
                                 placeholder="Search by email or Whop ID..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                className="w-full pl-10 pr-4 py-2 border border-neutral-200 dark:border-hunted-border dark:bg-hunted-dark dark:text-hunted-text rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                             />
                         </div>
 
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-4 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className="px-4 py-2 border border-neutral-200 dark:border-hunted-border dark:bg-hunted-dark dark:text-hunted-text rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                         >
                             <option value="all">All Status</option>
                             <option value="active">Active</option>
@@ -245,7 +245,7 @@ export default function AdminPage() {
 
                         <button
                             onClick={exportToCSV}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-900 text-white rounded-lg font-semibold hover:bg-neutral-800 transition-all"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-900 dark:bg-white text-white dark:text-black rounded-lg font-semibold hover:bg-neutral-800 dark:hover:bg-gray-200 transition-all"
                         >
                             <Download className="w-4 h-4" />
                             Export CSV
@@ -254,55 +254,55 @@ export default function AdminPage() {
                 </div>
 
                 {/* Subscribers Table */}
-                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
+                <div className="bg-white dark:bg-hunted-card rounded-xl shadow-sm border border-neutral-200 dark:border-hunted-border overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-neutral-50 border-b border-neutral-200">
+                            <thead className="bg-neutral-50 dark:bg-hunted-dark border-b border-neutral-200 dark:border-hunted-border">
                                 <tr>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 uppercase tracking-wider">
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 dark:text-hunted-muted uppercase tracking-wider">
                                         Email
                                     </th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 uppercase tracking-wider">
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 dark:text-hunted-muted uppercase tracking-wider">
                                         Status
                                     </th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 uppercase tracking-wider">
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 dark:text-hunted-muted uppercase tracking-wider">
                                         Started
                                     </th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 uppercase tracking-wider">
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 dark:text-hunted-muted uppercase tracking-wider">
                                         Last Payment
                                     </th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 uppercase tracking-wider">
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-neutral-600 dark:text-hunted-muted uppercase tracking-wider">
                                         Whop ID
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-neutral-200">
+                            <tbody className="divide-y divide-neutral-200 dark:divide-hunted-border">
                                 {filteredSubscribers.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-neutral-500">
+                                        <td colSpan={5} className="px-6 py-12 text-center text-neutral-500 dark:text-hunted-muted">
                                             No subscribers found
                                         </td>
                                     </tr>
                                 ) : (
                                     filteredSubscribers.map((subscriber) => (
-                                        <tr key={subscriber.id} className="hover:bg-neutral-50 transition-colors">
-                                            <td className="px-6 py-4 text-sm font-medium text-neutral-900">
+                                        <tr key={subscriber.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+                                            <td className="px-6 py-4 text-sm font-medium text-neutral-900 dark:text-hunted-text">
                                                 {subscriber.email}
                                             </td>
                                             <td className="px-6 py-4">
                                                 {getStatusBadge(subscriber.subscription_status)}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-neutral-600">
+                                            <td className="px-6 py-4 text-sm text-neutral-600 dark:text-hunted-muted">
                                                 {subscriber.subscription_created_at
                                                     ? new Date(subscriber.subscription_created_at).toLocaleDateString()
                                                     : 'N/A'}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-neutral-600">
+                                            <td className="px-6 py-4 text-sm text-neutral-600 dark:text-hunted-muted">
                                                 {subscriber.last_payment_at
                                                     ? new Date(subscriber.last_payment_at).toLocaleDateString()
                                                     : 'N/A'}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-neutral-500 font-mono">
+                                            <td className="px-6 py-4 text-sm text-neutral-500 dark:text-hunted-muted font-mono">
                                                 {subscriber.whop_user_id || 'N/A'}
                                             </td>
                                         </tr>
@@ -314,7 +314,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Results Count */}
-                <div className="mt-4 text-sm text-neutral-500 text-center">
+                <div className="mt-4 text-sm text-neutral-500 dark:text-hunted-muted text-center">
                     Showing {filteredSubscribers.length} of {subscribers.length} subscribers
                 </div>
             </div>

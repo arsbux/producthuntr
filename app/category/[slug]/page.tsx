@@ -10,8 +10,8 @@ export default async function CategoryPage({ params }: { params: { slug: string 
         return (
             <DeskLayout>
                 <div className="p-8 text-center min-h-screen flex flex-col items-center justify-center">
-                    <h1 className="text-2xl font-bold text-gray-900">Category Not Found</h1>
-                    <p className="text-gray-500 mt-2">Could not find data for "{topic}".</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-hunted-text">Category Not Found</h1>
+                    <p className="text-gray-500 dark:text-hunted-muted mt-2">Could not find data for "{topic}".</p>
                 </div>
             </DeskLayout>
         );

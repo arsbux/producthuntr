@@ -189,8 +189,14 @@ export default function GrowthWorkbenchPage() {
 
         const CommonTooltip = () => (
             <Tooltip
-                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                cursor={{ fill: '#f3f4f6' }}
+                contentStyle={{
+                    backgroundColor: '#0F0F0F',
+                    border: '1px solid #27272a',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    color: '#E4E4E7'
+                }}
+                cursor={{ fill: '#27272a' }}
             />
         );
 
@@ -250,7 +256,16 @@ export default function GrowthWorkbenchPage() {
                             <XAxis type="number" dataKey="launchVolume" name="Volume" unit="" />
                             <YAxis type="number" dataKey="avgUpvotes" name="Demand" unit="" />
                             <ZAxis type="number" dataKey="opportunityScore" range={[60, 400]} name="Score" />
-                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                            <Tooltip
+                                cursor={{ strokeDasharray: '3 3' }}
+                                contentStyle={{
+                                    backgroundColor: '#0F0F0F',
+                                    border: '1px solid #27272a',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                    color: '#E4E4E7'
+                                }}
+                            />
                             <Scatter name="Opportunities" data={viz.data} fill="#8884d8">
                                 {viz.data.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -285,7 +300,13 @@ export default function GrowthWorkbenchPage() {
                                 }}
                             />
                             <Tooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                contentStyle={{
+                                    backgroundColor: '#0F0F0F',
+                                    border: '1px solid #27272a',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                    color: '#E4E4E7'
+                                }}
                                 cursor={{ fill: 'transparent' }}
                             />
                         </RadialBarChart>
@@ -335,16 +356,16 @@ export default function GrowthWorkbenchPage() {
                 isOpen={showPremiumModal}
                 user={user}
             />
-            <div className={`min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-black flex flex-col ${showPremiumModal ? 'blur-sm pointer-events-none h-[calc(100vh-64px)] overflow-hidden' : ''}`}>
+            <div className={`min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-hunted-dark flex flex-col ${showPremiumModal ? 'blur-sm pointer-events-none h-[calc(100vh-64px)] overflow-hidden' : ''}`}>
                 <div className="flex-1 min-w-0 overflow-y-auto p-6 lg:p-8 w-full max-w-7xl mx-auto">
 
                     {/* Header & Search */}
                     <div className={`transition-all duration-500 ${result || viewMode === 'product' ? 'mb-8' : 'min-h-[60vh] flex flex-col justify-center items-center'}`}>
                         <div className={`w-full ${result || viewMode === 'product' ? '' : 'max-w-3xl text-center'}`}>
-                            <h1 className={`font-bold text-gray-900 dark:text-white tracking-tight mb-2 ${result || viewMode === 'product' ? 'text-2xl' : 'text-4xl md:text-5xl'}`}>
+                            <h1 className={`font-bold text-gray-900 dark:text-hunted-text tracking-tight mb-2 ${result || viewMode === 'product' ? 'text-2xl' : 'text-4xl md:text-5xl'}`}>
                                 Growth Intelligence Center
                             </h1>
-                            <p className={`text-gray-500 dark:text-gray-400 mb-8 ${result || viewMode === 'product' ? 'text-base' : 'text-xl'}`}>
+                            <p className={`text-gray-500 dark:text-hunted-muted mb-8 ${result || viewMode === 'product' ? 'text-base' : 'text-xl'}`}>
                                 Ask anything about the market, trends, or competitors.
                             </p>
 
@@ -355,7 +376,7 @@ export default function GrowthWorkbenchPage() {
                                         <input
                                             type="text"
                                             placeholder="e.g. 'Analyze the growth of AI writing tools' or 'What are the top trends in fintech?'"
-                                            className="w-full pl-6 pr-16 py-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-lg relative bg-white dark:bg-gray-900 dark:text-white"
+                                            className="w-full pl-6 pr-16 py-5 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-lg relative bg-white dark:bg-hunted-card dark:text-hunted-text"
                                             value={query}
                                             onChange={(e) => {
                                                 setQuery(e.target.value);
@@ -366,7 +387,7 @@ export default function GrowthWorkbenchPage() {
                                         <button
                                             type="submit"
                                             disabled={loading || !query.trim()}
-                                            className="absolute right-3 top-3 bottom-3 px-4 bg-gray-900 dark:bg-gray-700 text-white rounded-xl hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 flex items-center justify-center"
+                                            className="absolute right-3 top-3 bottom-3 px-4 bg-gray-900 dark:bg-hunted-border text-white rounded-xl hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 flex items-center justify-center"
                                         >
                                             {loading ? (
                                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -379,38 +400,38 @@ export default function GrowthWorkbenchPage() {
 
                                 {/* Autocomplete Suggestions */}
                                 {showSuggestions && suggestions.length > 0 && (
-                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden z-30 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-hunted-card rounded-2xl shadow-xl border border-gray-100 dark:border-hunted-border overflow-hidden z-30 animate-in fade-in slide-in-from-top-2 duration-200">
                                         {suggestions.map((product) => (
                                             <div
                                                 key={product.id}
                                                 onClick={() => handleSelectProduct(product)}
-                                                className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors border-b border-gray-50 dark:border-gray-800 last:border-0"
+                                                className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-hunted-border/50 cursor-pointer transition-colors border-b border-gray-50 dark:border-hunted-border last:border-0"
                                             >
                                                 {/* Rank Badge */}
                                                 {product.daily_rank && (
-                                                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300 shrink-0">
+                                                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-hunted-border flex items-center justify-center text-sm font-bold text-gray-600 dark:text-hunted-muted shrink-0">
                                                         {product.daily_rank}
                                                     </div>
                                                 )}
 
                                                 {/* Logo */}
                                                 {product.thumbnail_url ? (
-                                                    <img src={product.thumbnail_url} alt="" className="w-10 h-10 rounded-lg object-cover bg-gray-100 dark:bg-gray-800 shrink-0" />
+                                                    <img src={product.thumbnail_url} alt="" className="w-10 h-10 rounded-lg object-cover bg-gray-100 dark:bg-hunted-border shrink-0" />
                                                 ) : (
-                                                    <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                                                    <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-hunted-border flex items-center justify-center shrink-0">
                                                         <Rocket className="w-5 h-5 text-gray-400" />
                                                     </div>
                                                 )}
 
                                                 {/* Info */}
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className="font-bold text-gray-900 dark:text-white truncate">{product.name}</h4>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{product.tagline}</p>
+                                                    <h4 className="font-bold text-gray-900 dark:text-hunted-text truncate">{product.name}</h4>
+                                                    <p className="text-xs text-gray-500 dark:text-hunted-muted truncate">{product.tagline}</p>
                                                 </div>
 
                                                 {/* Stats */}
-                                                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 shrink-0">
-                                                    <span className="flex items-center gap-1 font-medium text-gray-900 dark:text-white">
+                                                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-hunted-muted shrink-0">
+                                                    <span className="flex items-center gap-1 font-medium text-gray-900 dark:text-hunted-text">
                                                         <Zap className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                                                         {product.votes_count}
                                                     </span>
@@ -431,7 +452,7 @@ export default function GrowthWorkbenchPage() {
                                         <button
                                             key={tag}
                                             onClick={() => { setQuery(tag); }}
-                                            className="px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400 hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm"
+                                            className="px-4 py-2 bg-white dark:bg-hunted-card border border-gray-200 dark:border-hunted-border rounded-full text-sm text-gray-600 dark:text-hunted-muted hover:border-blue-300 hover:text-blue-600 transition-colors shadow-sm"
                                         >
                                             {tag}
                                         </button>
@@ -445,7 +466,7 @@ export default function GrowthWorkbenchPage() {
                     {viewMode === 'product' && selectedProduct && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {/* Header Card */}
-                            <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm relative overflow-hidden">
+                            <div className="bg-white dark:bg-hunted-card p-8 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-6 opacity-10">
                                     <Rocket className="w-64 h-64 text-blue-600" />
                                 </div>
@@ -462,7 +483,7 @@ export default function GrowthWorkbenchPage() {
 
                                     <div className="flex-1">
                                         <div className="flex flex-wrap items-center gap-3 mb-2">
-                                            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{selectedProduct.product.name}</h2>
+                                            <h2 className="text-3xl font-bold text-gray-900 dark:text-hunted-text">{selectedProduct.product.name}</h2>
                                             <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
                                                 #{selectedProduct.metrics.daily_rank} of the Day
                                             </span>
@@ -472,17 +493,17 @@ export default function GrowthWorkbenchPage() {
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">{selectedProduct.product.tagline}</p>
+                                        <p className="text-xl text-gray-600 dark:text-hunted-muted mb-4">{selectedProduct.product.tagline}</p>
 
-                                        <div className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400 mb-6">
+                                        <div className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-hunted-muted mb-6">
                                             <div className="flex items-center gap-2">
                                                 <Zap className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                                                <span className="font-bold text-gray-900 dark:text-white text-lg">{selectedProduct.product.votes_count}</span>
+                                                <span className="font-bold text-gray-900 dark:text-hunted-text text-lg">{selectedProduct.product.votes_count}</span>
                                                 <span>Upvotes</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <MessageSquare className="w-5 h-5 text-gray-400" />
-                                                <span className="font-bold text-gray-900 dark:text-white text-lg">{selectedProduct.product.comments_count}</span>
+                                                <span className="font-bold text-gray-900 dark:text-hunted-text text-lg">{selectedProduct.product.comments_count}</span>
                                                 <span>Comments</span>
                                             </div>
                                             <div className="flex items-center gap-2">
@@ -493,7 +514,7 @@ export default function GrowthWorkbenchPage() {
 
                                         <div className="flex flex-wrap gap-2">
                                             {selectedProduct.product.topics.map(topic => (
-                                                <span key={topic} className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg text-xs font-medium">
+                                                <span key={topic} className="px-3 py-1 bg-gray-100 dark:bg-hunted-border text-gray-600 dark:text-hunted-muted rounded-lg text-xs font-medium">
                                                     {topic}
                                                 </span>
                                             ))}
@@ -504,28 +525,28 @@ export default function GrowthWorkbenchPage() {
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 {/* Market Analysis */}
-                                <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                                <div className="lg:col-span-2 bg-white dark:bg-hunted-card p-8 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm">
                                     <div className="flex items-center gap-3 mb-6">
                                         <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center">
                                             <Sparkles className="w-6 h-6 text-purple-600" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Market Analysis</h3>
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-hunted-text">Market Analysis</h3>
                                     </div>
-                                    <div className="prose prose-lg text-gray-700 dark:text-gray-300 max-w-none">
+                                    <div className="prose prose-lg text-gray-700 dark:text-hunted-muted max-w-none">
                                         <p className="whitespace-pre-wrap">{selectedProduct.market_analysis}</p>
                                     </div>
                                 </div>
 
                                 {/* Category Stats */}
-                                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
-                                    <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <div className="bg-white dark:bg-hunted-card p-6 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm space-y-6">
+                                    <h3 className="font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                         <Target className="w-5 h-5 text-gray-400" />
                                         Category Performance
                                     </h3>
 
-                                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Primary Niche</div>
-                                        <div className="font-bold text-gray-900 dark:text-white text-lg">{selectedProduct.analysis.niche}</div>
+                                    <div className="p-4 bg-gray-50 dark:bg-hunted-border/50 rounded-xl">
+                                        <div className="text-sm text-gray-500 dark:text-hunted-muted mb-1">Primary Niche</div>
+                                        <div className="font-bold text-gray-900 dark:text-hunted-text text-lg">{selectedProduct.analysis.niche}</div>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
@@ -541,9 +562,9 @@ export default function GrowthWorkbenchPage() {
                                         </div>
                                     </div>
 
-                                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Identified ICP</div>
-                                        <div className="font-medium text-gray-900 dark:text-white">{selectedProduct.analysis.icp}</div>
+                                    <div className="p-4 bg-gray-50 dark:bg-hunted-border/50 rounded-xl">
+                                        <div className="text-sm text-gray-500 dark:text-hunted-muted mb-1">Identified ICP</div>
+                                        <div className="font-medium text-gray-900 dark:text-hunted-text">{selectedProduct.analysis.icp}</div>
                                     </div>
                                 </div>
                             </div>
@@ -555,14 +576,14 @@ export default function GrowthWorkbenchPage() {
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                             {/* 1. The Answer */}
-                            <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                            <div className="bg-white dark:bg-hunted-card p-8 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
                                         <Sparkles className="w-6 h-6 text-blue-600" />
                                     </div>
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Market Analysis</h2>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-hunted-text">Market Analysis</h2>
                                 </div>
-                                <div className="prose prose-lg text-gray-700 dark:text-gray-300 max-w-none">
+                                <div className="prose prose-lg text-gray-700 dark:text-hunted-muted max-w-none">
                                     <p className="whitespace-pre-wrap">{result.answer}</p>
                                 </div>
                             </div>
@@ -571,9 +592,9 @@ export default function GrowthWorkbenchPage() {
 
                                 {/* 2. Dynamic Visualization */}
                                 {result.visualization && result.visualization.data && result.visualization.data.length > 0 && (
-                                    <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
+                                    <div className="lg:col-span-2 bg-white dark:bg-hunted-card p-6 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm flex flex-col">
                                         <div className="flex items-center justify-between mb-6">
-                                            <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                            <h3 className="font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                                 <BarChart3 className="w-5 h-5 text-gray-400" />
                                                 {result.visualization.title}
                                             </h3>
@@ -581,7 +602,7 @@ export default function GrowthWorkbenchPage() {
                                         <div className="flex-1 min-h-[400px]">
                                             {renderChart(result.visualization)}
                                         </div>
-                                        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400 text-center italic">
+                                        <p className="mt-4 text-sm text-gray-500 dark:text-hunted-muted text-center italic">
                                             {result.visualization.description}
                                         </p>
                                     </div>
@@ -589,15 +610,15 @@ export default function GrowthWorkbenchPage() {
 
                                 {/* 3. Key Trends */}
                                 {result.trends && result.trends.length > 0 && (
-                                    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                                        <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                                    <div className="bg-white dark:bg-hunted-card p-6 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm">
+                                        <h3 className="font-bold text-gray-900 dark:text-hunted-text mb-6 flex items-center gap-2">
                                             <TrendingUp className="w-5 h-5 text-gray-400" />
                                             Key Trends
                                         </h3>
                                         <div className="space-y-4">
                                             {result.trends.map((trend, i) => (
-                                                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                                                    <span className="font-medium text-gray-900 dark:text-white">{trend.name}</span>
+                                                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-hunted-border/50 rounded-xl">
+                                                    <span className="font-medium text-gray-900 dark:text-hunted-text">{trend.name}</span>
                                                     <span className={`px-2 py-1 rounded-lg text-xs font-bold ${trend.sentiment === 'positive' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
                                                         trend.sentiment === 'negative' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
                                                             'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
@@ -613,31 +634,31 @@ export default function GrowthWorkbenchPage() {
 
                             {/* 4. Relevant Products */}
                             {result.related_products.length > 0 && (
-                                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                                    <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                                <div className="bg-white dark:bg-hunted-card p-6 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm">
+                                    <h3 className="font-bold text-gray-900 dark:text-hunted-text mb-6 flex items-center gap-2">
                                         <Target className="w-5 h-5 text-gray-400" />
                                         Relevant Products
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {result.related_products.map((product) => (
-                                            <div key={product.id} className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-500 transition-colors group cursor-pointer">
+                                            <div key={product.id} className="p-4 rounded-xl border border-gray-200 dark:border-hunted-border hover:border-blue-300 dark:hover:border-blue-500 transition-colors group cursor-pointer">
                                                 <div className="flex items-start gap-4 mb-3">
                                                     {product.thumbnail_url ? (
                                                         <img src={product.thumbnail_url} alt="" className="w-12 h-12 rounded-lg object-cover bg-gray-100" />
                                                     ) : (
-                                                        <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                                        <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-hunted-border flex items-center justify-center">
                                                             <Rocket className="w-6 h-6 text-gray-400" />
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <h4 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">{product.name}</h4>
+                                                        <h4 className="font-bold text-gray-900 dark:text-hunted-text group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">{product.name}</h4>
                                                         <p className="text-xs text-gray-500 line-clamp-1">{product.tagline}</p>
                                                     </div>
                                                 </div>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3 h-10">
+                                                <p className="text-sm text-gray-600 dark:text-hunted-muted line-clamp-2 mb-3 h-10">
                                                     {product.description}
                                                 </p>
-                                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-hunted-muted">
                                                     <span className="flex items-center gap-1">
                                                         <Zap className="w-3 h-3 text-yellow-500" />
                                                         {product.votes_count} votes

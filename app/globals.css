@@ -3,8 +3,22 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --chart-blue-ocean: #dcfce7;
+    --chart-red-ocean: #fee2e2;
+    --chart-niche: #f3f4f6;
+    --chart-emerging: #fef3c7;
+  }
+
+  .dark {
+    --chart-blue-ocean: rgba(16, 185, 129, 0.1);
+    --chart-red-ocean: rgba(239, 68, 68, 0.1);
+    --chart-niche: rgba(39, 39, 42, 0.5);
+    --chart-emerging: rgba(245, 158, 11, 0.1);
+  }
+
   body {
-    @apply bg-neutral-50 text-neutral-900 antialiased;
+    @apply bg-neutral-50 dark:bg-hunted-dark text-neutral-900 dark:text-hunted-text antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -56,5 +70,33 @@
 
   .animate-marquee-reverse {
     animation: marquee-reverse 18s linear infinite;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-neutral-800 rounded-full border-2 border-transparent bg-clip-content;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-neutral-700;
+  }
+
+  /* Recharts Focus Outline Removal */
+  .recharts-wrapper:focus,
+  .recharts-wrapper:active,
+  .recharts-surface:focus,
+  .recharts-surface:active,
+  .recharts-layer:focus,
+  .recharts-layer:active {
+    outline: none !important;
   }
 }

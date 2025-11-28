@@ -11,7 +11,7 @@ export default function PricingPage() {
     }, [router]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#FFF5F0]">
+        <div className="min-h-screen flex items-center justify-center bg-[#FFF5F0] dark:bg-hunted-dark">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
         </div>
     );

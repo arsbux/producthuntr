@@ -79,21 +79,21 @@ export default function NichePage() {
 
     if (loading) {
         return (
-            <div className="p-8 flex items-center justify-center min-h-screen">
+            <div className="p-8 flex items-center justify-center min-h-screen bg-neutral-50 dark:bg-hunted-dark">
                 <div className="text-center">
                     <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-neutral-600">Loading {niche} products...</p>
+                    <p className="text-neutral-600 dark:text-hunted-muted">Loading {niche} products...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="p-4 md:p-8 bg-neutral-50 min-h-screen">
+        <div className="p-4 md:p-8 bg-neutral-50 dark:bg-hunted-dark min-h-screen">
             {/* Back Button */}
             <button
                 onClick={() => router.back()}
-                className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6 transition-colors"
+                className="flex items-center gap-2 text-neutral-600 dark:text-hunted-muted hover:text-neutral-900 dark:hover:text-hunted-text mb-6 transition-colors"
             >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm font-medium">Back to Trends</span>
@@ -101,21 +101,21 @@ export default function NichePage() {
 
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-2">{niche}</h1>
-                <p className="text-sm md:text-base text-neutral-600">
+                <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-hunted-text mb-2">{niche}</h1>
+                <p className="text-sm md:text-base text-neutral-600 dark:text-hunted-muted">
                     {stats.totalProducts} products ranked by performance
                 </p>
             </div>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-white border border-neutral-200 rounded-xl p-6">
-                    <div className="text-sm text-neutral-600 mb-1">Total Products</div>
-                    <div className="text-3xl font-bold text-neutral-900">{stats.totalProducts}</div>
+                <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6">
+                    <div className="text-sm text-neutral-600 dark:text-hunted-muted mb-1">Total Products</div>
+                    <div className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">{stats.totalProducts}</div>
                 </div>
-                <div className="bg-white border border-neutral-200 rounded-xl p-6">
-                    <div className="text-sm text-neutral-600 mb-1">Average Votes</div>
-                    <div className="text-3xl font-bold text-neutral-900">{stats.avgVotes}</div>
+                <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6">
+                    <div className="text-sm text-neutral-600 dark:text-hunted-muted mb-1">Average Votes</div>
+                    <div className="text-3xl font-bold text-neutral-900 dark:text-hunted-text">{stats.avgVotes}</div>
                 </div>
                 <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white">
                     <div className="text-xs font-medium opacity-90 mb-1">🏆 TOP PERFORMER</div>
@@ -128,16 +128,16 @@ export default function NichePage() {
                 {products.map((product, index) => (
                     <div
                         key={product.id}
-                        className="bg-white border border-neutral-200 rounded-xl p-4 md:p-6 hover:border-orange-500 hover:shadow-lg transition-all"
+                        className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-4 md:p-6 hover:border-orange-500 hover:shadow-lg transition-all"
                     >
                         <div className="flex flex-col md:flex-row items-start gap-4">
                             <div className="flex items-center gap-4 w-full md:w-auto">
                                 {/* Rank Badge */}
                                 <div className="flex-shrink-0">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                        index === 1 ? 'bg-neutral-100 text-neutral-600' :
-                                            index === 2 ? 'bg-orange-100 text-orange-700' :
-                                                'bg-neutral-50 text-neutral-500'
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${index === 0 ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300' :
+                                        index === 1 ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400' :
+                                            index === 2 ? 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300' :
+                                                'bg-neutral-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400'
                                         }`}>
                                         #{index + 1}
                                     </div>
@@ -159,24 +159,24 @@ export default function NichePage() {
                             <div className="flex-1 min-w-0 w-full">
                                 <div className="flex items-start justify-between mb-2">
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-bold text-neutral-900 mb-1">{product.name}</h3>
-                                        <p className="text-sm text-neutral-600 mb-3">{product.tagline}</p>
+                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-hunted-text mb-1">{product.name}</h3>
+                                        <p className="text-sm text-neutral-600 dark:text-hunted-muted mb-3">{product.tagline}</p>
 
                                         {product.ai_analysis?.one_line_pitch && (
-                                            <p className="text-sm text-neutral-700 italic mb-3">
+                                            <p className="text-sm text-neutral-700 dark:text-hunted-muted italic mb-3">
                                                 "{product.ai_analysis.one_line_pitch}"
                                             </p>
                                         )}
 
                                         <div className="flex flex-wrap gap-2 mb-3">
-                                            <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium">
+                                            <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md text-xs font-medium">
                                                 {product.ai_analysis?.icp || 'Unknown ICP'}
                                             </span>
-                                            <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium">
+                                            <span className="px-2 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium">
                                                 {product.ai_analysis?.problem || 'Unknown Problem'}
                                             </span>
                                             {product.ai_analysis?.pricing_model && (
-                                                <span className="px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs font-medium">
+                                                <span className="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md text-xs font-medium">
                                                     {product.ai_analysis.pricing_model}
                                                 </span>
                                             )}
@@ -188,15 +188,15 @@ export default function NichePage() {
                                 <div className="flex flex-wrap items-center gap-4 md:gap-6 text-sm">
                                     <div className="flex items-center gap-2">
                                         <TrendingUp className="w-4 h-4 text-orange-600" />
-                                        <span className="font-semibold text-neutral-900">{product.votes_count || 0}</span>
-                                        <span className="text-neutral-600">votes</span>
+                                        <span className="font-semibold text-neutral-900 dark:text-hunted-text">{product.votes_count || 0}</span>
+                                        <span className="text-neutral-600 dark:text-hunted-muted">votes</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Award className="w-4 h-4 text-blue-600" />
-                                        <span className="font-semibold text-neutral-900">{product.comments_count || 0}</span>
-                                        <span className="text-neutral-600">comments</span>
+                                        <span className="font-semibold text-neutral-900 dark:text-hunted-text">{product.comments_count || 0}</span>
+                                        <span className="text-neutral-600 dark:text-hunted-muted">comments</span>
                                     </div>
-                                    <div className="text-neutral-500 hidden sm:block">
+                                    <div className="text-neutral-500 dark:text-hunted-muted hidden sm:block">
                                         {new Date(product.launched_at).toLocaleDateString('en-US', {
                                             month: 'short',
                                             day: 'numeric',
@@ -221,8 +221,8 @@ export default function NichePage() {
                 ))}
 
                 {products.length === 0 && (
-                    <div className="text-center py-12 bg-white border border-neutral-200 rounded-xl">
-                        <p className="text-neutral-600">No products found in this niche.</p>
+                    <div className="text-center py-12 bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl">
+                        <p className="text-neutral-600 dark:text-hunted-muted">No products found in this niche.</p>
                     </div>
                 )}
             </div>

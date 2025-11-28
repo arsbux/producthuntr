@@ -104,10 +104,10 @@ export default function MarketGapsPage() {
         <div className="p-4 md:p-8">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-hunted-text mb-2">
                     {validatorMode ? 'AI Idea Validator' : 'Market Gaps'}
                 </h1>
-                <p className="text-sm md:text-base text-neutral-600">
+                <p className="text-sm md:text-base text-neutral-600 dark:text-hunted-muted">
                     {validatorMode
                         ? 'Get AI-powered insights on your startup idea backed by real Product Hunt data'
                         : 'Discover underserved opportunities with high engagement potential'}
@@ -119,8 +119,8 @@ export default function MarketGapsPage() {
                 <button
                     onClick={() => { setValidatorMode(false); setAiValidation(null); }}
                     className={`px-6 py-3 rounded-lg font-medium transition-all text-sm md:text-base ${!validatorMode
-                        ? 'bg-neutral-900 text-white'
-                        : 'bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-900'
+                        ? 'bg-neutral-900 dark:bg-white text-white dark:text-black'
+                        : 'bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border text-neutral-600 dark:text-hunted-muted hover:border-neutral-900 dark:hover:border-white'
                         }`}
                 >
                     <Lightbulb className="w-4 h-4 inline mr-2" />
@@ -130,7 +130,7 @@ export default function MarketGapsPage() {
                     onClick={() => setValidatorMode(true)}
                     className={`px-6 py-3 rounded-lg font-medium transition-all text-sm md:text-base ${validatorMode
                         ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white'
-                        : 'bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-900'
+                        : 'bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border text-neutral-600 dark:text-hunted-muted hover:border-neutral-900 dark:hover:border-white'
                         }`}
                 >
                     <Sparkles className="w-4 h-4 inline mr-2" />
@@ -141,20 +141,20 @@ export default function MarketGapsPage() {
             {validatorMode ? (
                 // AI Idea Validator Mode
                 <div className="max-w-4xl">
-                    <div className="bg-white border border-neutral-200 rounded-xl p-4 md:p-8 mb-6">
+                    <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-4 md:p-8 mb-6">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-lg md:text-xl font-bold text-neutral-900">Tell us about your idea</h3>
-                                <p className="text-xs md:text-sm text-neutral-600">AI will analyze it against 300+ Product Hunt launches</p>
+                                <h3 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-hunted-text">Tell us about your idea</h3>
+                                <p className="text-xs md:text-sm text-neutral-600 dark:text-hunted-muted">AI will analyze it against 300+ Product Hunt launches</p>
                             </div>
                         </div>
 
                         <div className="space-y-4 mb-6">
                             <div>
-                                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                                <label className="block text-sm font-semibold text-neutral-700 dark:text-hunted-muted mb-2">
                                     Who is it for? (Target ICP) *
                                 </label>
                                 <input
@@ -162,12 +162,12 @@ export default function MarketGapsPage() {
                                     value={ideaInput.icp}
                                     onChange={(e) => setIdeaInput({ ...ideaInput, icp: e.target.value })}
                                     placeholder="e.g., Freelance Designers, React Developers"
-                                    className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"
+                                    className="w-full border border-neutral-300 dark:border-hunted-border dark:bg-hunted-dark dark:text-hunted-text rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                                <label className="block text-sm font-semibold text-neutral-700 dark:text-hunted-muted mb-2">
                                     What problem does it solve? *
                                 </label>
                                 <input
@@ -175,12 +175,12 @@ export default function MarketGapsPage() {
                                     value={ideaInput.problem}
                                     onChange={(e) => setIdeaInput({ ...ideaInput, problem: e.target.value })}
                                     placeholder="e.g., Managing multiple invoices, Debugging hydration errors"
-                                    className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"
+                                    className="w-full border border-neutral-300 dark:border-hunted-border dark:bg-hunted-dark dark:text-hunted-text rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                                <label className="block text-sm font-semibold text-neutral-700 dark:text-hunted-muted mb-2">
                                     What niche/category? (Optional)
                                 </label>
                                 <input
@@ -188,7 +188,7 @@ export default function MarketGapsPage() {
                                     value={ideaInput.niche}
                                     onChange={(e) => setIdeaInput({ ...ideaInput, niche: e.target.value })}
                                     placeholder="e.g., Fintech for Creatives, DevTools for Frontend"
-                                    className="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"
+                                    className="w-full border border-neutral-300 dark:border-hunted-border dark:bg-hunted-dark dark:text-hunted-text rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"
                                 />
                             </div>
                         </div>
@@ -216,10 +216,10 @@ export default function MarketGapsPage() {
                     {aiValidation && (
                         <div className="space-y-6">
                             {/* Verdict Card */}
-                            <div className={`border-2 rounded-xl p-4 md:p-8 bg-gradient-to-br ${getVerdictColor(aiValidation.verdict) === 'green' ? 'from-green-50 to-emerald-50 border-green-300' :
-                                getVerdictColor(aiValidation.verdict) === 'blue' ? 'from-blue-50 to-cyan-50 border-blue-300' :
-                                    getVerdictColor(aiValidation.verdict) === 'yellow' ? 'from-yellow-50 to-orange-50 border-yellow-300' :
-                                        'from-red-50 to-rose-50 border-red-300'
+                            <div className={`border-2 rounded-xl p-4 md:p-8 bg-gradient-to-br ${getVerdictColor(aiValidation.verdict) === 'green' ? 'from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border-green-300 dark:border-green-900/50' :
+                                getVerdictColor(aiValidation.verdict) === 'blue' ? 'from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10 border-blue-300 dark:border-blue-900/50' :
+                                    getVerdictColor(aiValidation.verdict) === 'yellow' ? 'from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 border-yellow-300 dark:border-yellow-900/50' :
+                                        'from-red-50 to-rose-50 dark:from-red-900/10 dark:to-rose-900/10 border-red-300 dark:border-red-900/50'
                                 }`}>
                                 <div className="flex flex-col md:flex-row items-start gap-4">
                                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 ${getVerdictColor(aiValidation.verdict) === 'green' ? 'bg-green-500 text-white' :
@@ -230,20 +230,20 @@ export default function MarketGapsPage() {
                                         {getVerdictIcon(aiValidation.verdict)}
                                     </div>
                                     <div className="flex-1 w-full">
-                                        <div className="text-2xl md:text-3xl font-bold text-neutral-900 mb-2">{aiValidation.verdictTitle}</div>
-                                        <p className="text-neutral-700 text-base md:text-lg mb-4">{aiValidation.summary}</p>
+                                        <div className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-hunted-text mb-2">{aiValidation.verdictTitle}</div>
+                                        <p className="text-neutral-700 dark:text-hunted-muted text-base md:text-lg mb-4">{aiValidation.summary}</p>
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                            <div className="px-4 py-2 bg-white rounded-lg border border-neutral-200">
-                                                <div className="text-xs text-neutral-600 mb-1">Overall Score</div>
-                                                <div className="text-2xl font-bold text-neutral-900">{aiValidation.overallScore}/100</div>
+                                            <div className="px-4 py-2 bg-white dark:bg-hunted-card rounded-lg border border-neutral-200 dark:border-hunted-border">
+                                                <div className="text-xs text-neutral-600 dark:text-hunted-muted mb-1">Overall Score</div>
+                                                <div className="text-2xl font-bold text-neutral-900 dark:text-hunted-text">{aiValidation.overallScore}/100</div>
                                             </div>
-                                            <div className="px-4 py-2 bg-white rounded-lg border border-neutral-200">
-                                                <div className="text-xs text-neutral-600 mb-1">Competition</div>
-                                                <div className="text-sm font-bold text-neutral-900">{aiValidation.competitionLevel}</div>
+                                            <div className="px-4 py-2 bg-white dark:bg-hunted-card rounded-lg border border-neutral-200 dark:border-hunted-border">
+                                                <div className="text-xs text-neutral-600 dark:text-hunted-muted mb-1">Competition</div>
+                                                <div className="text-sm font-bold text-neutral-900 dark:text-hunted-text">{aiValidation.competitionLevel}</div>
                                             </div>
-                                            <div className="px-4 py-2 bg-white rounded-lg border border-neutral-200">
-                                                <div className="text-xs text-neutral-600 mb-1">Market Saturation</div>
-                                                <div className="text-sm font-bold text-neutral-900">{aiValidation.marketSaturation}</div>
+                                            <div className="px-4 py-2 bg-white dark:bg-hunted-card rounded-lg border border-neutral-200 dark:border-hunted-border">
+                                                <div className="text-xs text-neutral-600 dark:text-hunted-muted mb-1">Market Saturation</div>
+                                                <div className="text-sm font-bold text-neutral-900 dark:text-hunted-text">{aiValidation.marketSaturation}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -253,15 +253,15 @@ export default function MarketGapsPage() {
                             {/* Analysis Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Strengths */}
-                                <div className="bg-white border border-neutral-200 rounded-xl p-6">
+                                <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6">
                                     <div className="flex items-center gap-2 mb-4">
-                                        <CheckCircle className="w-5 h-5 text-green-600" />
-                                        <h4 className="font-bold text-neutral-900">Strengths</h4>
+                                        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                                        <h4 className="font-bold text-neutral-900 dark:text-hunted-text">Strengths</h4>
                                     </div>
                                     <ul className="space-y-2">
                                         {aiValidation.strengths.map((strength, i) => (
-                                            <li key={i} className="flex items-start gap-2 text-sm text-neutral-700">
-                                                <span className="text-green-600 mt-0.5">✓</span>
+                                            <li key={i} className="flex items-start gap-2 text-sm text-neutral-700 dark:text-hunted-muted">
+                                                <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
                                                 <span>{strength}</span>
                                             </li>
                                         ))}
@@ -269,15 +269,15 @@ export default function MarketGapsPage() {
                                 </div>
 
                                 {/* Risks */}
-                                <div className="bg-white border border-neutral-200 rounded-xl p-6">
+                                <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6">
                                     <div className="flex items-center gap-2 mb-4">
-                                        <AlertCircle className="w-5 h-5 text-orange-600" />
-                                        <h4 className="font-bold text-neutral-900">Risks to Consider</h4>
+                                        <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                                        <h4 className="font-bold text-neutral-900 dark:text-hunted-text">Risks to Consider</h4>
                                     </div>
                                     <ul className="space-y-2">
                                         {aiValidation.risks.map((risk, i) => (
-                                            <li key={i} className="flex items-start gap-2 text-sm text-neutral-700">
-                                                <span className="text-orange-600 mt-0.5">⚠</span>
+                                            <li key={i} className="flex items-start gap-2 text-sm text-neutral-700 dark:text-hunted-muted">
+                                                <span className="text-orange-600 dark:text-orange-400 mt-0.5">⚠</span>
                                                 <span>{risk}</span>
                                             </li>
                                         ))}
@@ -286,62 +286,62 @@ export default function MarketGapsPage() {
                             </div>
 
                             {/* Recommendations */}
-                            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-6">
+                            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 border-2 border-blue-200 dark:border-blue-900/30 rounded-xl p-6">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Zap className="w-5 h-5 text-blue-600" />
-                                    <h4 className="font-bold text-neutral-900">Recommended Actions</h4>
+                                    <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <h4 className="font-bold text-neutral-900 dark:text-hunted-text">Recommended Actions</h4>
                                 </div>
                                 <ol className="space-y-3">
                                     {aiValidation.recommendations.map((rec, i) => (
                                         <li key={i} className="flex items-start gap-3">
-                                            <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                            <div className="w-6 h-6 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                                                 {i + 1}
                                             </div>
-                                            <span className="text-sm text-neutral-800">{rec}</span>
+                                            <span className="text-sm text-neutral-800 dark:text-hunted-text">{rec}</span>
                                         </li>
                                     ))}
                                 </ol>
                             </div>
 
                             {/* Unique Angle */}
-                            <div className="bg-white border border-neutral-200 rounded-xl p-6">
+                            <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Target className="w-5 h-5 text-purple-600" />
-                                    <h4 className="font-bold text-neutral-900">Your Unique Angle</h4>
+                                    <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                    <h4 className="font-bold text-neutral-900 dark:text-hunted-text">Your Unique Angle</h4>
                                 </div>
-                                <p className="text-neutral-700">{aiValidation.uniqueAngle}</p>
+                                <p className="text-neutral-700 dark:text-hunted-muted">{aiValidation.uniqueAngle}</p>
                             </div>
 
                             {/* Market Data */}
                             {marketData && (
-                                <div className="bg-white border border-neutral-200 rounded-xl p-6">
-                                    <h4 className="font-bold text-neutral-900 mb-4">Market Data</h4>
+                                <div className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-6">
+                                    <h4 className="font-bold text-neutral-900 dark:text-hunted-text mb-4">Market Data</h4>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                                         <div>
-                                            <div className="text-xs text-neutral-600 mb-1">Total Products</div>
-                                            <div className="text-2xl font-bold text-neutral-900">{marketData.totalProducts}</div>
+                                            <div className="text-xs text-neutral-600 dark:text-hunted-muted mb-1">Total Products</div>
+                                            <div className="text-2xl font-bold text-neutral-900 dark:text-hunted-text">{marketData.totalProducts}</div>
                                         </div>
                                         <div>
-                                            <div className="text-xs text-neutral-600 mb-1">Direct Competitors</div>
-                                            <div className="text-2xl font-bold text-neutral-900">{marketData.directCompetitors}</div>
+                                            <div className="text-xs text-neutral-600 dark:text-hunted-muted mb-1">Direct Competitors</div>
+                                            <div className="text-2xl font-bold text-neutral-900 dark:text-hunted-text">{marketData.directCompetitors}</div>
                                         </div>
                                         <div>
-                                            <div className="text-xs text-neutral-600 mb-1">Avg Votes</div>
-                                            <div className="text-2xl font-bold text-neutral-900">{marketData.avgVotes}</div>
+                                            <div className="text-xs text-neutral-600 dark:text-hunted-muted mb-1">Avg Votes</div>
+                                            <div className="text-2xl font-bold text-neutral-900 dark:text-hunted-text">{marketData.avgVotes}</div>
                                         </div>
                                         <div>
-                                            <div className="text-xs text-neutral-600 mb-1">Estimated Traction</div>
-                                            <div className="text-sm font-bold text-neutral-900">{aiValidation.estimatedTraction}</div>
+                                            <div className="text-xs text-neutral-600 dark:text-hunted-muted mb-1">Estimated Traction</div>
+                                            <div className="text-sm font-bold text-neutral-900 dark:text-hunted-text">{aiValidation.estimatedTraction}</div>
                                         </div>
                                     </div>
                                     {marketData.similarProducts && marketData.similarProducts.length > 0 && (
                                         <div>
-                                            <div className="text-sm font-semibold text-neutral-700 mb-2">Similar Products:</div>
+                                            <div className="text-sm font-semibold text-neutral-700 dark:text-hunted-muted mb-2">Similar Products:</div>
                                             <div className="space-y-2">
                                                 {marketData.similarProducts.map((product: any, i: number) => (
-                                                    <div key={i} className="text-sm text-neutral-600 flex items-center justify-between">
+                                                    <div key={i} className="text-sm text-neutral-600 dark:text-hunted-muted flex items-center justify-between">
                                                         <span>{product.name}</span>
-                                                        <span className="text-neutral-900 font-medium">{product.votes} votes</span>
+                                                        <span className="text-neutral-900 dark:text-hunted-text font-medium">{product.votes} votes</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -356,37 +356,37 @@ export default function MarketGapsPage() {
                 // Market Gaps Mode
                 <div>
                     {loading ? (
-                        <div className="text-center py-12 text-neutral-600">Finding opportunities...</div>
+                        <div className="text-center py-12 text-neutral-600 dark:text-hunted-muted">Finding opportunities...</div>
                     ) : (
                         <div className="grid gap-4">
                             {gaps.map((gap, index) => (
                                 <div
                                     key={index}
-                                    className="bg-white border border-neutral-200 rounded-xl p-4 md:p-6 hover:border-neutral-900 hover:shadow-lg transition-all"
+                                    className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-4 md:p-6 hover:border-neutral-900 dark:hover:border-white hover:shadow-lg transition-all"
                                 >
                                     <div className="flex flex-col md:flex-row items-start justify-between mb-4 gap-4">
                                         <div className="flex-1 w-full">
                                             <div className="flex items-center gap-2 mb-3">
-                                                <div className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                                                <div className="px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">
                                                     Score: {gap.opportunityScore}
                                                 </div>
-                                                <TrendingUp className="w-4 h-4 text-green-600" />
+                                                <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
                                             </div>
 
-                                            <h3 className="text-lg font-bold text-neutral-900 mb-2">{gap.problem}</h3>
+                                            <h3 className="text-lg font-bold text-neutral-900 dark:text-hunted-text mb-2">{gap.problem}</h3>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                                                <div className="bg-neutral-50 p-3 rounded-lg md:bg-transparent md:p-0">
-                                                    <div className="text-xs font-medium text-neutral-500 mb-1">SUGGESTED ICP</div>
-                                                    <div className="text-sm text-neutral-900">{gap.suggestedICP}</div>
+                                                <div className="bg-neutral-50 dark:bg-neutral-800 p-3 rounded-lg md:bg-transparent md:p-0">
+                                                    <div className="text-xs font-medium text-neutral-500 dark:text-hunted-muted mb-1">SUGGESTED ICP</div>
+                                                    <div className="text-sm text-neutral-900 dark:text-hunted-text">{gap.suggestedICP}</div>
                                                 </div>
-                                                <div className="bg-neutral-50 p-3 rounded-lg md:bg-transparent md:p-0">
-                                                    <div className="text-xs font-medium text-neutral-500 mb-1">SUGGESTED NICHE</div>
-                                                    <div className="text-sm text-neutral-900">{gap.suggestedNiche}</div>
+                                                <div className="bg-neutral-50 dark:bg-neutral-800 p-3 rounded-lg md:bg-transparent md:p-0">
+                                                    <div className="text-xs font-medium text-neutral-500 dark:text-hunted-muted mb-1">SUGGESTED NICHE</div>
+                                                    <div className="text-sm text-neutral-900 dark:text-hunted-text">{gap.suggestedNiche}</div>
                                                 </div>
                                             </div>
 
-                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30 rounded-lg p-3 text-sm text-blue-800 dark:text-blue-300">
                                                 <strong>Why this is an opportunity:</strong> {gap.reasoning}
                                             </div>
                                         </div>

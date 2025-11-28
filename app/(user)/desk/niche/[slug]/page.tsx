@@ -308,10 +308,10 @@ export default function NicheDetailPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-hunted-dark">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600 font-medium">Analyzing {niche}...</p>
+                    <p className="text-gray-600 dark:text-hunted-muted font-medium">Analyzing {niche}...</p>
                 </div>
             </div>
         );
@@ -319,11 +319,11 @@ export default function NicheDetailPage() {
 
     if (!histogramData) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="text-center bg-white rounded-xl p-8 border border-gray-200 max-w-md">
-                    <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">Niche Not Found</h2>
-                    <p className="text-gray-600 mb-6">
+            <div className="min-h-screen bg-gray-50 dark:bg-hunted-dark flex items-center justify-center p-4">
+                <div className="text-center bg-white dark:bg-hunted-card rounded-xl p-8 border border-gray-200 dark:border-hunted-border max-w-md">
+                    <AlertCircle className="w-16 h-16 text-gray-400 dark:text-hunted-muted mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-hunted-text mb-2">Niche Not Found</h2>
+                    <p className="text-gray-600 dark:text-hunted-muted mb-6">
                         We don't have enough data for "{niche}" yet.
                     </p>
                 </div>
@@ -332,20 +332,20 @@ export default function NicheDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-hunted-dark">
             {/* Three Column Layout */}
             <div className="flex flex-col lg:flex-row gap-0 min-h-screen">
                 {/* LEFT SIDEBAR - Category Name + Top 3 Products */}
-                <aside className="w-full lg:w-[420px] bg-white border-b lg:border-b-0 lg:border-r border-gray-200 overflow-y-auto flex-shrink-0 lg:h-screen">
+                <aside className="w-full lg:w-[420px] bg-white dark:bg-hunted-card border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-hunted-border overflow-y-auto flex-shrink-0 lg:h-screen">
                     {/* Category Header */}
-                    <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+                    <div className="p-6 border-b border-gray-200 dark:border-hunted-border sticky top-0 bg-white dark:bg-hunted-card z-10">
                         <div className="flex items-center gap-4 mb-3">
                             <div className="flex-shrink-0">
                                 {getCategoryIcon(niche)}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h1 className="text-2xl font-bold text-gray-900 truncate">{niche}</h1>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-hunted-text truncate">{niche}</h1>
+                                <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
                                     Deep dive into the {niche} niche
                                 </p>
                             </div>
@@ -354,9 +354,9 @@ export default function NicheDetailPage() {
 
                     {/* AI Success Decode */}
                     <div className="p-4">
-                        <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-100">
+                        <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/10 dark:to-blue-900/10 rounded-xl p-4 border border-purple-100 dark:border-purple-900/30">
                             <div className="flex items-center justify-between mb-3">
-                                <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                <h2 className="text-sm font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                     <Brain className="w-4 h-4 text-purple-600" />
                                     Success Decode
                                 </h2>
@@ -379,17 +379,17 @@ export default function NicheDetailPage() {
                             ) : aiAnalysis ? (
                                 <div className="space-y-4">
                                     {/* Engagement Stats */}
-                                    <div className="bg-white/60 rounded-lg p-3 border border-purple-100 flex items-center justify-between">
+                                    <div className="bg-white/60 dark:bg-black/20 rounded-lg p-3 border border-purple-100 dark:border-purple-900/30 flex items-center justify-between">
                                         <div>
-                                            <div className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold mb-0.5">Engagement Gap</div>
+                                            <div className="text-[10px] text-gray-500 dark:text-hunted-muted uppercase tracking-wide font-semibold mb-0.5">Engagement Gap</div>
                                             <div className="flex items-baseline gap-1.5">
-                                                <span className="text-lg font-bold text-gray-900">{aiAnalysis.engagementGap.value}</span>
-                                                <span className="text-xs text-gray-600">{aiAnalysis.engagementGap.label}</span>
+                                                <span className="text-lg font-bold text-gray-900 dark:text-hunted-text">{aiAnalysis.engagementGap.value}</span>
+                                                <span className="text-xs text-gray-600 dark:text-hunted-muted">{aiAnalysis.engagementGap.label}</span>
                                             </div>
                                         </div>
                                         <div className="text-right max-w-[50%]">
-                                            <div className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold mb-0.5">Key Insight</div>
-                                            <span className="inline-block px-2 py-1 rounded-md text-[10px] font-bold bg-purple-100 text-purple-700 leading-tight">
+                                            <div className="text-[10px] text-gray-500 dark:text-hunted-muted uppercase tracking-wide font-semibold mb-0.5">Key Insight</div>
+                                            <span className="inline-block px-2 py-1 rounded-md text-[10px] font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 leading-tight">
                                                 {aiAnalysis.key_insight}
                                             </span>
                                         </div>
@@ -397,10 +397,10 @@ export default function NicheDetailPage() {
 
                                     {/* Analysis Text */}
                                     <div className="space-y-3">
-                                        <p className="text-xs text-gray-700 leading-relaxed">
+                                        <p className="text-xs text-gray-700 dark:text-hunted-muted leading-relaxed">
                                             {aiAnalysis.brief.paragraph1}
                                         </p>
-                                        <p className="text-xs text-gray-700 leading-relaxed">
+                                        <p className="text-xs text-gray-700 dark:text-hunted-muted leading-relaxed">
                                             {aiAnalysis.brief.paragraph2}
                                         </p>
                                     </div>
@@ -423,13 +423,13 @@ export default function NicheDetailPage() {
                     {/* Key Stats */}
                     {/* Niche Growth Trend */}
                     {growthData && (
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <div className="p-4 border-b border-gray-200">
-                                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
+                            <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                     <TrendingUp className="w-5 h-5 text-blue-600" />
                                     Growth Trend
                                 </h2>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
                                     Launch volume, upvotes, and comments over the last 12 months
                                 </p>
                             </div>
@@ -466,8 +466,14 @@ export default function NicheDetailPage() {
                                             axisLine={false}
                                         />
                                         <Tooltip
-                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                            labelStyle={{ color: '#374151', fontWeight: 'bold', marginBottom: '4px' }}
+                                            contentStyle={{
+                                                backgroundColor: '#0F0F0F',
+                                                borderColor: '#27272a',
+                                                color: '#E4E4E7',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                            }}
+                                            labelStyle={{ color: '#E4E4E7', fontWeight: 'bold', marginBottom: '4px' }}
                                         />
                                         <Legend />
                                         <Area
@@ -505,13 +511,13 @@ export default function NicheDetailPage() {
                     )}
 
                     {/* Performance Scatter Plot */}
-                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                        <div className="p-4 border-b border-gray-200">
-                            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
+                        <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                 <MessageCircle className="w-5 h-5 text-blue-600" />
                                 Engagement Patterns
                             </h2>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
                                 Different product types attract different engagement patterns
                             </p>
                         </div>
@@ -538,12 +544,12 @@ export default function NicheDetailPage() {
                                             if (active && payload && payload[0]) {
                                                 const data = payload[0].payload as ProductScatterPoint;
                                                 return (
-                                                    <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg max-w-xs">
-                                                        <div className="font-bold text-gray-900 mb-1 truncate text-sm">{data.name}</div>
-                                                        <div className="text-xs space-y-0.5">
-                                                            <div>Type: <span className="font-semibold">{data.productType}</span></div>
-                                                            <div>Upvotes: <span className="font-semibold">{data.votes}</span></div>
-                                                            <div>Comments: <span className="font-semibold">{data.comments}</span></div>
+                                                    <div className="bg-white dark:bg-hunted-card p-3 border border-gray-200 dark:border-hunted-border rounded-lg shadow-lg max-w-xs">
+                                                        <div className="font-bold text-gray-900 dark:text-hunted-text mb-1 truncate text-sm">{data.name}</div>
+                                                        <div className="text-xs space-y-0.5 text-gray-600 dark:text-hunted-muted">
+                                                            <div>Type: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.productType}</span></div>
+                                                            <div>Upvotes: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.votes}</span></div>
+                                                            <div>Comments: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.comments}</span></div>
                                                         </div>
                                                     </div>
                                                 );
@@ -580,13 +586,13 @@ export default function NicheDetailPage() {
                     {categoryDetails && (
                         <div className="space-y-6">
                             {/* Keyword Trends */}
-                            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                <div className="p-4 border-b border-gray-200">
-                                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
+                                <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
+                                    <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                         <Activity className="w-5 h-5 text-blue-600" />
                                         Keyword Trends
                                     </h2>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
                                         Usage frequency of top keywords over time
                                     </p>
                                 </div>
@@ -621,10 +627,11 @@ export default function NicheDetailPage() {
                                             />
                                             <Tooltip
                                                 contentStyle={{
-                                                    backgroundColor: '#fff',
+                                                    backgroundColor: '#0F0F0F',
                                                     borderRadius: '8px',
-                                                    border: '1px solid #e5e7eb',
-                                                    fontSize: '12px'
+                                                    border: '1px solid #27272a',
+                                                    fontSize: '12px',
+                                                    color: '#E4E4E7'
                                                 }}
                                             />
                                             <Legend wrapperStyle={{ fontSize: '11px' }} />
@@ -646,13 +653,13 @@ export default function NicheDetailPage() {
                             </div>
 
                             {/* Top Keywords */}
-                            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                <div className="p-4 border-b border-gray-200">
-                                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
+                                <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
+                                    <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                         <BookOpen className="w-5 h-5 text-blue-600" />
                                         Top Keywords
                                     </h2>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
                                         Most frequently used terms in this category
                                     </p>
                                 </div>
@@ -681,12 +688,13 @@ export default function NicheDetailPage() {
                                                 axisLine={false}
                                             />
                                             <Tooltip
-                                                cursor={{ fill: '#f9fafb' }}
+                                                cursor={{ fill: '#27272a' }}
                                                 contentStyle={{
-                                                    backgroundColor: '#fff',
+                                                    backgroundColor: '#0F0F0F',
                                                     borderRadius: '8px',
-                                                    border: '1px solid #e5e7eb',
-                                                    fontSize: '12px'
+                                                    border: '1px solid #27272a',
+                                                    fontSize: '12px',
+                                                    color: '#E4E4E7'
                                                 }}
                                             />
                                             <Bar
@@ -705,13 +713,13 @@ export default function NicheDetailPage() {
 
                     {/* Feature Correlation */}
                     {correlationData.length > 0 && (
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <div className="p-4 border-b border-gray-200">
-                                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
+                            <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
                                     <Award className="w-5 h-5 text-blue-600" />
                                     Feature/Language Correlation
                                 </h2>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
                                     Which keywords in descriptions correlate with higher upvotes?
                                 </p>
                             </div>
@@ -750,18 +758,18 @@ export default function NicheDetailPage() {
                                                 tick={{ fill: '#374151', fontWeight: 500 }}
                                             />
                                             <Tooltip
-                                                cursor={{ fill: '#f9fafb' }}
+                                                cursor={{ fill: '#27272a' }}
                                                 content={({ active, payload }) => {
                                                     if (active && payload && payload[0]) {
                                                         const data = payload[0].payload;
                                                         return (
-                                                            <div className="bg-white p-3 border border-gray-100 rounded-xl shadow-xl">
-                                                                <div className="font-bold text-gray-900 text-sm mb-1">"{data.keyword}"</div>
+                                                            <div className="bg-white dark:bg-hunted-card p-3 border border-gray-100 dark:border-hunted-border rounded-xl shadow-xl">
+                                                                <div className="font-bold text-gray-900 dark:text-hunted-text text-sm mb-1">"{data.keyword}"</div>
                                                                 <div className="text-xs space-y-1">
-                                                                    <div className={`font-bold ${data.uplift > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                    <div className={`font-bold ${data.uplift > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                                                         {data.uplift > 0 ? '+' : ''}{data.uplift}% Uplift
                                                                     </div>
-                                                                    <div className="text-gray-500">
+                                                                    <div className="text-gray-500 dark:text-hunted-muted">
                                                                         {data.occurrences} mentions
                                                                     </div>
                                                                 </div>
@@ -800,7 +808,7 @@ export default function NicheDetailPage() {
                                 <div className="grid grid-cols-1 gap-8 mt-8">
                                     {/* Impact Analysis - With vs Without */}
                                     <div>
-                                        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-hunted-text mb-4 flex items-center gap-2">
                                             <Zap className="w-4 h-4 text-yellow-500" />
                                             Impact Analysis (Avg. Upvotes)
                                         </h3>
@@ -811,40 +819,40 @@ export default function NicheDetailPage() {
                                                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                                                     barGap={0}
                                                 >
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
                                                     <XAxis
                                                         dataKey="keyword"
                                                         axisLine={false}
                                                         tickLine={false}
                                                         fontSize={10}
-                                                        stroke="#6b7280"
+                                                        stroke="#9ca3af"
                                                     />
                                                     <YAxis
                                                         axisLine={false}
                                                         tickLine={false}
                                                         fontSize={10}
-                                                        stroke="#6b7280"
+                                                        stroke="#9ca3af"
                                                     />
                                                     <Tooltip
-                                                        cursor={{ fill: '#f9fafb' }}
+                                                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                                                         content={({ active, payload, label }) => {
                                                             if (active && payload && payload.length) {
                                                                 return (
-                                                                    <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-xl">
-                                                                        <p className="font-bold text-gray-900 text-sm mb-2">"{label}"</p>
+                                                                    <div className="bg-white dark:bg-hunted-card p-3 border border-gray-100 dark:border-hunted-border shadow-xl rounded-xl">
+                                                                        <p className="font-bold text-gray-900 dark:text-hunted-text text-sm mb-2">"{label}"</p>
                                                                         <div className="space-y-1">
                                                                             <div className="flex items-center gap-2 text-xs">
                                                                                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                                                                <span className="text-gray-500">With Keyword:</span>
-                                                                                <span className="font-bold text-gray-900">{payload[0].value}</span>
+                                                                                <span className="text-gray-500 dark:text-hunted-muted">With Keyword:</span>
+                                                                                <span className="font-bold text-gray-900 dark:text-hunted-text">{payload[0].value}</span>
                                                                             </div>
                                                                             <div className="flex items-center gap-2 text-xs">
-                                                                                <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                                                                                <span className="text-gray-500">Without Keyword:</span>
-                                                                                <span className="font-bold text-gray-900">{payload[1].value}</span>
+                                                                                <div className="w-2 h-2 rounded-full bg-gray-600"></div>
+                                                                                <span className="text-gray-500 dark:text-hunted-muted">Without Keyword:</span>
+                                                                                <span className="font-bold text-gray-900 dark:text-hunted-text">{payload[1].value}</span>
                                                                             </div>
-                                                                            <div className="pt-2 mt-2 border-t border-gray-100">
-                                                                                <span className={`text-xs font-bold ${payload[0].value > payload[1].value ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            <div className="pt-2 mt-2 border-t border-gray-100 dark:border-hunted-border">
+                                                                                <span className={`text-xs font-bold ${payload[0].value > payload[1].value ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                                                                     {payload[0].value > payload[1].value ? '+' : ''}
                                                                                     {Math.round(((Number(payload[0].value) - Number(payload[1].value)) / Number(payload[1].value)) * 100)}% Impact
                                                                                 </span>
@@ -867,7 +875,7 @@ export default function NicheDetailPage() {
                                                     <Bar
                                                         dataKey="avgUpvotesWithout"
                                                         name="Without Keyword"
-                                                        fill="#e5e7eb"
+                                                        fill="#4b5563"
                                                         radius={[4, 4, 0, 0]}
                                                         barSize={20}
                                                     />
@@ -878,7 +886,7 @@ export default function NicheDetailPage() {
 
                                     {/* Keyword Frequency */}
                                     <div>
-                                        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-hunted-text mb-4 flex items-center gap-2">
                                             <MessageCircle className="w-4 h-4 text-purple-500" />
                                             Keyword Frequency
                                         </h3>
@@ -888,28 +896,28 @@ export default function NicheDetailPage() {
                                                     data={correlationData.slice(0, 10)}
                                                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                                                 >
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
                                                     <XAxis
                                                         dataKey="keyword"
                                                         axisLine={false}
                                                         tickLine={false}
                                                         fontSize={10}
-                                                        stroke="#6b7280"
+                                                        stroke="#9ca3af"
                                                     />
                                                     <YAxis
                                                         axisLine={false}
                                                         tickLine={false}
                                                         fontSize={10}
-                                                        stroke="#6b7280"
+                                                        stroke="#9ca3af"
                                                     />
                                                     <Tooltip
-                                                        cursor={{ fill: '#f9fafb' }}
+                                                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                                                         content={({ active, payload, label }) => {
                                                             if (active && payload && payload.length) {
                                                                 return (
-                                                                    <div className="bg-white p-2 border border-gray-100 shadow-lg rounded-lg">
-                                                                        <p className="font-bold text-gray-900 text-xs">"{label}"</p>
-                                                                        <p className="text-xs text-purple-600 font-semibold">
+                                                                    <div className="bg-white dark:bg-hunted-card p-2 border border-gray-100 dark:border-hunted-border shadow-lg rounded-lg">
+                                                                        <p className="font-bold text-gray-900 dark:text-hunted-text text-xs">"{label}"</p>
+                                                                        <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">
                                                                             {payload[0].value} mentions
                                                                         </p>
                                                                     </div>
@@ -940,11 +948,11 @@ export default function NicheDetailPage() {
                 </main>
 
                 {/* RIGHT SIDEBAR - Live Today + Top 10 Products List */}
-                <aside className="w-[420px] bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0">
+                <aside className="w-[420px] bg-white dark:bg-hunted-card border-l border-gray-200 dark:border-hunted-border overflow-y-auto flex-shrink-0">
                     {/* Live Today Section */}
-                    <div className="border-b border-gray-200">
-                        <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
-                            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+                    <div className="border-b border-gray-200 dark:border-hunted-border">
+                        <div className="p-4 border-b border-gray-100 dark:border-hunted-border bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10">
+                            <h2 className="text-sm font-bold text-gray-900 dark:text-hunted-text uppercase tracking-wide flex items-center gap-2">
                                 <span className="flex h-2 w-2">
                                     <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-blue-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -989,7 +997,7 @@ export default function NicheDetailPage() {
                                     return (
                                         <div
                                             key={product.name + '-live'}
-                                            className={`${gradient} mx-2 my-2 p-2.5 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all cursor-pointer group`}
+                                            className={`${gradient} dark:bg-none dark:bg-neutral-800 mx-2 my-2 p-2.5 rounded-lg border border-white/50 dark:border-hunted-border shadow-sm hover:shadow-md transition-all cursor-pointer group`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 {/* Rank & Thumbnail Container */}
@@ -1012,7 +1020,7 @@ export default function NicheDetailPage() {
 
                                                 {/* Product Info */}
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
+                                                    <h3 className="text-sm font-bold text-gray-900 dark:text-hunted-text line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400">
                                                         {product.name}
                                                     </h3>
                                                     <p className="text-xs text-gray-500 line-clamp-1">
@@ -1027,7 +1035,7 @@ export default function NicheDetailPage() {
                                                         <span className="text-[10px] text-gray-400">▲</span>
                                                     </div>
                                                     <div className="flex items-center justify-center gap-1">
-                                                        <span className="text-gray-700">{product.comments || 0}</span>
+                                                        <span className="text-gray-700 dark:text-hunted-muted">{product.comments || 0}</span>
                                                         <MessageCircle className="w-3 h-3 text-gray-400" />
                                                     </div>
                                                 </div>
@@ -1040,8 +1048,8 @@ export default function NicheDetailPage() {
                     </div>
 
                     {/* Top 10 Products Section */}
-                    <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
-                        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
+                    <div className="p-4 border-b border-gray-200 dark:border-hunted-border sticky top-0 bg-white dark:bg-hunted-card z-10">
+                        <h2 className="text-sm font-bold text-gray-900 dark:text-hunted-text uppercase tracking-wide">
                             Top 10 Products
                         </h2>
                     </div>
@@ -1065,7 +1073,7 @@ export default function NicheDetailPage() {
                             return (
                                 <div
                                     key={product.name}
-                                    className={`${gradient} mx-2 my-2 p-2.5 rounded-lg border border-white/50 shadow-sm hover:shadow-md transition-all cursor-pointer group`}
+                                    className={`${gradient} dark:bg-none dark:bg-neutral-800 mx-2 my-2 p-2.5 rounded-lg border border-white/50 dark:border-hunted-border shadow-sm hover:shadow-md transition-all cursor-pointer group`}
                                 >
                                     <div className="flex items-center gap-3">
                                         {/* Rank & Thumbnail Container */}
@@ -1092,7 +1100,7 @@ export default function NicheDetailPage() {
 
                                         {/* Product Info */}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600">
+                                            <h3 className="text-sm font-bold text-gray-900 dark:text-hunted-text line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400">
                                                 {product.name}
                                             </h3>
                                             <p className="text-xs text-gray-500 line-clamp-1">
@@ -1107,7 +1115,7 @@ export default function NicheDetailPage() {
                                                 <span className="text-[10px] text-gray-400">▲</span>
                                             </div>
                                             <div className="flex items-center justify-center gap-1">
-                                                <span className="text-gray-700">{product.comments_count}</span>
+                                                <span className="text-gray-700 dark:text-hunted-muted">{product.comments_count}</span>
                                                 <MessageCircle className="w-3 h-3 text-gray-400" />
                                             </div>
                                         </div>
