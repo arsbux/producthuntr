@@ -1,8 +1,16 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Mail, Twitter, Github } from 'lucide-react';
 
 export default function Footer() {
+    const pathname = usePathname();
     const currentYear = new Date().getFullYear();
+
+    if (pathname?.startsWith('/desk')) {
+        return null;
+    }
 
     return (
         <footer className="bg-white dark:bg-hunted-card border-t border-gray-200 dark:border-hunted-border mt-auto">

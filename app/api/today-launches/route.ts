@@ -114,8 +114,49 @@ export async function GET() {
             };
         });
 
+        // 3. Fetch history for Top 10 products
+        const top10Ids = snapshots.slice(0, 10).map(s => s.product_id);
+        const { data: historyData } = await supabase
+            .from('vote_snapshots')
+            .select('product_id, snapshot_time, votes_count, comments_count')
+            .in('product_id', top10Ids)
+            .eq('snapshot_date', today)
+            .order('snapshot_time', { ascending: true });
+
+        const productHistory = top10Ids.map((id, index) => {
+            const product = snapshots.find(s => s.product_id === id);
+            const productSnapshots = historyData?.filter(h => h.product_id === id) || [];
+
+            // Assign a color from a palette
+            const colors = ['#FF6154', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6'];
+
+            return {
+                id,
+                name: product?.product_name || 'Unknown',
+                color: colors[index % colors.length],
+                snapshots: productSnapshots
+            };
+        });
+
+        // 4. Calculate Keyword/Tag Velocity (using latest snapshot totals)
+        const keywordStats: Record<string, { velocity: number, volume: number }> = {};
+        snapshots.forEach(s => {
+            s.topics?.forEach((topic: string) => {
+                if (!keywordStats[topic]) keywordStats[topic] = { velocity: 0, volume: 0 };
+                keywordStats[topic].velocity += s.votes_count; // Using votes as velocity proxy
+                keywordStats[topic].volume++;
+            });
+        });
+
+        const keywordVelocity = Object.entries(keywordStats).map(([keyword, stats]) => ({
+            keyword,
+            velocity: stats.velocity,
+            volume: stats.volume
+        }));
+
         // Chart Data - Now reflects ALL products with rich stats
         const chartData = Object.entries(categoryStats)
+            .filter(([name]) => name !== 'Other')
             .map(([name, stats]) => ({
                 name,
                 value: stats.count,
@@ -125,9 +166,59 @@ export async function GET() {
             }))
             .sort((a, b) => b.value - a.value); // Return all categories, sorted by count
 
+        const categoryVelocity = chartData.map(c => ({
+            category: c.name,
+            velocity: c.votes, // Using votes as velocity proxy
+            count: c.value
+        }));
+
+        // 5. Calculate Historical Trends for Categories and Keywords
+        const { data: allSnapshots } = await supabase
+            .from('vote_snapshots')
+            .select('product_name, tagline, votes_count, comments_count, topics, snapshot_time')
+            .eq('snapshot_date', today)
+            .order('snapshot_time', { ascending: true });
+
+        const timeBuckets = new Map<string, { categories: Record<string, { votes: number, comments: number }>, keywords: Record<string, { votes: number, comments: number }> }>();
+
+        allSnapshots?.forEach(s => {
+            // Group by hour/minute (simplify to every snapshot time)
+            const time = new Date(s.snapshot_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (!timeBuckets.has(time)) {
+                timeBuckets.set(time, { categories: {}, keywords: {} });
+            }
+            const bucket = timeBuckets.get(time)!;
+
+            // Category Stats
+            const category = guessCategory(s);
+            if (category !== 'Other') {
+                if (!bucket.categories[category]) bucket.categories[category] = { votes: 0, comments: 0 };
+                bucket.categories[category].votes += s.votes_count;
+                bucket.categories[category].comments += s.comments_count;
+            }
+
+            // Keyword Stats
+            s.topics?.forEach((topic: string) => {
+                if (!bucket.keywords[topic]) bucket.keywords[topic] = { votes: 0, comments: 0 };
+                bucket.keywords[topic].votes += s.votes_count;
+                bucket.keywords[topic].comments += s.comments_count;
+            });
+        });
+
+        const trendHistory = Array.from(timeBuckets.entries()).map(([time, stats]) => ({
+            time,
+            categories: stats.categories,
+            keywords: stats.keywords
+        }));
+
         return NextResponse.json({
             chartData,
             topLaunches,
+            productHistory,
+            categoryVelocity,
+            keywordVelocity,
+            trendHistory,
             metrics: {
                 totalLaunches: snapshots.length,
                 aiPercentage: snapshots.length > 0 ? Math.round((aiCount / snapshots.length) * 100) : 0,

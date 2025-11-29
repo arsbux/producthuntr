@@ -22,6 +22,24 @@ export default function CategoryTrendsDashboard({ data }: CategoryTrendsDashboar
                     <p className="text-gray-500 dark:text-hunted-muted">Clear category identification with real-time trend data. See what's rising before the crowd.</p>
                 </div>
 
+                {/* Product Hunt Badge */}
+                <div className="mb-8 flex justify-center">
+                    <a 
+                        href="https://www.producthunt.com/products/product-huntr-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-product-huntr-2" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block"
+                    >
+                        <img 
+                            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1043422&theme=light&t=1764335076340" 
+                            alt="Product Huntr - Data analysis platform for Product hunt | Product Hunt" 
+                            style={{ width: '250px', height: '54px' }} 
+                            width="250" 
+                            height="54" 
+                        />
+                    </a>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
                     {data.map((category, index) => {
                         const isRising = category.trend === 'rising';

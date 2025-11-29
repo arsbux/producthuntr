@@ -2,25 +2,81 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Core Palette - Deep Space Dark */
+  --bg-app: #050505;
+  --bg-panel: #0A0A0A;
+  --bg-card: #111111;
+
+  /* Accents */
+  --accent-primary: #FF6154;
+  /* PH Orange */
+  --accent-growth: #00E599;
+  /* Signal Green */
+  --accent-blue: #2E86DE;
+  /* Tech Blue */
+
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #888888;
+  --text-muted: #444444;
+
+  /* Borders */
+  --border-subtle: #222222;
+  --border-highlight: #333333;
+}
+
 @layer base {
-  :root {
-    --chart-blue-ocean: #dcfce7;
-    --chart-red-ocean: #fee2e2;
-    --chart-niche: #f3f4f6;
-    --chart-emerging: #fef3c7;
-  }
-
-  .dark {
-    --chart-blue-ocean: rgba(16, 185, 129, 0.1);
-    --chart-red-ocean: rgba(239, 68, 68, 0.1);
-    --chart-niche: rgba(39, 39, 42, 0.5);
-    --chart-emerging: rgba(245, 158, 11, 0.1);
-  }
-
   body {
-    @apply bg-neutral-50 dark:bg-hunted-dark text-neutral-900 dark:text-hunted-text antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-[var(--bg-app)] text-[var(--text-primary)] antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
+}
+
+@layer components {
+
+  /* Glassmorphism Panels */
+  .glass-panel {
+    @apply bg-[#0A0A0A]/80 backdrop-blur-xl border border-[var(--border-subtle)];
+  }
+
+  .glass-card {
+    @apply bg-[#111111]/60 backdrop-blur-lg border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] transition-all duration-300;
+  }
+
+  /* Data Visualization */
+  .data-value {
+    @apply font-mono tracking-tight font-medium;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-all duration-200;
+  }
+
+  .nav-item.active {
+    @apply text-white bg-white/10;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
 }
 
 @layer utilities {

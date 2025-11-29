@@ -10,6 +10,9 @@ export interface LaunchAnalysis {
     niche: string;
     pricing_model: string;
     one_line_pitch: string;
+    strengths: string[];
+    risks: string[];
+    growth_actions: string[];
 }
 
 export async function analyzeLaunch(launch: {
@@ -43,6 +46,9 @@ export async function analyzeLaunch(launch: {
     - niche: The specific market segment (e.g., "Fintech for Creatives", "DevTools for Frontend").
     - pricing_model: Best guess at monetization (e.g., "Freemium", "One-time purchase", "Subscription", "Free").
     - one_line_pitch: A rewritten, clear value prop for a founder (e.g., "Helps [ICP] solve [Problem] by [Solution]").
+    - strengths: Array of 3 key strengths of this product/launch.
+    - risks: Array of 3 potential risks or challenges.
+    - growth_actions: Array of 3 specific, actionable growth tactics they should use right now.
     
     Return ONLY the JSON. No markdown formatting.
   `;
@@ -67,6 +73,9 @@ export async function analyzeLaunch(launch: {
             niche: 'Unknown',
             pricing_model: 'Unknown',
             one_line_pitch: 'Analysis failed',
+            strengths: [],
+            risks: [],
+            growth_actions: []
         };
     }
 }

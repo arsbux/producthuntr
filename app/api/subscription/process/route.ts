@@ -31,7 +31,43 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Session user mismatch' }, { status: 401 });
         }
 
-        // 2. Validate Square credentials
+        // 2. Check for Free Tier Activation
+        if (sourceId === 'free_tier') {
+            console.log(`Activating free tier for user ${userId}`);
+
+            // Skip Square/Lemon Squeezy validation
+            // Directly create subscription
+            const { createClient } = await import('@supabase/supabase-js');
+            const supabaseAdmin = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()!,
+                { auth: { autoRefreshToken: false, persistSession: false } }
+            );
+
+            const currentDate = new Date();
+            const periodEnd = new Date(currentDate);
+            periodEnd.setDate(periodEnd.getDate() + 30); // 30 days free access
+
+            const { error: dbError } = await supabaseAdmin
+                .from('subscriptions')
+                .upsert({
+                    user_id: userId,
+                    status: 'active',
+                    plan: 'free_tier',
+                    updated_at: currentDate.toISOString(),
+                    current_period_start: currentDate.toISOString(),
+                    current_period_end: periodEnd.toISOString(),
+                }, { onConflict: 'user_id' });
+
+            if (dbError) {
+                console.error('Error creating free subscription:', dbError);
+                return NextResponse.json({ error: 'Activation failed' }, { status: 500 });
+            }
+
+            return NextResponse.json({ success: true, subscriptionStatus: 'active' });
+        }
+
+        // 3. Validate Square credentials (only if not free tier)
         const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN;
         if (!squareAccessToken) {
             console.error('SQUARE_ACCESS_TOKEN is not configured');

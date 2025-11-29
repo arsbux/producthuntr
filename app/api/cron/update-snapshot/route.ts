@@ -71,6 +71,31 @@ export async function GET(request: Request) {
             created_at: snapshotTime
         }));
 
+        // Upsert into ph_launches to ensure detail pages work
+        const launchRecords = posts.map(post => ({
+            id: String(post.id),
+            name: post.name,
+            tagline: post.tagline,
+            description: post.description,
+            votes_count: post.votes_count || 0,
+            comments_count: post.comments_count || 0,
+            website_url: post.website,
+            ph_url: post.redirect_url,
+            thumbnail_url: post.thumbnail_url,
+            topics: post.topics?.map((t: any) => t.name) || [],
+            makers: post.makers,
+            launched_at: post.created_at,
+            updated_at: new Date().toISOString()
+        }));
+
+        const { error: launchError } = await supabase
+            .from('ph_launches')
+            .upsert(launchRecords, { onConflict: 'id' });
+
+        if (launchError) {
+            console.error('[Snapshot Job] Launch upsert error:', launchError);
+        }
+
         // Insert in batches
         const batchSize = 50;
         let insertedCount = 0;
