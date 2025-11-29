@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, TrendingUp, MessageCircle, Sparkles, Award, Filter, Loader2 } from 'lucide-react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function DailyAnalysisContent() {
     const searchParams = useSearchParams();
@@ -133,16 +134,7 @@ function DailyAnalysisContent() {
             launch.ai_analysis?.niche === selectedCategory
         ) || [];
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-hunted-dark">
-                <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-gray-900 dark:border-hunted-text border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-500 dark:text-hunted-muted text-sm">Loading analytics...</p>
-                </div>
-            </div>
-        );
-    }
+    // if (loading) return ... removed
 
     return (
         <div className="min-h-screen bg-white dark:bg-hunted-dark">
@@ -185,7 +177,62 @@ function DailyAnalysisContent() {
                     </div>
                 </div>
 
-                {!analytics ? (
+                {loading ? (
+                    <>
+                        {/* Overall Stats Skeleton */}
+                        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <div key={i} className="bg-white dark:bg-hunted-card rounded-lg border border-gray-100 dark:border-hunted-border p-5">
+                                    <Skeleton className="w-20 h-3 mb-2" />
+                                    <Skeleton className="w-16 h-8" />
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Three Column Layout Skeleton */}
+                        <div className="grid lg:grid-cols-3 gap-6">
+                            {/* Categories Breakdown Skeleton */}
+                            <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-100 dark:border-hunted-border p-6">
+                                <Skeleton className="w-32 h-6 mb-6" />
+                                <div className="space-y-4">
+                                    {Array.from({ length: 8 }).map((_, i) => (
+                                        <div key={i} className="space-y-2">
+                                            <div className="flex justify-between">
+                                                <Skeleton className="w-24 h-4" />
+                                                <Skeleton className="w-8 h-4" />
+                                            </div>
+                                            <Skeleton className="w-full h-2 rounded-full" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* All Launches Skeleton */}
+                            <div className="lg:col-span-2 bg-white dark:bg-hunted-card rounded-lg border border-gray-100 dark:border-hunted-border p-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <Skeleton className="w-32 h-6" />
+                                    <Skeleton className="w-32 h-8 rounded-lg" />
+                                </div>
+                                <div className="space-y-3">
+                                    {Array.from({ length: 6 }).map((_, i) => (
+                                        <div key={i} className="flex items-center gap-4 p-4 rounded-lg border border-gray-100 dark:border-hunted-border">
+                                            <Skeleton className="w-7 h-7 rounded-lg" />
+                                            <Skeleton className="w-12 h-12 rounded-lg" />
+                                            <div className="flex-1 space-y-2">
+                                                <Skeleton className="w-48 h-4" />
+                                                <Skeleton className="w-32 h-3" />
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <Skeleton className="w-12 h-4" />
+                                                <Skeleton className="w-12 h-4" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                ) : !analytics ? (
                     <div className="text-center py-20 bg-gray-50 dark:bg-hunted-card rounded-lg border border-dashed border-gray-200 dark:border-hunted-border">
                         <Sparkles className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-neutral-700" />
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-hunted-text mb-1">No Data Available</h3>
@@ -400,7 +447,24 @@ function DailyAnalysisContent() {
 
 export default function DailyAnalysisPage() {
     return (
-        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-gray-900 dark:text-hunted-text" /></div>}>
+        <Suspense fallback={
+            <div className="min-h-screen bg-white dark:bg-hunted-dark p-6">
+                <div className="max-w-[1800px] mx-auto">
+                    <div className="mb-8 flex justify-between">
+                        <Skeleton className="w-48 h-8" />
+                        <Skeleton className="w-48 h-10 rounded-lg" />
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="bg-white dark:bg-hunted-card rounded-lg border border-gray-100 dark:border-hunted-border p-5">
+                                <Skeleton className="w-20 h-3 mb-2" />
+                                <Skeleton className="w-16 h-8" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        }>
             <DailyAnalysisContent />
         </Suspense>
     );

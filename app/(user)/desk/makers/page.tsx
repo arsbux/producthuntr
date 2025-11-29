@@ -30,6 +30,7 @@ import {
     type SerialMakerData,
     type LaunchTimeData
 } from '@/lib/charts-data';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MakersPage() {
     const [loading, setLoading] = useState(true);
@@ -96,17 +97,6 @@ export default function MakersPage() {
         return '#dc2626'; // red-600
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-hunted-dark">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600 dark:text-hunted-muted font-medium">Analyzing maker patterns...</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-900/10 dark:to-hunted-dark">
             <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
@@ -126,43 +116,58 @@ export default function MakersPage() {
 
                 {/* Key Insights Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white dark:bg-hunted-card rounded-xl p-6 border-2 border-purple-200 dark:border-purple-900/30 shadow-sm">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                                <Twitter className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    {loading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="bg-white dark:bg-hunted-card rounded-xl p-6 border-2 border-gray-100 dark:border-hunted-border shadow-sm">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <Skeleton className="w-10 h-10 rounded-lg" />
+                                    <Skeleton className="w-32 h-5" />
+                                </div>
+                                <Skeleton className="w-full h-4" />
+                                <Skeleton className="w-3/4 h-4 mt-2" />
                             </div>
-                            <div className="text-sm font-semibold text-purple-900 dark:text-purple-300">Audience Matters</div>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-hunted-muted">
-                            {audienceData.length} data points analyzed to show correlation between maker followers and Day 1 upvotes
-                        </p>
-                    </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="bg-white dark:bg-hunted-card rounded-xl p-6 border-2 border-purple-200 dark:border-purple-900/30 shadow-sm">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                                        <Twitter className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <div className="text-sm font-semibold text-purple-900 dark:text-purple-300">Audience Matters</div>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-hunted-muted">
+                                    {audienceData.length} data points analyzed to show correlation between maker followers and Day 1 upvotes
+                                </p>
+                            </div>
 
-                    <div className="bg-white dark:bg-hunted-card rounded-xl p-6 border-2 border-blue-200 dark:border-blue-900/30 shadow-sm">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                                <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                            <div className="bg-white dark:bg-hunted-card rounded-xl p-6 border-2 border-blue-200 dark:border-blue-900/30 shadow-sm">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                        <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div className="text-sm font-semibold text-blue-900 dark:text-blue-300">Experience Helps</div>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-hunted-muted">
+                                    Serial makers show {serialMakerData.length > 1 ? 'improved' : 'varying'} performance over multiple launches
+                                </p>
                             </div>
-                            <div className="text-sm font-semibold text-blue-900 dark:text-blue-300">Experience Helps</div>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-hunted-muted">
-                            Serial makers show {serialMakerData.length > 1 ? 'improved' : 'varying'} performance over multiple launches
-                        </p>
-                    </div>
 
-                    <div className="bg-white dark:bg-hunted-card rounded-xl p-6 border-2 border-orange-200 dark:border-orange-900/30 shadow-sm">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                                <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                            <div className="bg-white dark:bg-hunted-card rounded-xl p-6 border-2 border-orange-200 dark:border-orange-900/30 shadow-sm">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                                        <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                                    </div>
+                                    <div className="text-sm font-semibold text-orange-900 dark:text-orange-300">Timing is Key</div>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-hunted-muted">
+                                    {bestLaunchTime
+                                        ? `Best time: ${bestLaunchTime.day} at ${bestLaunchTime.hour}:00 UTC`
+                                        : 'Analyzing launch patterns...'}
+                                </p>
                             </div>
-                            <div className="text-sm font-semibold text-orange-900 dark:text-orange-300">Timing is Key</div>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-hunted-muted">
-                            {bestLaunchTime
-                                ? `Best time: ${bestLaunchTime.day} at ${bestLaunchTime.hour}:00 UTC`
-                                : 'Analyzing launch patterns...'}
-                        </p>
-                    </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Audience Impact Scatter Plot */}
@@ -177,61 +182,67 @@ export default function MakersPage() {
                         </p>
                     </div>
                     <div className="p-6">
-                        <ResponsiveContainer width="100%" height={400}>
-                            <LineChart data={[...audienceData].sort((a, b) => a.followers - b.followers)} margin={{ top: 20, right: 20, bottom: 60, left: 60 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
-                                <XAxis
-                                    dataKey="followers"
-                                    stroke="#9ca3af"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    label={{ value: 'Twitter Followers at Launch', position: 'bottom', offset: 40, style: { fill: '#6b7280' } }}
-                                    scale="log"
-                                    domain={[1, 'auto']}
-                                />
-                                <YAxis
-                                    dataKey="upvotes"
-                                    stroke="#9ca3af"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    label={{ value: 'Product Hunt Upvotes', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
-                                />
-                                <Tooltip
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload[0]) {
-                                            const data = payload[0].payload as AudienceImpactPoint;
-                                            return (
-                                                <div className="bg-white dark:bg-hunted-card p-4 border border-gray-200 dark:border-hunted-border rounded-lg shadow-lg">
-                                                    <div className="font-bold text-gray-900 dark:text-hunted-text mb-2">{data.productName}</div>
-                                                    <div className="text-sm space-y-1 text-gray-600 dark:text-hunted-muted">
-                                                        <div>Maker: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.makerName}</span></div>
-                                                        <div>Followers: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.followers.toLocaleString()}</span></div>
-                                                        <div>Upvotes: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.upvotes}</span></div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <Line
-                                    type="natural"
-                                    dataKey="upvotes"
-                                    stroke="#8b5cf6"
-                                    strokeWidth={3}
-                                    dot={false}
-                                    activeDot={{ r: 6 }}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
+                        {loading ? (
+                            <Skeleton className="w-full h-[400px] rounded-xl" />
+                        ) : (
+                            <>
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <LineChart data={[...audienceData].sort((a, b) => a.followers - b.followers)} margin={{ top: 20, right: 20, bottom: 60, left: 60 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
+                                        <XAxis
+                                            dataKey="followers"
+                                            stroke="#9ca3af"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            label={{ value: 'Twitter Followers at Launch', position: 'bottom', offset: 40, style: { fill: '#6b7280' } }}
+                                            scale="log"
+                                            domain={[1, 'auto']}
+                                        />
+                                        <YAxis
+                                            dataKey="upvotes"
+                                            stroke="#9ca3af"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            label={{ value: 'Product Hunt Upvotes', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
+                                        />
+                                        <Tooltip
+                                            content={({ active, payload }) => {
+                                                if (active && payload && payload[0]) {
+                                                    const data = payload[0].payload as AudienceImpactPoint;
+                                                    return (
+                                                        <div className="bg-white dark:bg-hunted-card p-4 border border-gray-200 dark:border-hunted-border rounded-lg shadow-lg">
+                                                            <div className="font-bold text-gray-900 dark:text-hunted-text mb-2">{data.productName}</div>
+                                                            <div className="text-sm space-y-1 text-gray-600 dark:text-hunted-muted">
+                                                                <div>Maker: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.makerName}</span></div>
+                                                                <div>Followers: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.followers.toLocaleString()}</span></div>
+                                                                <div>Upvotes: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.upvotes}</span></div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            }}
+                                        />
+                                        <Line
+                                            type="natural"
+                                            dataKey="upvotes"
+                                            stroke="#8b5cf6"
+                                            strokeWidth={3}
+                                            dot={false}
+                                            activeDot={{ r: 6 }}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
 
-                        <div className="mt-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 rounded-lg p-4">
-                            <p className="text-sm text-purple-900 dark:text-purple-300">
-                                <strong>📊 Insight:</strong> There is a positive correlation between Twitter followers and upvotes,
-                                but many products with small audiences still achieve high success. Building in public and community
-                                engagement matter more than raw follower count.
-                            </p>
-                        </div>
+                                <div className="mt-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 rounded-lg p-4">
+                                    <p className="text-sm text-purple-900 dark:text-purple-300">
+                                        <strong>📊 Insight:</strong> There is a positive correlation between Twitter followers and upvotes,
+                                        but many products with small audiences still achieve high success. Building in public and community
+                                        engagement matter more than raw follower count.
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -247,63 +258,69 @@ export default function MakersPage() {
                         </p>
                     </div>
                     <div className="p-6">
-                        <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={serialMakerData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
-                                <XAxis
-                                    dataKey="launchNumber"
-                                    stroke="#9ca3af"
-                                    fontSize={12}
-                                    tickLine={false}
-                                />
-                                <YAxis
-                                    stroke="#9ca3af"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    label={{ value: 'Avg Upvotes', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#0F0F0F',
-                                        border: '1px solid #27272a',
-                                        borderRadius: '8px',
-                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                        color: '#E4E4E7'
-                                    }}
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload[0]) {
-                                            const data = payload[0].payload as SerialMakerData;
-                                            return (
-                                                <div className="bg-white dark:bg-hunted-card p-3 border border-gray-200 dark:border-hunted-border rounded-lg shadow-lg">
-                                                    <div className="font-bold text-gray-900 dark:text-hunted-text">{data.launchNumber} Launch</div>
-                                                    <div className="text-sm text-gray-600 dark:text-hunted-muted">Avg Upvotes: <span className="font-semibold text-blue-600 dark:text-blue-400">{data.avgUpvotes}</span></div>
-                                                    <div className="text-xs text-gray-500 dark:text-hunted-muted mt-1">{data.count} makers analyzed</div>
-                                                </div>
-                                            );
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <Line
-                                    type="natural"
-                                    dataKey="avgUpvotes"
-                                    stroke="#3b82f6"
-                                    strokeWidth={3}
-                                    dot={false}
-                                    activeDot={{ r: 6 }}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
+                        {loading ? (
+                            <Skeleton className="w-full h-[300px] rounded-xl" />
+                        ) : (
+                            <>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={serialMakerData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
+                                        <XAxis
+                                            dataKey="launchNumber"
+                                            stroke="#9ca3af"
+                                            fontSize={12}
+                                            tickLine={false}
+                                        />
+                                        <YAxis
+                                            stroke="#9ca3af"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            label={{ value: 'Avg Upvotes', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#0F0F0F',
+                                                border: '1px solid #27272a',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                                color: '#E4E4E7'
+                                            }}
+                                            content={({ active, payload }) => {
+                                                if (active && payload && payload[0]) {
+                                                    const data = payload[0].payload as SerialMakerData;
+                                                    return (
+                                                        <div className="bg-white dark:bg-hunted-card p-3 border border-gray-200 dark:border-hunted-border rounded-lg shadow-lg">
+                                                            <div className="font-bold text-gray-900 dark:text-hunted-text">{data.launchNumber} Launch</div>
+                                                            <div className="text-sm text-gray-600 dark:text-hunted-muted">Avg Upvotes: <span className="font-semibold text-blue-600 dark:text-blue-400">{data.avgUpvotes}</span></div>
+                                                            <div className="text-xs text-gray-500 dark:text-hunted-muted mt-1">{data.count} makers analyzed</div>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            }}
+                                        />
+                                        <Line
+                                            type="natural"
+                                            dataKey="avgUpvotes"
+                                            stroke="#3b82f6"
+                                            strokeWidth={3}
+                                            dot={false}
+                                            activeDot={{ r: 6 }}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
 
-                        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-                            {serialMakerData.map((data, index) => (
-                                <div key={data.launchNumber} className="bg-gray-50 dark:bg-hunted-dark rounded-lg p-4 border border-gray-200 dark:border-hunted-border">
-                                    <div className="text-xs text-gray-600 dark:text-hunted-muted mb-1">{data.launchNumber} Launch</div>
-                                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{data.avgUpvotes}</div>
-                                    <div className="text-xs text-gray-500 dark:text-hunted-muted mt-1">{data.count} makers</div>
+                                <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
+                                    {serialMakerData.map((data, index) => (
+                                        <div key={data.launchNumber} className="bg-gray-50 dark:bg-hunted-dark rounded-lg p-4 border border-gray-200 dark:border-hunted-border">
+                                            <div className="text-xs text-gray-600 dark:text-hunted-muted mb-1">{data.launchNumber} Launch</div>
+                                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{data.avgUpvotes}</div>
+                                            <div className="text-xs text-gray-500 dark:text-hunted-muted mt-1">{data.count} makers</div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -319,41 +336,45 @@ export default function MakersPage() {
                         </p>
                     </div>
                     <div className="p-6">
-                        <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={teamSizeData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
-                                <XAxis
-                                    dataKey="teamSize"
-                                    stroke="#9ca3af"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    label={{ value: 'Number of Makers', position: 'bottom', offset: 0, style: { fill: '#6b7280' } }}
-                                />
-                                <YAxis
-                                    stroke="#9ca3af"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    label={{ value: 'Avg Upvotes', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#0F0F0F',
-                                        border: '1px solid #27272a',
-                                        borderRadius: '8px',
-                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                        color: '#E4E4E7'
-                                    }}
-                                />
-                                <Line
-                                    type="natural"
-                                    dataKey="avgUpvotes"
-                                    stroke="#10b981"
-                                    strokeWidth={3}
-                                    dot={false}
-                                    activeDot={{ r: 6 }}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
+                        {loading ? (
+                            <Skeleton className="w-full h-[300px] rounded-xl" />
+                        ) : (
+                            <ResponsiveContainer width="100%" height={300}>
+                                <LineChart data={teamSizeData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
+                                    <XAxis
+                                        dataKey="teamSize"
+                                        stroke="#9ca3af"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        label={{ value: 'Number of Makers', position: 'bottom', offset: 0, style: { fill: '#6b7280' } }}
+                                    />
+                                    <YAxis
+                                        stroke="#9ca3af"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        label={{ value: 'Avg Upvotes', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#0F0F0F',
+                                            border: '1px solid #27272a',
+                                            borderRadius: '8px',
+                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                            color: '#E4E4E7'
+                                        }}
+                                    />
+                                    <Line
+                                        type="natural"
+                                        dataKey="avgUpvotes"
+                                        stroke="#10b981"
+                                        strokeWidth={3}
+                                        dot={false}
+                                        activeDot={{ r: 6 }}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                 </div>
 
@@ -369,73 +390,82 @@ export default function MakersPage() {
                         </p>
                     </div>
                     <div className="p-6">
-                        {bestLaunchTime && (
-                            <div className="mb-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-900/30 rounded-lg p-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                                        <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-orange-900 dark:text-orange-300">Optimal Launch Window:</div>
-                                        <div className="text-sm text-orange-800 dark:text-orange-200">
-                                            {bestLaunchTime.day} at <strong>{bestLaunchTime.hour}:00 UTC</strong> • Avg {bestLaunchTime.avgUpvotes} upvotes • {bestLaunchTime.launchCount} successful launches
+                        {loading ? (
+                            <div className="space-y-6">
+                                <Skeleton className="w-full h-24 rounded-lg" />
+                                <Skeleton className="w-full h-64 rounded-lg" />
+                            </div>
+                        ) : (
+                            <>
+                                {bestLaunchTime && (
+                                    <div className="mb-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-900/30 rounded-lg p-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                                                <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                                            </div>
+                                            <div>
+                                                <div className="font-bold text-orange-900 dark:text-orange-300">Optimal Launch Window:</div>
+                                                <div className="text-sm text-orange-800 dark:text-orange-200">
+                                                    {bestLaunchTime.day} at <strong>{bestLaunchTime.hour}:00 UTC</strong> • Avg {bestLaunchTime.avgUpvotes} upvotes • {bestLaunchTime.launchCount} successful launches
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                )}
+
+                                {/* Simplified Heatmap Table */}
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            <tr className="border-b border-gray-200 dark:border-hunted-border">
+                                                <th className="text-left p-2 font-semibold text-gray-700 dark:text-hunted-muted">Day</th>
+                                                {Array.from({ length: 24 }, (_, i) => i).filter(h => h % 3 === 0).map(hour => (
+                                                    <th key={hour} className="text-center p-2 text-xs text-gray-600 dark:text-hunted-muted">{hour}:00</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {heatmapData.map((dayData, index) => (
+                                                <tr key={dayData.day} className="border-b border-gray-100 dark:border-hunted-border">
+                                                    <td className="p-2 font-medium text-gray-900 dark:text-hunted-text">{dayData.day}</td>
+                                                    {Array.from({ length: 24 }, (_, i) => i).filter(h => h % 3 === 0).map(hour => {
+                                                        const value = dayData[`h${hour}`] || 0;
+                                                        return (
+                                                            <td
+                                                                key={hour}
+                                                                className="p-2 text-center"
+                                                                style={{ backgroundColor: getHeatColor(value) }}
+                                                            >
+                                                                <span className="text-xs font-semibold">{value > 0 ? value : ''}</span>
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </div>
+
+                                <div className="mt-6 flex flex-wrap gap-4 justify-center">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fef3c7' }}></div>
+                                        <span className="text-sm text-gray-600 dark:text-hunted-muted">Low (0-200)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fed7aa' }}></div>
+                                        <span className="text-sm text-gray-600 dark:text-hunted-muted">Medium (200-400)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fca5a5' }}></div>
+                                        <span className="text-sm text-gray-600 dark:text-hunted-muted">High (400-600)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#dc2626' }}></div>
+                                        <span className="text-sm text-gray-600 dark:text-hunted-muted">Very High (600+)</span>
+                                    </div>
+                                </div>
+                            </>
                         )}
-
-                        {/* Simplified Heatmap Table */}
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b border-gray-200 dark:border-hunted-border">
-                                        <th className="text-left p-2 font-semibold text-gray-700 dark:text-hunted-muted">Day</th>
-                                        {Array.from({ length: 24 }, (_, i) => i).filter(h => h % 3 === 0).map(hour => (
-                                            <th key={hour} className="text-center p-2 text-xs text-gray-600 dark:text-hunted-muted">{hour}:00</th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {heatmapData.map((dayData, index) => (
-                                        <tr key={dayData.day} className="border-b border-gray-100 dark:border-hunted-border">
-                                            <td className="p-2 font-medium text-gray-900 dark:text-hunted-text">{dayData.day}</td>
-                                            {Array.from({ length: 24 }, (_, i) => i).filter(h => h % 3 === 0).map(hour => {
-                                                const value = dayData[`h${hour}`] || 0;
-                                                return (
-                                                    <td
-                                                        key={hour}
-                                                        className="p-2 text-center"
-                                                        style={{ backgroundColor: getHeatColor(value) }}
-                                                    >
-                                                        <span className="text-xs font-semibold">{value > 0 ? value : ''}</span>
-                                                    </td>
-                                                );
-                                            })}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div className="mt-6 flex flex-wrap gap-4 justify-center">
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fef3c7' }}></div>
-                                <span className="text-sm text-gray-600 dark:text-hunted-muted">Low (0-200)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fed7aa' }}></div>
-                                <span className="text-sm text-gray-600 dark:text-hunted-muted">Medium (200-400)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fca5a5' }}></div>
-                                <span className="text-sm text-gray-600 dark:text-hunted-muted">High (400-600)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 rounded" style={{ backgroundColor: '#dc2626' }}></div>
-                                <span className="text-sm text-gray-600 dark:text-hunted-muted">Very High (600+)</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 

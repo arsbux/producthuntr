@@ -50,6 +50,7 @@ import { searchProducts, getProductProfile, type ProductSearchResult, type Produ
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import PremiumModal from '@/components/PremiumModal';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
@@ -572,6 +573,44 @@ function GrowthWorkbenchContent() {
                         </div>
                     )}
 
+                    {/* LOADING SKELETON */}
+                    {loading && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* Answer Skeleton */}
+                            <div className="bg-white dark:bg-hunted-card p-8 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Skeleton className="w-10 h-10 rounded-xl" />
+                                    <Skeleton className="h-8 w-48" />
+                                </div>
+                                <div className="space-y-3">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-3/4" />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Chart Skeleton */}
+                                <div className="lg:col-span-2 bg-white dark:bg-hunted-card p-6 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm flex flex-col">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <Skeleton className="h-6 w-48" />
+                                    </div>
+                                    <Skeleton className="flex-1 min-h-[400px] w-full rounded-xl" />
+                                </div>
+
+                                {/* Trends Skeleton */}
+                                <div className="bg-white dark:bg-hunted-card p-6 rounded-2xl border border-gray-200 dark:border-hunted-border shadow-sm">
+                                    <Skeleton className="h-6 w-32 mb-6" />
+                                    <div className="space-y-4">
+                                        {Array.from({ length: 5 }).map((_, i) => (
+                                            <Skeleton key={i} className="h-10 w-full rounded-xl" />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* CHAT/AGENT MODE RESULTS */}
                     {viewMode === 'chat' && result && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -681,7 +720,17 @@ function GrowthWorkbenchContent() {
 
 export default function GrowthWorkbenchPage() {
     return (
-        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 dark:bg-hunted-dark p-6 lg:p-8">
+                <div className="max-w-7xl mx-auto space-y-8">
+                    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                        <Skeleton className="h-12 w-3/4 max-w-2xl" />
+                        <Skeleton className="h-6 w-1/2 max-w-xl" />
+                        <Skeleton className="h-16 w-full max-w-3xl rounded-2xl" />
+                    </div>
+                </div>
+            </div>
+        }>
             <GrowthWorkbenchContent />
         </Suspense>
     );

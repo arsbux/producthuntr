@@ -16,6 +16,7 @@ import {
     getSuccessPatterns,
     type SuccessPattern
 } from '@/lib/charts-data';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function OpportunitiesPage() {
     const [loading, setLoading] = useState(true);
@@ -70,16 +71,7 @@ export default function OpportunitiesPage() {
         return { label: 'Standard', color: 'text-gray-500 bg-gray-50' };
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-hunted-dark">
-                <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-500 dark:text-hunted-muted text-sm">Loading...</p>
-                </div>
-            </div>
-        );
-    }
+    // if (loading) return ... removed
 
     return (
         <div className="min-h-screen bg-white dark:bg-hunted-dark">
@@ -101,7 +93,7 @@ export default function OpportunitiesPage() {
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-hunted-text">
                                 Market Gaps
                                 <span className="ml-2 text-sm font-normal text-gray-400 dark:text-hunted-muted">
-                                    {marketGaps.length}
+                                    {loading ? <Skeleton className="w-8 h-4 inline-block" /> : marketGaps.length}
                                 </span>
                             </h2>
 
@@ -139,7 +131,27 @@ export default function OpportunitiesPage() {
 
                         {/* Scrollable Opportunities List - Minimal */}
                         <div className="overflow-y-auto h-[calc(100vh-280px)] pr-2 space-y-3">
-                            {filteredGaps.length === 0 ? (
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <div key={i} className="bg-white dark:bg-hunted-card border border-gray-100 dark:border-hunted-border rounded-lg p-5">
+                                        <div className="flex flex-col gap-3">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Skeleton className="w-16 h-4" />
+                                                    <span className="text-gray-300 dark:text-hunted-muted">•</span>
+                                                    <Skeleton className="w-20 h-5 rounded" />
+                                                </div>
+                                                <Skeleton className="h-6 w-3/4 mb-2" />
+                                                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                                                    <Skeleton className="w-24 h-4" />
+                                                    <Skeleton className="w-24 h-4" />
+                                                    <Skeleton className="w-24 h-4" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : filteredGaps.length === 0 ? (
                                 <div className="text-center py-20 bg-gray-50 dark:bg-hunted-card rounded-lg border border-dashed border-gray-200 dark:border-hunted-border">
                                     <Sparkles className="w-8 h-8 mx-auto mb-3 text-gray-300 dark:text-hunted-muted" />
                                     <p className="text-gray-500 dark:text-hunted-muted text-sm">No market gaps found.</p>
@@ -201,7 +213,7 @@ export default function OpportunitiesPage() {
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-hunted-text">
                                 Success Patterns
                                 <span className="ml-2 text-sm font-normal text-gray-400 dark:text-hunted-muted">
-                                    {successPatterns.length}
+                                    {loading ? <Skeleton className="w-8 h-4 inline-block" /> : successPatterns.length}
                                 </span>
                             </h2>
 
@@ -239,7 +251,35 @@ export default function OpportunitiesPage() {
 
                         {/* Scrollable Patterns List - Minimal */}
                         <div className="overflow-y-auto h-[calc(100vh-280px)] pr-2 space-y-3">
-                            {filteredPatterns.length === 0 ? (
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <div key={i} className="bg-white dark:bg-hunted-card border border-gray-100 dark:border-hunted-border rounded-lg p-5">
+                                        <div className="flex flex-col gap-3">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Skeleton className="w-16 h-4" />
+                                                    <Skeleton className="w-20 h-5 rounded" />
+                                                </div>
+                                                <div className="space-y-3 mb-3">
+                                                    <div>
+                                                        <Skeleton className="w-12 h-3 mb-1" />
+                                                        <Skeleton className="h-4 w-full" />
+                                                    </div>
+                                                    <div>
+                                                        <Skeleton className="w-16 h-3 mb-1" />
+                                                        <Skeleton className="h-4 w-1/2" />
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-3 mt-1 border-t border-gray-50 dark:border-hunted-border">
+                                                    <Skeleton className="w-20 h-4" />
+                                                    <Skeleton className="w-20 h-4" />
+                                                    <Skeleton className="w-20 h-4" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : filteredPatterns.length === 0 ? (
                                 <div className="text-center py-20 bg-gray-50 dark:bg-hunted-card rounded-lg border border-dashed border-gray-200 dark:border-hunted-border">
                                     <p className="text-gray-400 dark:text-hunted-muted text-sm">No patterns found.</p>
                                 </div>

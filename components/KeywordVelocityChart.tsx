@@ -40,7 +40,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
         };
     }, []);
 
-    const sortedData = [...data].sort((a, b) => b.velocity - a.velocity).slice(0, 5);
+    const sortedData = [...data].sort((a, b) => b.velocity - a.velocity).slice(0, 10);
     const maxVelocity = Math.max(...sortedData.map(d => d.velocity));
 
     // Prepare chart data
@@ -62,7 +62,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
         return point;
     }) || [];
 
-    const colors = ['#FF6154', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'];
+    const colors = ['#FF6154', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6'];
 
     const renderModeIcon = (m: string) => {
         switch (m) {
@@ -112,7 +112,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
             </div>
 
             {/* Live Chart */}
-            <div className="flex-1 min-h-[200px] w-full mb-6">
+            <div className="h-[400px] w-full mb-6">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -150,7 +150,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
             </div>
 
             {/* List */}
-            <div className="flex-none space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {sortedData.map((item, index) => (
                     <div key={item.keyword} className="group">
                         <div className="flex items-center justify-between mb-1">

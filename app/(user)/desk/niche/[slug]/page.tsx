@@ -66,6 +66,7 @@ import {
     type CategoryDetails
 } from '@/lib/charts-data';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function NicheDetailPage() {
     const params = useParams();
@@ -306,18 +307,9 @@ export default function NicheDetailPage() {
         );
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-hunted-dark">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600 dark:text-hunted-muted font-medium">Analyzing {niche}...</p>
-                </div>
-            </div>
-        );
-    }
+    // if (loading) return ... removed
 
-    if (!histogramData) {
+    if (!loading && !histogramData) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-hunted-dark flex items-center justify-center p-4">
                 <div className="text-center bg-white dark:bg-hunted-card rounded-xl p-8 border border-gray-200 dark:border-hunted-border max-w-md">
@@ -339,17 +331,27 @@ export default function NicheDetailPage() {
                 <aside className="w-full lg:w-[420px] bg-white dark:bg-hunted-card border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-hunted-border overflow-y-auto flex-shrink-0 lg:h-screen">
                     {/* Category Header */}
                     <div className="p-6 border-b border-gray-200 dark:border-hunted-border sticky top-0 bg-white dark:bg-hunted-card z-10">
-                        <div className="flex items-center gap-4 mb-3">
-                            <div className="flex-shrink-0">
-                                {getCategoryIcon(niche)}
+                        {loading ? (
+                            <div className="flex items-center gap-4 mb-3">
+                                <Skeleton className="w-16 h-16 rounded-xl" />
+                                <div className="flex-1">
+                                    <Skeleton className="h-8 w-3/4 mb-2" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-hunted-text truncate">{niche}</h1>
-                                <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
-                                    Deep dive into the {niche} niche
-                                </p>
+                        ) : (
+                            <div className="flex items-center gap-4 mb-3">
+                                <div className="flex-shrink-0">
+                                    {getCategoryIcon(niche)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl font-bold text-gray-900 dark:text-hunted-text truncate">{niche}</h1>
+                                    <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
+                                        Deep dive into the {niche} niche
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* AI Success Decode */}
@@ -370,11 +372,11 @@ export default function NicheDetailPage() {
                                 </button>
                             </div>
 
-                            {loadingAnalysis ? (
-                                <div className="space-y-3 animate-pulse">
-                                    <div className="h-3 bg-purple-100 rounded w-3/4"></div>
-                                    <div className="h-24 bg-white/60 rounded-lg border border-purple-50"></div>
-                                    <div className="h-24 bg-white/60 rounded-lg border border-purple-50"></div>
+                            {loading || loadingAnalysis ? (
+                                <div className="space-y-3">
+                                    <Skeleton className="h-12 w-full rounded-lg" />
+                                    <Skeleton className="h-24 w-full rounded-lg" />
+                                    <Skeleton className="h-4 w-3/4" />
                                 </div>
                             ) : aiAnalysis ? (
                                 <div className="space-y-4">
@@ -422,7 +424,12 @@ export default function NicheDetailPage() {
                 <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Key Stats */}
                     {/* Niche Growth Trend */}
-                    {growthData && (
+                    {loading ? (
+                        <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden p-4">
+                            <Skeleton className="h-6 w-1/3 mb-4" />
+                            <Skeleton className="h-[300px] w-full" />
+                        </div>
+                    ) : growthData && (
                         <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
                             <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
@@ -511,79 +518,97 @@ export default function NicheDetailPage() {
                     )}
 
                     {/* Performance Scatter Plot */}
-                    <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
-                        <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
-                            <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
-                                <MessageCircle className="w-5 h-5 text-blue-600" />
-                                Engagement Patterns
-                            </h2>
-                            <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
-                                Different product types attract different engagement patterns
-                            </p>
+                    {loading ? (
+                        <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden p-4">
+                            <Skeleton className="h-6 w-1/3 mb-4" />
+                            <Skeleton className="h-[300px] w-full" />
                         </div>
-                        <div className="p-4">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={[...scatterData].sort((a, b) => a.votes - b.votes)} margin={{ top: 10, right: 20, bottom: 50, left: 40 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
-                                    <XAxis
-                                        dataKey="name"
-                                        stroke="#9ca3af"
-                                        fontSize={9}
-                                        tickLine={false}
-                                        angle={-45}
-                                        textAnchor="end"
-                                        height={80}
-                                    />
-                                    <YAxis
-                                        stroke="#9ca3af"
-                                        fontSize={11}
-                                        tickLine={false}
-                                    />
-                                    <Tooltip
-                                        content={({ active, payload }) => {
-                                            if (active && payload && payload[0]) {
-                                                const data = payload[0].payload as ProductScatterPoint;
-                                                return (
-                                                    <div className="bg-white dark:bg-hunted-card p-3 border border-gray-200 dark:border-hunted-border rounded-lg shadow-lg max-w-xs">
-                                                        <div className="font-bold text-gray-900 dark:text-hunted-text mb-1 truncate text-sm">{data.name}</div>
-                                                        <div className="text-xs space-y-0.5 text-gray-600 dark:text-hunted-muted">
-                                                            <div>Type: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.productType}</span></div>
-                                                            <div>Upvotes: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.votes}</span></div>
-                                                            <div>Comments: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.comments}</span></div>
+                    ) : (
+                        <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
+                            <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">
+                                    <MessageCircle className="w-5 h-5 text-blue-600" />
+                                    Engagement Patterns
+                                </h2>
+                                <p className="text-xs text-gray-500 dark:text-hunted-muted mt-1">
+                                    Different product types attract different engagement patterns
+                                </p>
+                            </div>
+                            <div className="p-4">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={[...scatterData].sort((a, b) => a.votes - b.votes)} margin={{ top: 10, right: 20, bottom: 50, left: 40 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
+                                        <XAxis
+                                            dataKey="name"
+                                            stroke="#9ca3af"
+                                            fontSize={9}
+                                            tickLine={false}
+                                            angle={-45}
+                                            textAnchor="end"
+                                            height={80}
+                                        />
+                                        <YAxis
+                                            stroke="#9ca3af"
+                                            fontSize={11}
+                                            tickLine={false}
+                                        />
+                                        <Tooltip
+                                            content={({ active, payload }) => {
+                                                if (active && payload && payload[0]) {
+                                                    const data = payload[0].payload as ProductScatterPoint;
+                                                    return (
+                                                        <div className="bg-white dark:bg-hunted-card p-3 border border-gray-200 dark:border-hunted-border rounded-lg shadow-lg max-w-xs">
+                                                            <div className="font-bold text-gray-900 dark:text-hunted-text mb-1 truncate text-sm">{data.name}</div>
+                                                            <div className="text-xs space-y-0.5 text-gray-600 dark:text-hunted-muted">
+                                                                <div>Type: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.productType}</span></div>
+                                                                <div>Upvotes: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.votes}</span></div>
+                                                                <div>Comments: <span className="font-semibold text-gray-900 dark:text-hunted-text">{data.comments}</span></div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        }}
-                                    />
-                                    <Legend />
-                                    <Line
-                                        type="natural"
-                                        dataKey="votes"
-                                        stroke="#3b82f6"
-                                        strokeWidth={2}
-                                        dot={false}
-                                        activeDot={{ r: 4 }}
-                                        name="Upvotes"
-                                    />
-                                    <Line
-                                        type="natural"
-                                        dataKey="comments"
-                                        stroke="#10b981"
-                                        strokeWidth={2}
-                                        dot={false}
-                                        activeDot={{ r: 4 }}
-                                        name="Comments"
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
+                                                    );
+                                                }
+                                                return null;
+                                            }}
+                                        />
+                                        <Legend />
+                                        <Line
+                                            type="natural"
+                                            dataKey="votes"
+                                            stroke="#3b82f6"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            activeDot={{ r: 4 }}
+                                            name="Upvotes"
+                                        />
+                                        <Line
+                                            type="natural"
+                                            dataKey="comments"
+                                            stroke="#10b981"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            activeDot={{ r: 4 }}
+                                            name="Comments"
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
 
                     {/* Keyword Analysis Section */}
-                    {categoryDetails && (
+                    {loading ? (
+                        <div className="space-y-6">
+                            <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden p-4">
+                                <Skeleton className="h-6 w-1/3 mb-4" />
+                                <Skeleton className="h-[350px] w-full" />
+                            </div>
+                            <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden p-4">
+                                <Skeleton className="h-6 w-1/3 mb-4" />
+                                <Skeleton className="h-[350px] w-full" />
+                            </div>
+                        </div>
+                    ) : categoryDetails && (
                         <div className="space-y-6">
                             {/* Keyword Trends */}
                             <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
@@ -712,7 +737,12 @@ export default function NicheDetailPage() {
                     )}
 
                     {/* Feature Correlation */}
-                    {correlationData.length > 0 && (
+                    {loading ? (
+                        <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden p-4">
+                            <Skeleton className="h-6 w-1/3 mb-4" />
+                            <Skeleton className="h-[350px] w-full" />
+                        </div>
+                    ) : correlationData.length > 0 && (
                         <div className="bg-white dark:bg-hunted-card rounded-lg border border-gray-200 dark:border-hunted-border overflow-hidden">
                             <div className="p-4 border-b border-gray-200 dark:border-hunted-border">
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-hunted-text flex items-center gap-2">

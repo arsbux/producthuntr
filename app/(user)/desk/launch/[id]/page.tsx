@@ -10,6 +10,7 @@ import GenerateAuditButton from '@/components/GenerateAuditButton';
 import CategoryVelocityChart from '@/components/CategoryVelocityChart';
 import KeywordVelocityChart from '@/components/KeywordVelocityChart';
 import CompetitorComparison from '@/components/CompetitorComparison';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const dynamic = 'force-dynamic';
 

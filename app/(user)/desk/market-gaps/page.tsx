@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Lightbulb, TrendingUp, AlertCircle, CheckCircle, Sparkles, Target, Shield, Zap, Brain } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface MarketGap {
     problem: string;
@@ -356,7 +357,26 @@ export default function MarketGapsPage() {
                 // Market Gaps Mode
                 <div>
                     {loading ? (
-                        <div className="text-center py-12 text-neutral-600 dark:text-hunted-muted">Finding opportunities...</div>
+                        <div className="grid gap-4">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <div key={i} className="bg-white dark:bg-hunted-card border border-neutral-200 dark:border-hunted-border rounded-xl p-4 md:p-6">
+                                    <div className="flex flex-col md:flex-row items-start justify-between mb-4 gap-4">
+                                        <div className="flex-1 w-full space-y-3">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <Skeleton className="w-20 h-6 rounded-full" />
+                                                <Skeleton className="w-4 h-4 rounded-full" />
+                                            </div>
+                                            <Skeleton className="h-6 w-3/4 mb-2" />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                                <Skeleton className="h-12 w-full rounded-lg" />
+                                                <Skeleton className="h-12 w-full rounded-lg" />
+                                            </div>
+                                            <Skeleton className="h-16 w-full rounded-lg" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <div className="grid gap-4">
                             {gaps.map((gap, index) => (

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { fetchAggregatedTrends } from '@/app/actions/trends';
 import { Calendar } from 'lucide-react';
 import TrendsChart from '@/components/TrendsChart';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function TrendsPage() {
     const [data, setData] = useState<any>(null);
@@ -21,18 +22,14 @@ export default function TrendsPage() {
         setLoading(false);
     }
 
-    if (loading) return (
-        <div className="p-8 flex items-center justify-center min-h-screen bg-[var(--bg-app)]">
-            <div className="text-center">
-                <div className="w-12 h-12 border-4 border-[#FF6154] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading trends data...</p>
-            </div>
-        </div>
-    );
+    // if (loading) return ... removed
+    // if (!data) return ... removed
 
-    if (!data) return <div className="p-8 text-center text-gray-500">No data available.</div>;
+    const keywords = data?.keywords || [];
+    const categories = data?.categories || [];
+    const totalLaunches = data?.totalLaunches || 0;
+    const history = data?.history || [];
 
-    const { keywords, categories, totalLaunches, history } = data;
     const topKeyword = keywords[0];
     const topCategory = categories[0];
 
@@ -68,18 +65,30 @@ export default function TrendsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
                 <div className="bg-[#1a1a1a] p-6 rounded-xl border border-gray-800">
                     <div className="text-gray-500 text-xs uppercase tracking-wider mb-1">Total Launches</div>
-                    <div className="text-3xl font-bold text-white">{totalLaunches}</div>
+                    {loading ? (
+                        <Skeleton className="h-9 w-24 mb-2" />
+                    ) : (
+                        <div className="text-3xl font-bold text-white">{totalLaunches}</div>
+                    )}
                     <div className="text-xs text-gray-500 mt-2">in selected period</div>
                 </div>
                 <div className="bg-[#1a1a1a] p-6 rounded-xl border border-gray-800">
                     <div className="text-gray-500 text-xs uppercase tracking-wider mb-1">Top Keyword</div>
-                    <div className="text-2xl font-bold text-[#FF6154] truncate">{topKeyword?.name || 'N/A'}</div>
-                    <div className="text-xs text-gray-500 mt-2">{topKeyword?.launches} launches</div>
+                    {loading ? (
+                        <Skeleton className="h-8 w-32 mb-2" />
+                    ) : (
+                        <div className="text-2xl font-bold text-[#FF6154] truncate">{topKeyword?.name || 'N/A'}</div>
+                    )}
+                    <div className="text-xs text-gray-500 mt-2">{loading ? <Skeleton className="h-3 w-16 inline-block" /> : `${topKeyword?.launches || 0} launches`}</div>
                 </div>
                 <div className="bg-[#1a1a1a] p-6 rounded-xl border border-gray-800">
                     <div className="text-gray-500 text-xs uppercase tracking-wider mb-1">Top Category</div>
-                    <div className="text-2xl font-bold text-blue-400 truncate">{topCategory?.name || 'N/A'}</div>
-                    <div className="text-xs text-gray-500 mt-2">{topCategory?.launches} launches</div>
+                    {loading ? (
+                        <Skeleton className="h-8 w-40 mb-2" />
+                    ) : (
+                        <div className="text-2xl font-bold text-blue-400 truncate">{topCategory?.name || 'N/A'}</div>
+                    )}
+                    <div className="text-xs text-gray-500 mt-2">{loading ? <Skeleton className="h-3 w-16 inline-block" /> : `${topCategory?.launches || 0} launches`}</div>
                 </div>
             </div>
 
@@ -90,12 +99,16 @@ export default function TrendsPage() {
                     Top Keywords
                 </h2>
                 <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-6">
-                    <TrendsChart
-                        key="keywords-chart"
-                        history={history}
-                        items={keywords}
-                        type="keywords"
-                    />
+                    {loading ? (
+                        <Skeleton className="h-[400px] w-full rounded-xl" />
+                    ) : (
+                        <TrendsChart
+                            key="keywords-chart"
+                            history={history}
+                            items={keywords}
+                            type="keywords"
+                        />
+                    )}
                 </div>
             </div>
 
@@ -106,12 +119,16 @@ export default function TrendsPage() {
                     Top Categories
                 </h2>
                 <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-6">
-                    <TrendsChart
-                        key="categories-chart"
-                        history={history}
-                        items={categories}
-                        type="categories"
-                    />
+                    {loading ? (
+                        <Skeleton className="h-[400px] w-full rounded-xl" />
+                    ) : (
+                        <TrendsChart
+                            key="categories-chart"
+                            history={history}
+                            items={categories}
+                            type="categories"
+                        />
+                    )}
                 </div>
             </div>
         </div>

@@ -50,8 +50,8 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
     // Actually, let's just use the history to determine the top categories for the selected mode if possible, 
     // or just stick to votes for the list sorting but show the selected metric in the chart.
 
-    const sortedData = [...data].sort((a, b) => b.velocity - a.velocity).slice(0, 5);
-    const colors = ['#FF6154', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'];
+    const sortedData = [...data].sort((a, b) => b.velocity - a.velocity).slice(0, 10);
+    const colors = ['#FF6154', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6'];
 
     // Prepare chart data
     const chartData = history?.map((h, i) => {
@@ -120,7 +120,7 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
             </div>
 
             {/* Live Chart */}
-            <div className="flex-1 min-h-[200px] w-full mb-6">
+            <div className="h-[400px] w-full mb-6">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -158,7 +158,7 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
             </div>
 
             {/* Category List */}
-            <div className="flex-none space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {sortedData.map((item, index) => (
                     <div key={item.category} className="group">
                         <div className="flex items-center justify-between mb-1">
