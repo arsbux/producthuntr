@@ -50,7 +50,8 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
             Object.entries(h.keywords).forEach(([key, stats]: [string, any]) => {
                 if (mode === 'velocity') {
                     // Calculate rate of change (votes per bucket)
-                    const prev = i > 0 ? history[i - 1].keywords[key]?.votes || 0 : 0;
+                    // For the first point, set velocity to 0 to avoid a huge spike from cumulative total
+                    const prev = i > 0 ? history[i - 1].keywords[key]?.votes || 0 : stats.votes;
                     const current = stats.votes || 0;
                     point[key] = Math.max(0, current - prev);
                 } else {
@@ -73,8 +74,8 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
     };
 
     return (
-        <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-6 h-full">
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 gap-4">
+        <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-6 h-full flex flex-col">
+            <div className="flex-none flex flex-col xl:flex-row xl:items-center justify-between mb-6 gap-4">
                 <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-bold text-white mb-1 whitespace-nowrap">Trending Keywords</h3>
                     <p className="text-sm text-gray-500 whitespace-nowrap">High-velocity tags of the day</p>
@@ -97,8 +98,8 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
                                     key={m}
                                     onClick={() => { setMode(m as any); setShowMenu(false); }}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${mode === m
-                                            ? 'bg-[#FF6154] text-white'
-                                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        ? 'bg-[#FF6154] text-white'
+                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
                                     {renderModeIcon(m)}
@@ -111,7 +112,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
             </div>
 
             {/* Live Chart */}
-            <div className="h-[200px] w-full mb-6">
+            <div className="flex-1 min-h-[200px] w-full mb-6">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -149,7 +150,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
             </div>
 
             {/* List */}
-            <div className="space-y-4">
+            <div className="flex-none space-y-4">
                 {sortedData.map((item, index) => (
                     <div key={item.keyword} className="group">
                         <div className="flex items-center justify-between mb-1">

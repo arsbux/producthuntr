@@ -60,7 +60,8 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
             Object.entries(h.categories).forEach(([cat, stats]: [string, any]) => {
                 if (mode === 'velocity') {
                     // Calculate rate of change (votes per bucket)
-                    const prev = i > 0 ? history[i - 1].categories[cat]?.votes || 0 : 0;
+                    // For the first point, set velocity to 0 to avoid a huge spike from cumulative total
+                    const prev = i > 0 ? history[i - 1].categories[cat]?.votes || 0 : stats.votes;
                     const current = stats.votes || 0;
                     point[cat] = Math.max(0, current - prev);
                 } else {
@@ -81,8 +82,8 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
     };
 
     return (
-        <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-6 h-full">
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 gap-4">
+        <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-6 h-full flex flex-col">
+            <div className="flex-none flex flex-col xl:flex-row xl:items-center justify-between mb-6 gap-4">
                 <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-bold text-white mb-1 whitespace-nowrap">Top Category Velocity</h3>
                     <p className="text-sm text-gray-500 whitespace-nowrap">Fastest growing niches today</p>
@@ -105,8 +106,8 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
                                     key={m}
                                     onClick={() => { setMode(m as any); setShowMenu(false); }}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${mode === m
-                                            ? 'bg-[#FF6154] text-white'
-                                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        ? 'bg-[#FF6154] text-white'
+                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
                                     {renderModeIcon(m)}
@@ -119,7 +120,7 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
             </div>
 
             {/* Live Chart */}
-            <div className="h-[200px] w-full mb-6">
+            <div className="flex-1 min-h-[200px] w-full mb-6">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -157,23 +158,28 @@ export default function CategoryVelocityChart({ data, history }: CategoryVelocit
             </div>
 
             {/* Category List */}
-            <div className="space-y-4">
+            <div className="flex-none space-y-4">
                 {sortedData.map((item, index) => (
-                    <div key={item.category} className="space-y-1">
-                        <div className="flex justify-between text-sm">
+                    <div key={item.category} className="group">
+                        <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[index % colors.length] }} />
-                                <span className="text-gray-300">{item.category}</span>
+                                <span className="text-sm text-gray-300 font-medium group-hover:text-white transition-colors">
+                                    {item.category}
+                                </span>
                             </div>
-                            <span className="text-gray-500 font-mono">
-                                {mode === 'votes' ? `${item.velocity} votes` : mode === 'comments' ? 'View chart' : 'View rate'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-green-400 flex items-center gap-1">
+                                    <TrendingUp className="w-3 h-3" />
+                                    {item.velocity} votes
+                                </span>
+                            </div>
                         </div>
                         <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden ml-4">
                             <div
-                                className="h-full rounded-full"
+                                className="h-full rounded-full transition-all duration-500"
                                 style={{
-                                    width: `${(item.velocity / sortedData[0].velocity) * 100}%`,
+                                    width: `${(item.velocity / (sortedData[0]?.velocity || 1)) * 100}%`,
                                     backgroundColor: colors[index % colors.length]
                                 }}
                             />
