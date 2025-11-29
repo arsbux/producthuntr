@@ -1,4 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import TrackButton from '@/components/TrackButton';
+import { calculateLaunchScore } from '@/lib/scoring';
+import LaunchScoreCard from '@/components/LaunchScoreCard';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, TrendingUp, AlertTriangle, CheckCircle, Zap, Globe } from 'lucide-react';
@@ -6,6 +9,7 @@ import LaunchVelocityChart from '@/components/LaunchVelocityChart';
 import GenerateAuditButton from '@/components/GenerateAuditButton';
 import CategoryVelocityChart from '@/components/CategoryVelocityChart';
 import KeywordVelocityChart from '@/components/KeywordVelocityChart';
+import CompetitorComparison from '@/components/CompetitorComparison';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,7 +82,7 @@ async function getLaunchData(id: string) {
         // Query ph_launches to include historical data
         const { data: similar } = await supabase
             .from('ph_launches')
-            .select('id, name, tagline, topics, votes_count, thumbnail_url')
+            .select('id, name, tagline, topics, votes_count, comments_count, thumbnail_url, launched_at')
             .overlaps('topics', product.topics)
             .neq('id', id)
             .order('votes_count', { ascending: false })
@@ -203,7 +207,10 @@ async function getLaunchData(id: string) {
     })) || [];
 
 
-    return { product, history: history || [], similarProducts, trendHistory, categoryData, keywordData, productCategory };
+    const productVelocity = history && history.length > 1 ? history[history.length - 1].votes_count - history[history.length - 2].votes_count : 0;
+    const { score, grade, breakdown } = calculateLaunchScore(product, Math.max(0, productVelocity));
+
+    return { product, history: history || [], similarProducts, trendHistory, categoryData, keywordData, productCategory, score, grade, breakdown };
 }
 
 export default async function LaunchPage({ params }: { params: { id: string } }) {
@@ -218,7 +225,7 @@ export default async function LaunchPage({ params }: { params: { id: string } })
         );
     }
 
-    const { product, history, similarProducts, trendHistory, categoryData, keywordData, productCategory } = data;
+    const { product, history, similarProducts, trendHistory, categoryData, keywordData, productCategory, score, grade, breakdown } = data;
     const analysis = product.ai_analysis || {};
     const hasAudit = analysis.strengths?.length > 0;
 
@@ -245,24 +252,37 @@ export default async function LaunchPage({ params }: { params: { id: string } })
                                 {product.description}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-4 mb-4">
-                                {product.website_url && (
-                                    <a href={product.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm font-medium">
-                                        <Globe className="w-4 h-4" />
-                                        Visit Website
-                                    </a>
-                                )}
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 mb-6">
                                 {product.topics?.map((topic: string) => (
-                                    <span key={topic} className="px-3 py-1 bg-gray-800 rounded-full text-sm text-gray-300">
+                                    <span key={topic} className="px-3 py-1 bg-gray-800 rounded-full text-sm text-gray-300 border border-gray-700">
                                         {topic}
                                     </span>
                                 ))}
                             </div>
+
+                            <div className="flex gap-3 mt-6">
+                                <a
+                                    href={product.website_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#FF6154] hover:bg-[#ff4f40] text-white rounded-lg font-medium transition-colors"
+                                >
+                                    <Globe className="w-4 h-4" />
+                                    Visit Website
+                                </a>
+                                <TrackButton productId={product.id} />
+                                <a
+                                    href={product.ph_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] border border-gray-800 hover:bg-gray-800 text-gray-300 rounded-lg font-medium transition-colors"
+                                >
+                                    View on PH
+                                </a>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
                 <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
@@ -293,7 +313,9 @@ export default async function LaunchPage({ params }: { params: { id: string } })
                 {/* Left Column: Analysis */}
                 <div className="lg:col-span-2 space-y-8">
                     {/* Velocity Chart */}
-                    <LaunchVelocityChart data={history} />
+                    {history && history.length > 0 && (
+                        <LaunchVelocityChart data={history} />
+                    )}
 
                     {/* One-Line Pitch */}
                     <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 border border-gray-700 relative">
@@ -398,6 +420,8 @@ export default async function LaunchPage({ params }: { params: { id: string } })
                             ))}
                         </div>
                     </div>
+
+                    <LaunchScoreCard score={score} grade={grade} breakdown={breakdown} />
                 </div>
             </div>
 
@@ -414,40 +438,51 @@ export default async function LaunchPage({ params }: { params: { id: string } })
                 </div>
             </div>
 
+            {/* Competitor Snapshot */}
+            {
+                similarProducts.length > 0 && (
+                    <div className="mb-8">
+                        <CompetitorComparison currentProduct={product} competitors={similarProducts} />
+                    </div>
+                )
+            }
+
             {/* Similar Launches */}
-            {similarProducts.length > 0 && (
-                <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-white mb-6">Similar Launches</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {similarProducts.map((p: any) => (
-                            <Link key={p.product_id} href={`/desk/launch/${p.product_id}`} className="block group">
-                                <div className="bg-[#1a1a1a] rounded-xl p-4 border border-gray-800 hover:border-gray-600 transition-all h-full">
-                                    <div className="flex items-start gap-3 mb-3">
-                                        {p.thumbnail_url && (
-                                            <img src={p.thumbnail_url} alt={p.product_name} className="w-12 h-12 rounded-lg object-cover" />
-                                        )}
-                                        <div>
-                                            <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-1">{p.product_name}</h3>
-                                            <div className="flex items-center gap-1 text-gray-500 text-xs mt-1">
-                                                <TrendingUp className="w-3 h-3" />
-                                                {p.votes_count} votes
+            {
+                similarProducts.length > 0 && (
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-white mb-6">Similar Launches</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {similarProducts.map((p: any) => (
+                                <Link key={p.product_id} href={`/desk/launch/${p.product_id}`} className="block group">
+                                    <div className="bg-[#1a1a1a] rounded-xl p-4 border border-gray-800 hover:border-gray-600 transition-all h-full">
+                                        <div className="flex items-start gap-3 mb-3">
+                                            {p.thumbnail_url && (
+                                                <img src={p.thumbnail_url} alt={p.product_name} className="w-12 h-12 rounded-lg object-cover" />
+                                            )}
+                                            <div>
+                                                <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-1">{p.product_name}</h3>
+                                                <div className="flex items-center gap-1 text-gray-500 text-xs mt-1">
+                                                    <TrendingUp className="w-3 h-3" />
+                                                    {p.votes_count} votes
+                                                </div>
                                             </div>
                                         </div>
+                                        <p className="text-gray-400 text-sm line-clamp-2 mb-3">{p.tagline}</p>
+                                        <div className="flex flex-wrap gap-1">
+                                            {p.topics?.slice(0, 2).map((t: string) => (
+                                                <span key={t} className="px-2 py-0.5 bg-gray-800 rounded text-xs text-gray-500">
+                                                    {t}
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <p className="text-gray-400 text-sm line-clamp-2 mb-3">{p.tagline}</p>
-                                    <div className="flex flex-wrap gap-1">
-                                        {p.topics?.slice(0, 2).map((t: string) => (
-                                            <span key={t} className="px-2 py-0.5 bg-gray-800 rounded text-xs text-gray-500">
-                                                {t}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

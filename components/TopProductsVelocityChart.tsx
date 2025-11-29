@@ -98,8 +98,8 @@ export default function TopProductsVelocityChart({ data }: TopProductsVelocityCh
                     <button
                         onClick={() => setMode('votes')}
                         className={`flex items-center px-4 py-1.5 rounded-md text-sm font-medium transition-all ${mode === 'votes'
-                                ? 'bg-[#FF6154] text-white shadow-sm'
-                                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-[#FF6154] text-white shadow-sm'
+                            : 'text-gray-400 hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Votes
@@ -107,8 +107,8 @@ export default function TopProductsVelocityChart({ data }: TopProductsVelocityCh
                     <button
                         onClick={() => setMode('comments')}
                         className={`flex items-center px-4 py-1.5 rounded-md text-sm font-medium transition-all ${mode === 'comments'
-                                ? 'bg-[#FF6154] text-white shadow-sm'
-                                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-[#FF6154] text-white shadow-sm'
+                            : 'text-gray-400 hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Comments
@@ -116,8 +116,8 @@ export default function TopProductsVelocityChart({ data }: TopProductsVelocityCh
                     <button
                         onClick={() => setMode('velocity')}
                         className={`flex items-center px-4 py-1.5 rounded-md text-sm font-medium transition-all ${mode === 'velocity'
-                                ? 'bg-[#FF6154] text-white shadow-sm'
-                                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-[#FF6154] text-white shadow-sm'
+                            : 'text-gray-400 hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Velocity
@@ -152,7 +152,7 @@ export default function TopProductsVelocityChart({ data }: TopProductsVelocityCh
                             itemStyle={{ color: '#fff' }}
                             labelStyle={{ color: '#999', marginBottom: '8px' }}
                         />
-                        {data.map((product) => (
+                        {data && data.map((product) => (
                             <Line
                                 key={product.id}
                                 type="monotone"
@@ -170,7 +170,7 @@ export default function TopProductsVelocityChart({ data }: TopProductsVelocityCh
 
             {/* Legend / Toggles */}
             <div className="flex flex-wrap gap-3 mt-6 justify-center">
-                {data.map((product) => (
+                {data && data.map((product) => (
                     <div
                         key={product.id}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-xs text-gray-300"

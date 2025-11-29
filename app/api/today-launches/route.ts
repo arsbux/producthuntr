@@ -11,23 +11,34 @@ export const revalidate = 0;
 /**
  * Frontend API: Reads rich data directly from vote_snapshots
  */
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        // 1. Get today's date in Pacific Time (Product Hunt's timezone)
-        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+        const { searchParams } = new URL(request.url);
+        const dateParam = searchParams.get('date');
 
-        // 1. Find the latest snapshot time for today
+        // 1. Get target date (default to today in PT)
+        const targetDate = dateParam || new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+
+        // 1. Find the latest snapshot time for the target date
         const { data: latestTimeData, error: timeError } = await supabase
             .from('vote_snapshots')
             .select('snapshot_time')
-            .eq('snapshot_date', today)
+            .eq('snapshot_date', targetDate)
             .order('snapshot_time', { ascending: false })
             .limit(1)
             .single();
 
         if (timeError || !latestTimeData) {
             console.log('[Frontend API] No snapshots found for today');
-            return NextResponse.json({ chartData: [], topLaunches: [], metrics: {} });
+            return NextResponse.json({
+                chartData: [],
+                topLaunches: [],
+                productHistory: [],
+                categoryVelocity: [],
+                keywordVelocity: [],
+                trendHistory: [],
+                metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
+            });
         }
 
         const latestSnapshotTime = latestTimeData.snapshot_time;
@@ -42,7 +53,15 @@ export async function GET() {
 
         if (error || !snapshots) {
             console.error('[Frontend API] Error:', error);
-            return NextResponse.json({ chartData: [], topLaunches: [], metrics: {} });
+            return NextResponse.json({
+                chartData: [],
+                topLaunches: [],
+                productHistory: [],
+                categoryVelocity: [],
+                keywordVelocity: [],
+                trendHistory: [],
+                metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
+            });
         }
 
         // Helper: Categorize based on topics/name
@@ -120,7 +139,7 @@ export async function GET() {
             .from('vote_snapshots')
             .select('product_id, snapshot_time, votes_count, comments_count')
             .in('product_id', top10Ids)
-            .eq('snapshot_date', today)
+            .eq('snapshot_date', targetDate)
             .order('snapshot_time', { ascending: true });
 
         const productHistory = top10Ids.map((id, index) => {
@@ -176,7 +195,7 @@ export async function GET() {
         const { data: allSnapshots } = await supabase
             .from('vote_snapshots')
             .select('product_name, tagline, votes_count, comments_count, topics, snapshot_time')
-            .eq('snapshot_date', today)
+            .eq('snapshot_date', targetDate)
             .order('snapshot_time', { ascending: true });
 
         const timeBuckets = new Map<string, { categories: Record<string, { votes: number, comments: number }>, keywords: Record<string, { votes: number, comments: number }> }>();
@@ -228,6 +247,14 @@ export async function GET() {
         });
 
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({
+            chartData: [],
+            topLaunches: [],
+            productHistory: [],
+            categoryVelocity: [],
+            keywordVelocity: [],
+            trendHistory: [],
+            metrics: { totalLaunches: 0, aiPercentage: 0, avgVotes: 0, topCategory: 'N/A' }
+        });
     }
 }

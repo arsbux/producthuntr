@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { processDay, fetchLaunchesForDate } from '@/lib/product-processor';
 
 export const maxDuration = 300; // 5 minutes timeout for Vercel
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {

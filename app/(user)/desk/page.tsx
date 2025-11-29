@@ -9,7 +9,9 @@ import {
   Activity,
   Zap,
   BarChart3,
-  ExternalLink
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import TopProductsVelocityChart from '@/components/TopProductsVelocityChart';
 import CategoryVelocityChart from '@/components/CategoryVelocityChart';
@@ -44,11 +46,22 @@ interface DashboardData {
 export default function DeskPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+  });
 
   useEffect(() => {
     const fetchData = async () => {
+      // Only show loading spinner on initial load or date change, not background refresh
+      // But here we can't easily distinguish. Let's just set loading if data is null or if we want to show transition.
+      // Actually, for better UX, maybe don't clear data immediately?
+      // But the user wants to see the new date's data.
+      // Let's keep it simple.
+    };
+
+    const load = async () => {
       try {
-        const res = await fetch('/api/today-launches');
+        const res = await fetch(`/api/today-launches?date=${selectedDate}`);
         const json = await res.json();
         setData(json);
       } catch (error) {
@@ -56,12 +69,14 @@ export default function DeskPage() {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
-    fetchData();
-    const interval = setInterval(fetchData, 60000);
+    setLoading(true);
+    load();
+
+    const interval = setInterval(load, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedDate]);
 
   if (loading) {
     return (
@@ -79,11 +94,67 @@ export default function DeskPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Market Pulse</h1>
-          <p className="text-gray-500 text-sm">Real-time analysis of today's Product Hunt launches</p>
+          <p className="text-gray-500 text-sm">Real-time analysis of Product Hunt launches</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500 bg-[var(--bg-panel)] px-3 py-1.5 rounded-lg border border-[var(--border-subtle)]">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          Live Updates
+        <div className="flex items-center gap-4">
+          <div className="flex items-center bg-[var(--bg-panel)] rounded-full border border-[var(--border-subtle)] p-1">
+            <button
+              onClick={() => {
+                const date = new Date(selectedDate);
+                date.setDate(date.getDate() - 1);
+                setSelectedDate(date.toLocaleDateString('en-CA'));
+              }}
+              className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div className="relative px-4 py-1">
+              <span className="text-sm font-medium text-white cursor-pointer hover:text-[#FF6154] transition-colors">
+                {(() => {
+                  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+                  if (selectedDate === today) return 'Today';
+
+                  return new Date(selectedDate).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                  });
+                })()}
+              </span>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              />
+            </div>
+
+            <button
+              onClick={() => {
+                const date = new Date(selectedDate);
+                date.setDate(date.getDate() + 1);
+                const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+                const nextDate = date.toLocaleDateString('en-CA');
+
+                if (nextDate <= today) {
+                  setSelectedDate(nextDate);
+                }
+              }}
+              disabled={selectedDate === new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })}
+              className={`p-1.5 rounded-full transition-colors ${selectedDate === new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
+                  ? 'text-gray-700 cursor-not-allowed'
+                  : 'hover:bg-white/10 text-gray-400 hover:text-white'
+                }`}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-500 bg-[var(--bg-panel)] px-3 py-1.5 rounded-lg border border-[var(--border-subtle)]">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            Live Updates
+          </div>
         </div>
       </div>
 
