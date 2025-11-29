@@ -71,7 +71,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function NicheDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const niche = decodeURIComponent(params.slug as string);
+
+    // Safely handle params.slug which might be undefined during build or an array
+    const slug = params?.slug;
+    const niche = slug ? decodeURIComponent(Array.isArray(slug) ? slug[0] : slug) : '';
 
     const [loading, setLoading] = useState(true);
     const [histogramData, setHistogramData] = useState<NicheHistogramData | null>(null);

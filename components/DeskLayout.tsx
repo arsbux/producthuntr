@@ -66,36 +66,40 @@ export default function DeskLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Navigation */}
-          <nav className={`flex-1 py-6 space-y-1 ${isCollapsed ? 'px-2' : 'px-4'}`}>
-            {!isCollapsed && (
-              <div className="mb-6 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Platform
-              </div>
-            )}
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`nav-item ${isActive ? 'active' : ''} ${isCollapsed ? 'justify-center px-2' : ''}`}
-                  title={isCollapsed ? item.name : ''}
-                >
-                  <item.icon className={`w-5 h-5 ${isActive ? 'text-[#FF6154]' : 'text-gray-500'}`} />
-                  {!isCollapsed && item.name}
-                </Link>
-              );
-            })}
+          <nav className={`flex-1 py-6 flex flex-col ${isCollapsed ? 'px-2' : 'px-4'}`}>
+            <div className="space-y-1">
+              {!isCollapsed && (
+                <div className="mb-6 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Platform
+                </div>
+              )}
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`nav-item ${isActive ? 'active' : ''} ${isCollapsed ? 'justify-center px-2' : ''}`}
+                    title={isCollapsed ? item.name : ''}
+                  >
+                    <item.icon className={`w-5 h-5 ${isActive ? 'text-[#FF6154]' : 'text-gray-500'}`} />
+                    {!isCollapsed && item.name}
+                  </Link>
+                );
+              })}
+            </div>
 
-            {!isCollapsed && (
-              <div className="mt-8 mb-2 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Settings
-              </div>
-            )}
-            <Link href="/desk/settings" className={`nav-item ${isCollapsed ? 'justify-center px-2' : ''}`} title={isCollapsed ? 'Settings' : ''}>
-              <Settings className="w-5 h-5 text-gray-500" />
-              {!isCollapsed && 'Settings'}
-            </Link>
+            <div className="mt-auto space-y-1">
+              {!isCollapsed && (
+                <div className="mb-2 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Settings
+                </div>
+              )}
+              <Link href="/desk/settings" className={`nav-item ${isCollapsed ? 'justify-center px-2' : ''}`} title={isCollapsed ? 'Settings' : ''}>
+                <Settings className="w-5 h-5 text-gray-500" />
+                {!isCollapsed && 'Settings'}
+              </Link>
+            </div>
           </nav>
 
           {/* User Profile / Logout */}
