@@ -195,7 +195,7 @@ export default function DeskPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Top 10 List (Compact) - Spans 4 cols */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 overflow-hidden flex flex-col h-[540px]">
+          <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 overflow-hidden flex flex-col h-full">
             <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
               <h3 className="font-bold text-white">Top 10 Products</h3>
               <span className="text-xs text-gray-500">By rank</span>
@@ -250,11 +250,6 @@ export default function DeskPage() {
                   </Link>
                 ))
               )}
-            </div>
-            <div className="p-3 border-t border-gray-800 bg-gray-900/50 text-center">
-              <Link href="/desk/trends" className="text-xs text-[#FF6154] hover:text-white transition-colors">
-                View Full Leaderboard
-              </Link>
             </div>
           </div>
         </div>
