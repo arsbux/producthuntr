@@ -112,7 +112,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
             </div>
 
             {/* Live Chart */}
-            <div className="h-[400px] w-full mb-6">
+            <div className="h-[250px] w-full mb-6">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -150,7 +150,7 @@ export default function KeywordVelocityChart({ data, history }: KeywordVelocityC
             </div>
 
             {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex-none space-y-4">
                 {sortedData.map((item, index) => (
                     <div key={item.keyword} className="group">
                         <div className="flex items-center justify-between mb-1">

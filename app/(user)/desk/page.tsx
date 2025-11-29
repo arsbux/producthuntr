@@ -195,7 +195,7 @@ export default function DeskPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Top 10 List (Compact) - Spans 4 cols */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 overflow-hidden flex flex-col h-full">
+          <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 overflow-hidden flex flex-col h-[540px]">
             <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
               <h3 className="font-bold text-white">Top 10 Products</h3>
               <span className="text-xs text-gray-500">By rank</span>
@@ -268,21 +268,22 @@ export default function DeskPage() {
             <TopProductsVelocityChart data={data?.productHistory || []} />
           )}
 
-          {/* Secondary Charts Grid */}
-          <div className="grid grid-cols-1 gap-6">
-            {loading ? (
-              <>
-                <Skeleton className="h-[400px] w-full rounded-xl" />
-                <Skeleton className="h-[400px] w-full rounded-xl" />
-              </>
-            ) : (
-              <>
-                <CategoryVelocityChart data={data?.categoryVelocity || []} history={data?.trendHistory || []} />
-                <KeywordVelocityChart data={data?.keywordVelocity || []} history={data?.trendHistory || []} />
-              </>
-            )}
-          </div>
         </div>
+      </div>
+
+      {/* Secondary Charts Grid - Spans Full Width */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {loading ? (
+          <>
+            <Skeleton className="h-[300px] w-full rounded-xl" />
+            <Skeleton className="h-[300px] w-full rounded-xl" />
+          </>
+        ) : (
+          <>
+            <CategoryVelocityChart data={data?.categoryVelocity || []} history={data?.trendHistory || []} />
+            <KeywordVelocityChart data={data?.keywordVelocity || []} history={data?.trendHistory || []} />
+          </>
+        )}
       </div>
     </div>
   );
