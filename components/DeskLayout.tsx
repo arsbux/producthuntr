@@ -37,7 +37,6 @@ export default function DeskLayout({ children }: { children: React.ReactNode }) 
     { name: 'Idea Validator', href: '/desk/idea-validator', icon: Zap },
     { name: 'Trends', href: '/desk/trends', icon: TrendingUp },
     { name: 'Archive', href: '/desk/archive', icon: Archive },
-    { name: 'Analytics', href: '/desk/analytics', icon: BarChart3 },
   ];
 
   return (
