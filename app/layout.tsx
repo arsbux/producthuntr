@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 import { Outfit } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 import { AnalyticsTracker } from '@/components/AnalyticsTracker'
@@ -81,6 +82,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={font.className}>
+        <Script
+          defer
+          data-website-id="dfid_HGJK2JK9Gu86uJCgkfB0X"
+          data-domain="produchuntr.com"
+          src="https://datafa.st/js/script.js"
+          strategy="afterInteractive"
+        />
         <Suspense fallback={null}>
           <AnalyticsTracker />
         </Suspense>

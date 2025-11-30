@@ -405,23 +405,6 @@ export default async function LaunchPage({ params }: { params: { id: string } })
                         </div>
                     </div>
 
-                    <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
-                        <h3 className="text-lg font-bold text-white mb-4">Makers</h3>
-                        <div className="space-y-4">
-                            {product.makers?.map((maker: any) => (
-                                <div key={maker.username} className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 font-bold">
-                                        {maker.name[0]}
-                                    </div>
-                                    <div>
-                                        <p className="text-white font-medium">{maker.name}</p>
-                                        <p className="text-gray-500 text-sm">@{maker.username}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     <LaunchScoreCard score={score} grade={grade} breakdown={breakdown} />
                 </div>
             </div>

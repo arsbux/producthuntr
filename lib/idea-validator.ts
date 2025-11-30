@@ -2,6 +2,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import * as ChartsData from '@/lib/charts-data';
 
 // Initialize Supabase client for server-side usage
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -9,18 +10,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 let anthropic: Anthropic | null = null;
-
-export interface Competitor {
-    id: string;
-    name: string;
-    tagline: string;
-    description: string;
-    votes_count: number;
-    website_url?: string;
-    thumbnail_url?: string;
-    relevance_score?: number;
-    relevance_reason?: string;
-}
 
 export interface IdeaAnalysis {
     growth_health: {
@@ -213,103 +202,170 @@ export async function validateIdea(
     }
 }
 
+export interface Competitor {
+    id: string;
+    name: string;
+    tagline: string;
+    description: string;
+    votes_count: number;
+    website_url?: string;
+    thumbnail_url?: string;
+    relevance_score?: number;
+    relevance_reason?: string;
+}
+
+export interface IntelligenceResult {
+    answer: string;
+    visualization: {
+        type: 'bar' | 'line' | 'radar' | 'pie' | 'scatter' | 'radial_bar' | 'multi_line' | 'treemap' | 'heatmap';
+        title: string;
+        data: any[];
+        dataKey: string;
+        categoryKey: string;
+        seriesKeys?: string[];
+        description: string;
+    } | null;
+    trends: {
+        name: string;
+        growth: string; // e.g. "+45%"
+        sentiment: 'positive' | 'neutral' | 'negative';
+    }[];
+    related_products: Competitor[];
+}
+
 // Tool Definitions
 const TOOLS = [
     {
         name: "search_products",
-        description: "Search for products in the internal database by keyword. Returns details including name, description, and upvotes (votes_count). Results are sorted by popularity (votes) by default to ensure quality.",
+        description: "Search for products in the internal database by keyword. Returns details including name, description, and upvotes. Use this to find specific products or examples.",
         input_schema: {
             type: "object",
             properties: {
                 query: { type: "string", description: "Search keywords" },
                 limit: { type: "number", description: "Number of results (default 10)" },
-                min_votes: { type: "number", description: "Minimum upvotes required (default 50 to filter noise)" }
+                min_votes: { type: "number", description: "Minimum upvotes required (default 50)" }
             },
             required: ["query"]
+        }
+    },
+    {
+        name: "get_topic_velocity",
+        description: "Analyze the growth trend of different topics/niches over time. Returns formatted 'chartData' suitable for multi-line charts (month vs topic volume).",
+        input_schema: {
+            type: "object",
+            properties: {
+                months: { type: "number", description: "Number of months to analyze (default 12)" }
+            }
+        }
+    },
+    {
+        name: "get_market_treemap",
+        description: "Get a hierarchical view of the market landscape. Returns a tree structure suitable for Treemaps. Useful for 'Market Overview'.",
+        input_schema: {
+            type: "object",
+            properties: {}
+        }
+    },
+    {
+        name: "get_keyword_trends",
+        description: "Analyze the trend of a specific keyword. Returns 'chartData' array suitable for line charts (month vs count/upvotes).",
+        input_schema: {
+            type: "object",
+            properties: {
+                keyword: { type: "string", description: "The keyword to analyze (e.g., 'AI', 'Notion', 'Crypto')" },
+                months: { type: "number", description: "Number of months (default 12)" }
+            },
+            required: ["keyword"]
+        }
+    },
+    {
+        name: "get_category_performance",
+        description: "Get a performance matrix of all categories. Returns array suitable for Scatter or Bar charts.",
+        input_schema: {
+            type: "object",
+            properties: {}
+        }
+    },
+    {
+        name: "get_niche_histogram",
+        description: "Get the distribution of success (upvotes) for a specific niche. Returns histogram data.",
+        input_schema: {
+            type: "object",
+            properties: {
+                niche: { type: "string", description: "The niche category name (e.g., 'Developer Tools', 'Productivity')" }
+            },
+            required: ["niche"]
+        }
+    },
+    {
+        name: "get_product_scatter",
+        description: "Get scatter plot data (Votes vs Comments) for products in a category.",
+        input_schema: {
+            type: "object",
+            properties: {
+                category: { type: "string", description: "Optional category to filter by" }
+            }
+        }
+    },
+    {
+        name: "get_feature_correlation",
+        description: "Analyze which features or keywords correlate with higher upvotes. Returns bar chart data.",
+        input_schema: {
+            type: "object",
+            properties: {
+                category: { type: "string", description: "The category to analyze" }
+            },
+            required: ["category"]
+        }
+    },
+    {
+        name: "get_launch_time_heatmap",
+        description: "Analyze the best times to launch. Returns heatmap data (day, hour, value).",
+        input_schema: {
+            type: "object",
+            properties: {}
+        }
+    },
+    {
+        name: "get_market_gap_matrix",
+        description: "Find 'Blue Ocean' opportunities. Returns scatter plot data for Market Gaps.",
+        input_schema: {
+            type: "object",
+            properties: {}
         }
     },
     {
         name: "search_web",
-        description: "Search the live web for information. Use this ONLY when the internal database ('search_products') returns no relevant results or when you need recent external context (e.g., news, competitor pricing, blog posts).",
+        description: "Search the live web for external context. Use ONLY when internal data is insufficient.",
         input_schema: {
             type: "object",
             properties: {
-                query: { type: "string", description: "The search query for the web." }
+                query: { type: "string", description: "The search query" }
             },
             required: ["query"]
         }
     },
     {
-        name: "get_top_products",
-        description: "Get the top products sorted by upvotes (popularity). Use this for queries like 'most upvoted', 'top products', 'best of all time', or 'most popular'.",
-        input_schema: {
-            type: "object",
-            properties: {
-                limit: { type: "number", description: "Number of results (default 10)" },
-                time_range: { type: "string", enum: ["all_time", "this_month", "this_week", "today"], description: "Time range for the query (default: all_time)" }
-            }
-        }
-    },
-    {
-        name: "get_vote_snapshots",
-        description: "Get historical vote snapshots for a specific product to analyze growth trends over time. Use this when you need to see how a product grew.",
-        input_schema: {
-            type: "object",
-            properties: {
-                product_id: { type: "string", description: "The ID of the product (from ph_launches)" },
-                limit: { type: "number", description: "Number of snapshots to return (default 20)" }
-            },
-            required: ["product_id"]
-        }
-    },
-    {
-        name: "get_category_distribution",
-        description: "Get the distribution of products across different categories/niches. Useful for 'Category Split' or understanding market composition.",
-        input_schema: {
-            type: "object",
-            properties: {
-                limit: { type: "number", description: "Number of top categories to return (default 10)" }
-            }
-        }
-    },
-    {
-        name: "get_market_gaps",
-        description: "Analyze the market to find 'Blue Ocean' opportunities where demand (upvotes) is high but supply (product count) is low.",
-        input_schema: {
-            type: "object",
-            properties: {
-                limit: { type: "number", description: "Number of gaps to return (default 20)" }
-            }
-        }
-    },
-    {
         name: "generate_report",
-        description: "Finalize the analysis and generate the report for the user. Call this tool when you have gathered enough information.",
+        description: "Finalize the analysis and generate the report. Call this when you have enough data.",
         input_schema: {
             type: "object",
             properties: {
-                answer: { type: "string", description: "The main answer to the user's query (Markdown supported)." },
+                answer: { type: "string", description: "The comprehensive answer to the user's query (Markdown supported)." },
                 visualization: {
                     type: "object",
-                    description: "Data for a chart to visualize the insights.",
+                    description: "Configuration for the primary chart.",
                     properties: {
-                        type: { type: "string", enum: ["bar", "line", "radar", "pie", "scatter", "radial_bar", "multi_line"] },
+                        type: { type: "string", enum: ["bar", "line", "radar", "pie", "scatter", "radial_bar", "multi_line", "treemap", "heatmap"] },
                         title: { type: "string" },
                         description: { type: "string" },
                         data: {
                             type: "array",
-                            items: {
-                                type: "object",
-                                additionalProperties: true
-                            }
+                            items: { type: "object", additionalProperties: true }
                         },
-                        dataKey: { type: "string", description: "Primary data key for values" },
-                        categoryKey: { type: "string", description: "Key for X-axis or categories" },
-                        seriesKeys: {
-                            type: "array",
-                            items: { type: "string" },
-                            description: "For multi_line charts, list the keys for each line (e.g. product names)"
-                        }
+                        dataKey: { type: "string" },
+                        categoryKey: { type: "string" },
+                        seriesKeys: { type: "array", items: { type: "string" } }
                     },
                     required: ["type", "title", "data", "dataKey", "categoryKey"]
                 },
@@ -327,7 +383,7 @@ const TOOLS = [
                 related_product_ids: {
                     type: "array",
                     items: { type: "string" },
-                    description: "IDs of the products found in the search that are relevant."
+                    description: "IDs of relevant products found during analysis. These will be displayed as cards below the result."
                 }
             },
             required: ["answer", "trends", "related_product_ids"]
@@ -335,32 +391,18 @@ const TOOLS = [
     }
 ];
 
-export interface IntelligenceResult {
-    answer: string;
-    visualization: {
-        type: 'bar' | 'line' | 'radar' | 'pie' | 'scatter' | 'radial_bar' | 'multi_line';
-        title: string;
-        data: any[];
-        dataKey: string;
-        categoryKey: string;
-        seriesKeys?: string[];
-        description: string;
-    } | null;
-    trends: {
-        name: string;
-        growth: string; // e.g. "+45%"
-        sentiment: 'positive' | 'neutral' | 'negative';
-    }[];
-    related_products: Competitor[];
-}
-
 export async function askGrowthIntelligence(query: string): Promise<IntelligenceResult> {
     if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set');
     if (!anthropic) anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const messages: any[] = [{ role: 'user', content: query }];
+    // Prepend instruction to force tool usage
+    const enhancedQuery = `${query}
+
+IMPORTANT: You MUST use data analysis tools to answer this query. Do not respond with text only. Use tools like get_topic_velocity, search_products, or other relevant tools, then call generate_report with a visualization.`;
+
+    const messages: any[] = [{ role: 'user', content: enhancedQuery }];
     let turnCount = 0;
-    const MAX_TURNS = 12; // Increased max turns for deeper analysis
+    const MAX_TURNS = 15;
 
     try {
         while (turnCount < MAX_TURNS) {
@@ -372,51 +414,123 @@ export async function askGrowthIntelligence(query: string): Promise<Intelligence
                 max_tokens: 4000,
                 tools: TOOLS as any,
                 messages: messages,
-                system: `You are a Growth Intelligence Agent for a Product Hunt Analytics Platform.
+                system: `You are the "AI Data Analysis Agent" for ProductHuntr.
                 
-                CORE MISSION:
-                Your goal is to provide intelligence specifically about the Product Hunt ecosystem. 
-                Every answer MUST be grounded in or related to Product Hunt data.
-                This is NOT a general market research tool; it is a Product Hunt intelligence tool.
+                🚨 CRITICAL REQUIREMENTS 🚨
+                1. **EVERY response MUST include a data visualization.** No exceptions. A response without a chart fails the user.
+                2. **EVERY response MUST include at least 2 trend insights.**
+                3. **EVERY response MUST include related products when applicable.**
+                4. **ALWAYS use real data from tools.** Never make up numbers or charts.
 
-                Table Schema:
-                1. 'ph_launches' (Main Product Data):
-                - id: Unique ID (text)
-                - name: Product Name
-                - tagline: Short catchphrase
-                - description: Full description
-                - votes_count: Total upvotes (int) - IMPORTANT: Higher is better/more popular.
-                - comments_count: Total comments (int)
-                - topics: Array of tags/topics (_text)
-                - makers: Maker info (jsonb)
-                - created_at: Launch date (timestamptz)
-                - ai_analysis: JSONB containing { niche, icp, problem, solution_type }
+                WORKFLOW FOR EVERY QUERY:
                 
-                2. 'vote_snapshots' (Time-series Data):
-                - product_id: Link to ph_launches.id
-                - votes_count: Votes at that snapshot time
-                - snapshot_time: When the snapshot was taken
-                
-                EXECUTION STRATEGY:
-                1. **ALWAYS START WITH INTERNAL DATA**: Use 'search_products', 'get_top_products', etc. first.
-                2. **WEB SEARCH AS SUPPORT**: Use 'search_web' ONLY to:
-                   - Find details about a specific Product Hunt launch that is missing metadata.
-                   - Understand the broader market context of a Product Hunt niche.
-                   - Find competitors to a Product Hunt launch.
-                3. **VERIFY WITH PRODUCT HUNT DATA**: If you find insights on the web, you MUST verify them against the internal database.
-                   - **Validate Trends**: If the web says "AI Agents are trending", check the DB. Do we see a spike in "AI Agent" products?
-                   - **Compare Data**: If the web mentions a competitor, find the closest Product Hunt equivalent and compare their performance (votes, comments).
-                   - **Refute if Needed**: If the web hype doesn't match the Product Hunt reality, say so. (e.g., "While the web hypes X, our data shows low engagement for X on Product Hunt.")
-                
-                CRITICAL RULES:
-                - **NEVER** give a generic market research answer without mentioning Product Hunt data.
-                - If the user asks about a topic (e.g. "No-code"), SHOW THE PRODUCT HUNT DATA for that topic (top products, trends, gaps).
-                - If the user asks about a specific product not in the DB, say: "I couldn't find [Product] in our Product Hunt database, but..." and then relate it to similar PH products.
-                
-                VISUALIZATION RULES:
-                - Use 'scatter' for Market Gaps (Volume vs Demand).
-                - Use 'radial_bar' for Category Splits.
-                - Use 'multi_line' for comparing growth of multiple products.`
+                Step 1: UNDERSTAND the user's question
+                - What category/niche are they asking about?
+                - What timeframe? (default to 12 months if not specified)
+                - Do they want trends, comparisons, or opportunities?
+
+                Step 2: SELECT THE RIGHT TOOL
+                - Topic comparison? → get_topic_velocity
+                - Specific keyword trend? → get_keyword_trends
+                - Market overview? → get_market_treemap
+                - Best launch times? → get_launch_time_heatmap
+                - Market gaps? → get_market_gap_matrix
+                - Category performance? → get_category_performance
+                - Product examples? → search_products
+
+                Step 3: FETCH DATA
+                - Call the tool(s) you selected
+                - If you need product examples, also call search_products
+
+                Step 4: GENERATE REPORT
+                - Call 'generate_report' with:
+                  - answer: Your analysis in Markdown
+                  - visualization: The chart configuration (MANDATORY)
+                  - trends: At least 2 insights with growth percentages
+                  - related_product_ids: IDs from search_products
+
+                🎨 CHART CONFIGURATION GUIDE:
+
+                📊 get_topic_velocity → Multi-Line Chart
+                {
+                  "type": "multi_line",
+                  "title": "Topic Growth Comparison",
+                  "description": "Monthly launch volume",
+                  "data": toolResult.chartData,
+                  "categoryKey": "month",
+                  "dataKey": "launchCount",
+                  "seriesKeys": toolResult.topics
+                }
+
+                📈 get_keyword_trends → Line Chart
+                {
+                  "type": "line",
+                  "title": "Keyword Trend: [KEYWORD]",
+                  "description": "Monthly mentions",
+                  "data": toolResult.chartData,
+                  "categoryKey": "month",
+                  "dataKey": "count"
+                }
+
+                🗂️ get_market_treemap → Treemap
+                {
+                  "type": "treemap",
+                  "title": "Market Landscape",
+                  "description": "Category sizes",
+                  "data": toolResult.children,
+                  "categoryKey": "name",
+                  "dataKey": "size"
+                }
+
+                🔥 get_launch_time_heatmap → Heatmap
+                {
+                  "type": "heatmap",
+                  "title": "Best Launch Times",
+                  "description": "Day vs Hour performance",
+                  "data": toolResult,
+                  "categoryKey": "day",
+                  "dataKey": "hour"
+                }
+
+                💎 get_market_gap_matrix → Scatter Plot
+                {
+                  "type": "scatter",
+                  "title": "Market Opportunities",
+                  "description": "Low competition, high demand",
+                  "data": toolResult,
+                  "categoryKey": "launchVolume",
+                  "dataKey": "avgUpvotes"
+                }
+
+                📊 get_category_performance → Bar Chart
+                {
+                  "type": "bar",
+                  "title": "Category Performance",
+                  "description": "Average upvotes by category",
+                  "data": toolResult,
+                  "categoryKey": "category",
+                  "dataKey": "avgUpvotes"
+                }
+
+                🔄 FALLBACK STRATEGY:
+                If the user's query is vague (e.g., "Tell me about AI"):
+                1. Call get_topic_velocity to show AI vs other categories
+                2. Call search_products with query="AI" for examples
+                3. Generate a multi_line chart comparing AI to Dev Tools
+
+                ❌ NEVER ALLOWED:
+                - Responding without calling tools
+                - Responding without a visualization
+                - Making up data or trends
+                - Saying "I don't have that data" (use tools to find it)
+
+                ✅ GOOD RESPONSE PATTERN:
+                1. Fetch data with 1-3 tools
+                2. Generate a clear, insightful answer
+                3. Include a properly configured chart
+                4. List 2-3 actionable trends
+                5. Show 3-5 related products
+                `
             });
 
             // Add assistant response to history
@@ -437,185 +551,221 @@ export async function askGrowthIntelligence(query: string): Promise<Intelligence
 
                     let toolResult;
 
-                    if (toolName === 'search_products') {
-                        // Execute DB Search
-                        let queryBuilder = supabase
-                            .from('ph_launches')
-                            .select('id, name, tagline, description, votes_count, created_at')
-                            .or(`name.ilike.%${toolInput.query}%,description.ilike.%${toolInput.query}%`)
-                            .order('votes_count', { ascending: false })
-                            .limit(toolInput.limit || 10);
+                    try {
+                        switch (toolName) {
+                            case 'search_products': {
+                                let queryBuilder = supabase
+                                    .from('ph_launches')
+                                    .select('id, name, tagline, description, votes_count, created_at')
+                                    .or(`name.ilike.%${toolInput.query}%,description.ilike.%${toolInput.query}%`)
+                                    .order('votes_count', { ascending: false })
+                                    .limit(toolInput.limit || 10);
+                                if (toolInput.min_votes) queryBuilder = queryBuilder.gte('votes_count', toolInput.min_votes);
+                                const { data } = await queryBuilder;
+                                toolResult = JSON.stringify(data || []);
+                                break;
+                            }
+                            case 'get_topic_velocity': {
+                                const rawData = await ChartsData.getTopicVelocity(toolInput.months);
 
-                        if (toolInput.min_votes) {
-                            queryBuilder = queryBuilder.gte('votes_count', toolInput.min_votes);
-                        }
+                                // Transform for Multi-Line Chart
+                                const monthMap = new Map<string, any>();
+                                const allTopics = new Set<string>();
 
-                        const { data } = await queryBuilder;
-                        toolResult = JSON.stringify(data || []);
-                    } else if (toolName === 'search_web') {
-                        // Execute Web Search (Tavily)
-                        const apiKey = process.env.TAVILY_API_KEY;
-                        if (!apiKey) {
-                            toolResult = JSON.stringify({ error: "Web search is not configured. Please add TAVILY_API_KEY to your environment variables." });
-                        } else {
-                            try {
-                                const response = await fetch('https://api.tavily.com/search', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        api_key: apiKey,
-                                        query: toolInput.query,
-                                        search_depth: "advanced",
-                                        include_answer: true,
-                                        max_results: 5
-                                    })
+                                rawData.forEach(topicData => {
+                                    allTopics.add(topicData.topic);
+                                    topicData.timeSeriesData.forEach(point => {
+                                        if (!monthMap.has(point.month)) {
+                                            monthMap.set(point.month, { month: point.month });
+                                        }
+                                        const entry = monthMap.get(point.month);
+                                        entry[topicData.topic] = point.launchCount;
+                                    });
                                 });
-                                const data = await response.json();
+
+                                const chartData = Array.from(monthMap.values())
+                                    .sort((a, b) => a.month.localeCompare(b.month));
+
+                                toolResult = JSON.stringify({
+                                    chartData,
+                                    topics: Array.from(allTopics),
+                                    rawSummary: rawData.map(t => ({ topic: t.topic, total: t.totalLaunches, trend: t.trend }))
+                                });
+                                break;
+                            }
+                            case 'get_market_treemap': {
+                                const data = await ChartsData.getMarketTreemap();
                                 toolResult = JSON.stringify(data);
-                            } catch (err) {
-                                console.error('Tavily search failed:', err);
-                                toolResult = JSON.stringify({ error: "Failed to perform web search." });
+                                break;
                             }
-                        }
-
-                    } else if (toolName === 'get_top_products') {
-                        // Execute Top Products Query
-                        let queryBuilder = supabase
-                            .from('ph_launches')
-                            .select('id, name, tagline, description, votes_count, created_at')
-                            .order('votes_count', { ascending: false })
-                            .limit(toolInput.limit || 10);
-
-                        if (toolInput.time_range === 'this_month') {
-                            const d = new Date(); d.setDate(1);
-                            queryBuilder = queryBuilder.gte('created_at', d.toISOString());
-                        } else if (toolInput.time_range === 'this_week') {
-                            const d = new Date(); d.setDate(d.getDate() - 7);
-                            queryBuilder = queryBuilder.gte('created_at', d.toISOString());
-                        } else if (toolInput.time_range === 'today') {
-                            const d = new Date(); d.setHours(0, 0, 0, 0);
-                            queryBuilder = queryBuilder.gte('created_at', d.toISOString());
-                        }
-
-                        const { data } = await queryBuilder;
-                        toolResult = JSON.stringify(data || []);
-
-                    } else if (toolName === 'get_vote_snapshots') {
-                        // Execute Vote Snapshots Query
-                        const { data } = await supabase
-                            .from('vote_snapshots')
-                            .select('votes_count, snapshot_time')
-                            .eq('product_id', toolInput.product_id)
-                            .order('snapshot_time', { ascending: true })
-                            .limit(toolInput.limit || 20);
-
-                        toolResult = JSON.stringify(data || []);
-
-                    } else if (toolName === 'get_category_distribution') {
-                        // Aggregation for categories
-                        const { data } = await supabase
-                            .from('ph_launches')
-                            .select('ai_analysis')
-                            .not('ai_analysis', 'is', null);
-
-                        const distribution = new Map<string, number>();
-                        data?.forEach((row: any) => {
-                            const niche = row.ai_analysis?.niche || 'Other';
-                            distribution.set(niche, (distribution.get(niche) || 0) + 1);
-                        });
-
-                        const sorted = Array.from(distribution.entries())
-                            .map(([name, value]) => ({ name, value }))
-                            .sort((a, b) => b.value - a.value)
-                            .slice(0, toolInput.limit || 10);
-
-                        toolResult = JSON.stringify(sorted);
-
-                    } else if (toolName === 'get_market_gaps') {
-                        // Market Gap Logic (Simplified version of charts-data.ts)
-                        const { data } = await supabase
-                            .from('ph_launches')
-                            .select('votes_count, comments_count, ai_analysis')
-                            .not('ai_analysis', 'is', null);
-
-                        const combinationMap = new Map<string, {
-                            icp: string;
-                            problem: string;
-                            niche: string;
-                            count: number;
-                            totalEngagement: number;
-                        }>();
-
-                        data?.forEach((launch: any) => {
-                            const icp = launch.ai_analysis?.icp;
-                            const problem = launch.ai_analysis?.problem;
-                            const niche = launch.ai_analysis?.niche;
-                            if (!icp || !problem) return;
-
-                            const key = `${icp}|${problem}`;
-                            if (!combinationMap.has(key)) {
-                                combinationMap.set(key, { icp, problem, niche, count: 0, totalEngagement: 0 });
+                            case 'get_keyword_trends': {
+                                const data = await ChartsData.getKeywordTrends(toolInput.keyword, toolInput.months);
+                                if (!data) {
+                                    toolResult = JSON.stringify({ error: "No data found for keyword" });
+                                } else {
+                                    // Flatten for easier consumption
+                                    toolResult = JSON.stringify({
+                                        chartData: data.monthlyData,
+                                        totalMentions: data.totalMentions,
+                                        keyword: data.keyword
+                                    });
+                                }
+                                break;
                             }
-                            const entry = combinationMap.get(key)!;
-                            entry.count++;
-                            entry.totalEngagement += (launch.votes_count || 0);
-                        });
+                            case 'get_category_performance': {
+                                const data = await ChartsData.getCategoryPerformanceMatrix();
+                                toolResult = JSON.stringify(data);
+                                break;
+                            }
+                            case 'get_niche_histogram': {
+                                const data = await ChartsData.getNicheSuccessHistogram(toolInput.niche);
+                                toolResult = JSON.stringify(data);
+                                break;
+                            }
+                            case 'get_product_scatter': {
+                                const data = await ChartsData.getProductScatterData(toolInput.category);
+                                toolResult = JSON.stringify(data);
+                                break;
+                            }
+                            case 'get_feature_correlation': {
+                                const data = await ChartsData.getFeatureCorrelation(toolInput.category);
+                                toolResult = JSON.stringify(data);
+                                break;
+                            }
+                            case 'get_launch_time_heatmap': {
+                                const data = await ChartsData.getLaunchTimeHeatmap();
+                                toolResult = JSON.stringify(data);
+                                break;
+                            }
+                            case 'get_market_gap_matrix': {
+                                const data = await ChartsData.getMarketGapMatrix();
+                                toolResult = JSON.stringify(data);
+                                break;
+                            }
+                            case 'search_web': {
+                                const apiKey = process.env.TAVILY_API_KEY;
+                                if (!apiKey) {
+                                    toolResult = JSON.stringify({ error: "Web search not configured." });
+                                } else {
+                                    const response = await fetch('https://api.tavily.com/search', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            api_key: apiKey,
+                                            query: toolInput.query,
+                                            search_depth: "advanced",
+                                            include_answer: true,
+                                            max_results: 5
+                                        })
+                                    });
+                                    toolResult = JSON.stringify(await response.json());
+                                }
+                                break;
+                            }
+                            case 'generate_report': {
+                                const report = toolInput;
+                                const { data: relatedProducts } = await supabase
+                                    .from('ph_launches')
+                                    .select('id, name, tagline, description, votes_count, website_url, thumbnail_url, created_at')
+                                    .in('id', report.related_product_ids || []);
 
-                        const gaps = Array.from(combinationMap.values())
-                            .map(d => ({
-                                name: d.niche, // For chart label
-                                icp: d.icp,
-                                problem: d.problem,
-                                launchVolume: d.count,
-                                avgUpvotes: Math.round(d.totalEngagement / d.count),
-                                opportunityScore: Math.round((d.totalEngagement / d.count) * 0.6 + (10 - d.count) * 50)
-                            }))
-                            .sort((a, b) => b.opportunityScore - a.opportunityScore)
-                            .slice(0, toolInput.limit || 20);
-
-                        toolResult = JSON.stringify(gaps);
-
-                    } else if (toolName === 'generate_report') {
-                        // Final Result
-                        const report = toolInput;
-
-                        // Hydrate related products for the UI
-                        const { data: relatedProducts } = await supabase
-                            .from('ph_launches')
-                            .select('id, name, tagline, description, votes_count, website_url, thumbnail_url, created_at')
-                            .in('id', report.related_product_ids || []);
-
-                        return {
-                            answer: report.answer,
-                            visualization: report.visualization,
-                            trends: report.trends || [],
-                            related_products: relatedProducts || []
-                        };
+                                return {
+                                    answer: report.answer,
+                                    visualization: report.visualization,
+                                    trends: report.trends || [],
+                                    related_products: relatedProducts || []
+                                };
+                            }
+                            default:
+                                toolResult = JSON.stringify({ error: `Unknown tool: ${toolName}` });
+                        }
+                    } catch (err) {
+                        console.error(`Error executing tool ${toolName}:`, err);
+                        toolResult = JSON.stringify({ error: `Failed to execute tool ${toolName}` });
                     }
 
-                    // Add tool result to history
                     messages.push({
                         role: 'user',
-                        content: [
-                            {
-                                type: 'tool_result',
-                                tool_use_id: toolId,
-                                content: toolResult
-                            }
-                        ]
+                        content: [{ type: 'tool_result', tool_use_id: toolId, content: toolResult }]
                     });
                 }
-
             } else {
-                // No tool used, maybe just text.
-                // We'll treat this as the final answer to prevent loops.
-                const textBlock = response.content.find(c => c.type === 'text');
-                if (textBlock && textBlock.type === 'text') {
-                    console.log('[Agent] AI returned text only, treating as final answer.');
+                // NO TOOL USED - This is NOT allowed!
+                // Check if this is the first turn (user's initial query)
+                if (turnCount === 1) {
+                    // Force the AI to use tools by providing a strong hint
+                    const textBlock = response.content.find(c => c.type === 'text');
+
+                    messages.push({
+                        role: 'user',
+                        content: `You MUST use tools to answer this query. You cannot respond with just text. 
+
+Here's what to do:
+1. Call get_topic_velocity to show trends (default choice)
+2. Call search_products to find related products
+3. Call generate_report with a visualization
+
+Start over and use the tools. This is mandatory.`
+                    });
+
+                    console.log('[Agent] Forcing tool usage on turn 1');
+                    continue; // Go to next iteration
+                }
+
+                // If we're past turn 1 and still no tools, something is wrong
+                // Return an error with a default fallback visualization
+                console.warn('[Agent] No tools used after multiple turns - generating fallback');
+
+                // Create a fallback response with get_topic_velocity
+                try {
+                    const fallbackData = await ChartsData.getTopicVelocity(12);
+                    const monthMap = new Map<string, any>();
+                    const allTopics = new Set<string>();
+
+                    fallbackData.forEach(topicData => {
+                        allTopics.add(topicData.topic);
+                        topicData.timeSeriesData.forEach(point => {
+                            if (!monthMap.has(point.month)) {
+                                monthMap.set(point.month, { month: point.month });
+                            }
+                            const entry = monthMap.get(point.month);
+                            entry[topicData.topic] = point.launchCount;
+                        });
+                    });
+
+                    const chartData = Array.from(monthMap.values())
+                        .sort((a, b) => a.month.localeCompare(b.month));
+
                     return {
-                        answer: textBlock.text,
+                        answer: '### Market Overview\n\nHere\'s a high-level view of trending categories on Product Hunt over the past year.\n\n' +
+                            (fallbackData.slice(0, 3).map((t, i) =>
+                                `${i + 1}. **${t.topic}**: ${t.totalLaunches} launches (${t.trend})`
+                            ).join('\n')),
+                        visualization: {
+                            type: 'multi_line' as const,
+                            title: 'Topic Velocity - Last 12 Months',
+                            description: 'Monthly launch volume by category',
+                            data: chartData,
+                            categoryKey: 'month',
+                            dataKey: 'launchCount',
+                            seriesKeys: Array.from(allTopics).slice(0, 5)
+                        },
+                        trends: fallbackData.slice(0, 3).map(t => {
+                            const sentiment: 'positive' | 'neutral' | 'negative' =
+                                t.trend === 'rising' ? 'positive' :
+                                    t.trend === 'declining' ? 'negative' : 'neutral';
+                            return {
+                                name: t.topic,
+                                growth: t.trend === 'rising' ? '+30%' : t.trend === 'declining' ? '-15%' : '0%',
+                                sentiment
+                            };
+                        }),
+                        related_products: []
+                    };
+                } catch (fallbackError) {
+                    console.error('Fallback failed:', fallbackError);
+                    return {
+                        answer: '### Unable to Generate Analysis\n\nPlease try rephrasing your query or ask about a specific topic like "AI trends" or "SaaS products".',
                         visualization: null,
                         trends: [],
                         related_products: []
@@ -624,12 +774,12 @@ export async function askGrowthIntelligence(query: string): Promise<Intelligence
             }
         }
 
-        throw new Error('Agent exceeded max turns without generating a report.');
+        throw new Error('Agent exceeded max turns');
 
     } catch (error) {
         console.error('Error in askGrowthIntelligence:', error);
         return {
-            answer: `### Analysis System Error\n\nI was unable to process your request.\n\n**Error Details:**\n${error instanceof Error ? error.message : 'Unknown error'}`,
+            answer: `### Analysis Error\n\nI encountered an issue while processing your request. Please try again.\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
             visualization: null,
             trends: [],
             related_products: []

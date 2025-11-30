@@ -15,7 +15,8 @@ import {
   Archive,
   BarChart3,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Layers
 } from 'lucide-react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
@@ -34,7 +35,8 @@ export default function DeskLayout({ children }: { children: React.ReactNode }) 
 
   const navItems = [
     { name: 'Market Pulse', href: '/desk', icon: LayoutDashboard },
-    { name: 'Idea Validator', href: '/desk/idea-validator', icon: Zap },
+    { name: 'AI Data Analysis', href: '/desk/idea-validator', icon: Zap },
+    { name: 'Categories', href: '/desk/categories', icon: Layers },
     { name: 'Trends', href: '/desk/trends', icon: TrendingUp },
     { name: 'Archive', href: '/desk/archive', icon: Archive },
   ];

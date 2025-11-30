@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { categorizeNiche, guessCategory } from './category-mapping';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
@@ -260,7 +261,7 @@ export async function getKeywordTrends(keyword: string, months = 12): Promise<Ke
     try {
         const { data: launches } = await supabase
             .from('ph_launches')
-            .select('name, description, tagline, votes_count, launched_at, ai_analysis')
+            .select('name, description, tagline, votes_count, comments_count, launched_at, ai_analysis')
             .gte('launched_at', getMonthsAgo(months));
 
         if (!launches) return null;
@@ -272,23 +273,32 @@ export async function getKeywordTrends(keyword: string, months = 12): Promise<Ke
         });
 
         // Group by month
-        const monthMap = new Map<string, { launches: any[], totalVotes: number }>();
+        const monthMap = new Map<string, { launches: any[], totalVotes: number, totalComments: number }>();
+
+        // Initialize all months
+        for (let i = 0; i < months; i++) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            const key = d.toISOString().slice(0, 7); // YYYY-MM
+            monthMap.set(key, { launches: [], totalVotes: 0, totalComments: 0 });
+        }
 
         matchingLaunches.forEach(launch => {
             const monthKey = getMonthKey(launch.launched_at);
-            if (!monthMap.has(monthKey)) {
-                monthMap.set(monthKey, { launches: [], totalVotes: 0 });
+            if (monthMap.has(monthKey)) {
+                const monthData = monthMap.get(monthKey)!;
+                monthData.launches.push(launch);
+                monthData.totalVotes += launch.votes_count || 0;
+                monthData.totalComments += launch.comments_count || 0;
             }
-
-            const monthData = monthMap.get(monthKey)!;
-            monthData.launches.push(launch);
-            monthData.totalVotes += launch.votes_count || 0;
         });
 
         const monthlyData = Array.from(monthMap.entries())
             .map(([month, data]) => ({
                 month,
-                mentions: data.launches.length,
+                mentions: data.launches.length, // launches
+                votes: data.totalVotes,
+                comments: data.totalComments,
                 avgUpvotes: data.launches.length > 0 ? Math.round(data.totalVotes / data.launches.length) : 0,
                 products: data.launches
                     .sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0))
@@ -309,6 +319,63 @@ export async function getKeywordTrends(keyword: string, months = 12): Promise<Ke
         };
     } catch (error) {
         console.error('Error in getKeywordTrends:', error);
+        return null;
+    }
+}
+
+export async function getCategoryTrends(category: string, months = 12) {
+    try {
+        const { data: launches } = await supabase
+            .from('ph_launches')
+            .select('votes_count, comments_count, launched_at, ai_analysis')
+            .gte('launched_at', getMonthsAgo(months));
+
+        if (!launches) return null;
+
+        // Filter by category using the mapping logic
+        const matchingLaunches = launches.filter(l => {
+            const rawNiche = l.ai_analysis?.niche || 'Unknown';
+            // Check if it matches the category directly or via mapping
+            if (rawNiche === category) return true;
+            return categorizeNiche(rawNiche) === category;
+        });
+
+        // Group by month
+        const monthMap = new Map<string, { count: number, votes: number, comments: number }>();
+
+        // Initialize all months
+        for (let i = 0; i < months; i++) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            const key = d.toISOString().slice(0, 7); // YYYY-MM
+            monthMap.set(key, { count: 0, votes: 0, comments: 0 });
+        }
+
+        matchingLaunches.forEach(launch => {
+            const monthKey = getMonthKey(launch.launched_at);
+            if (monthMap.has(monthKey)) {
+                const data = monthMap.get(monthKey)!;
+                data.count += 1;
+                data.votes += launch.votes_count || 0;
+                data.comments += launch.comments_count || 0;
+            }
+        });
+
+        const monthlyData = Array.from(monthMap.entries())
+            .map(([month, data]) => ({
+                month,
+                count: data.count, // launches
+                votes: data.votes,
+                comments: data.comments
+            }))
+            .sort((a, b) => a.month.localeCompare(b.month));
+
+        return {
+            monthlyData,
+            totalLaunches: matchingLaunches.length
+        };
+    } catch (error) {
+        console.error('Error in getCategoryTrends:', error);
         return null;
     }
 }
@@ -1873,3 +1940,200 @@ export async function getCategoryDetails(topic: string, months = 12): Promise<Ca
         keywordTrends
     };
 }
+
+export async function getTodayLaunchesFromSnapshots(category?: string) {
+    try {
+        const todayPT = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+
+        const { data, error } = await supabase
+            .from('vote_snapshots')
+            .select('*')
+            .eq('snapshot_date', todayPT)
+            .order('snapshot_time', { ascending: false });
+
+        if (error || !data) return [];
+
+        // Deduplicate to get latest snapshot per product
+        const latestMap = new Map();
+        data.forEach((item: any) => {
+            if (!latestMap.has(item.product_id)) {
+                latestMap.set(item.product_id, item);
+            }
+        });
+
+        let products = Array.from(latestMap.values());
+
+        if (category) {
+            products = products.filter((p: any) => {
+                return guessCategory(p.product_name, p.tagline, p.description) === category;
+            });
+        }
+
+        return products.map((p: any) => ({
+            id: p.product_id,
+            name: p.product_name,
+            tagline: p.tagline,
+            votes_count: p.votes_count,
+            thumbnail_url: p.thumbnail_url,
+            created_at: p.launched_at
+        })).sort((a: any, b: any) => b.votes_count - a.votes_count);
+    } catch (error) {
+        console.error('Error in getTodayLaunchesFromSnapshots:', error);
+        return [];
+    }
+}
+
+const PRODUCT_COLORS = [
+    '#FF6154', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6',
+    '#EC4899', '#6366F1', '#14B8A6', '#F97316', '#06B6D4'
+];
+
+function getColorForProduct(id: string): string {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return PRODUCT_COLORS[Math.abs(hash) % PRODUCT_COLORS.length];
+}
+
+export async function getTodayProductHistory(filterValue?: string, filterType: 'category' | 'keyword' = 'category') {
+    try {
+        const todayPT = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+
+        const { data, error } = await supabase
+            .from('vote_snapshots')
+            .select('*')
+            .eq('snapshot_date', todayPT)
+            .order('snapshot_time', { ascending: true });
+
+        if (error || !data) return [];
+
+        // Group by product
+        const productMap = new Map<string, any>();
+
+        data.forEach((record: any) => {
+            if (!productMap.has(record.product_id)) {
+                productMap.set(record.product_id, {
+                    id: record.product_id,
+                    name: record.product_name,
+                    tagline: record.tagline,
+                    thumbnail_url: record.thumbnail_url,
+                    color: getColorForProduct(record.product_id),
+                    snapshots: []
+                });
+            }
+            productMap.get(record.product_id).snapshots.push({
+                snapshot_time: record.snapshot_time,
+                votes_count: record.votes_count,
+                comments_count: record.comments_count
+            });
+        });
+
+        let products = Array.from(productMap.values());
+
+        // Filter if needed
+        if (filterValue) {
+            products = products.filter((p: any) => {
+                const firstSnap = data.find((d: any) => d.product_id === p.id);
+                if (!firstSnap) return false;
+
+                if (filterType === 'category') {
+                    return guessCategory(firstSnap.product_name, firstSnap.tagline, firstSnap.description) === filterValue;
+                } else {
+                    // Filter by keyword (topic)
+                    // Check if topics array includes the keyword
+                    const topics = firstSnap.topics || [];
+                    return topics.some((t: string) => t.toLowerCase() === filterValue.toLowerCase());
+                }
+            });
+        }
+
+        // Sort by latest votes count (descending) and take top 10
+        products.sort((a: any, b: any) => {
+            const lastA = a.snapshots[a.snapshots.length - 1].votes_count;
+            const lastB = b.snapshots[b.snapshots.length - 1].votes_count;
+            return lastB - lastA;
+        });
+
+        return products.slice(0, 10);
+    } catch (error) {
+        console.error('Error in getTodayProductHistory:', error);
+        return [];
+    }
+}
+
+export async function getCategoryTotalVotesToday(filterValue: string, filterType: 'category' | 'keyword') {
+    try {
+        const todayPT = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+
+        const { data, error } = await supabase
+            .from('vote_snapshots')
+            .select('*')
+            .eq('snapshot_date', todayPT)
+            .order('snapshot_time', { ascending: true });
+
+        if (error || !data) return [];
+
+        // 1. Identify relevant products
+        const relevantProductIds = new Set<string>();
+        const uniqueProducts = new Set(data.map((d: any) => d.product_id));
+
+        uniqueProducts.forEach(id => {
+            const firstRecord = data.find((d: any) => d.product_id === id);
+            if (!firstRecord) return;
+
+            let isMatch = false;
+            if (filterType === 'category') {
+                isMatch = guessCategory(firstRecord.product_name, firstRecord.tagline, firstRecord.description) === filterValue;
+            } else {
+                const topics = firstRecord.topics || [];
+                isMatch = topics.some((t: string) => t.toLowerCase() === filterValue.toLowerCase());
+            }
+
+            if (isMatch) {
+                relevantProductIds.add(id as string);
+            }
+        });
+
+        if (relevantProductIds.size === 0) return [];
+
+        // 2. Get all unique timestamps
+        const timestamps = Array.from(new Set(data.map((d: any) => d.snapshot_time))).sort();
+
+        // 3. Calculate total votes at each timestamp with forward filling
+        const result = [];
+        const lastKnownVotes = new Map<string, number>();
+
+        for (const time of timestamps) {
+            // Update last known votes for products that have a snapshot at this time
+            const snapshotsAtTime = data.filter((d: any) => d.snapshot_time === time);
+
+            snapshotsAtTime.forEach((snap: any) => {
+                if (relevantProductIds.has(snap.product_id)) {
+                    lastKnownVotes.set(snap.product_id, snap.votes_count);
+                }
+            });
+
+            // Sum up votes from all relevant products using their last known state
+            let totalVotes = 0;
+            relevantProductIds.forEach(id => {
+                totalVotes += lastKnownVotes.get(id) || 0;
+            });
+
+            // Only add data point if we have at least one product with votes
+            if (totalVotes > 0) {
+                result.push({
+                    time,
+                    total_votes: totalVotes
+                });
+            }
+        }
+
+        return result;
+
+    } catch (error) {
+        console.error('Error in getCategoryTotalVotesToday:', error);
+        return [];
+    }
+}
+

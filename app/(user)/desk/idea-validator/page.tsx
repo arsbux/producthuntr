@@ -43,7 +43,8 @@ import {
     Scatter,
     RadialBarChart,
     RadialBar,
-    Legend
+    Legend,
+    Treemap
 } from 'recharts';
 import { askGrowthIntelligence, type IntelligenceResult } from '@/lib/idea-validator';
 import { searchProducts, getProductProfile, type ProductSearchResult, type ProductProfile } from '@/lib/product-intelligence';
@@ -345,6 +346,54 @@ function GrowthWorkbenchContent() {
                             </Pie>
                             <CommonTooltip />
                         </PieChart>
+                    </ResponsiveContainer>
+                );
+            case 'treemap':
+                return (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <Treemap
+                            data={viz.data}
+                            dataKey={viz.dataKey}
+                            aspectRatio={4 / 3}
+                            stroke="#fff"
+                            fill="#8884d8"
+                        >
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: '#0F0F0F',
+                                    border: '1px solid #27272a',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                    color: '#E4E4E7'
+                                }}
+                            />
+                        </Treemap>
+                    </ResponsiveContainer>
+                );
+            case 'heatmap':
+                return (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="day" type="category" name="Day" />
+                            <YAxis dataKey="hour" type="number" name="Hour" domain={[0, 23]} />
+                            <ZAxis dataKey="avgUpvotes" type="number" range={[50, 400]} name="Upvotes" />
+                            <Tooltip
+                                cursor={{ strokeDasharray: '3 3' }}
+                                contentStyle={{
+                                    backgroundColor: '#0F0F0F',
+                                    border: '1px solid #27272a',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                    color: '#E4E4E7'
+                                }}
+                            />
+                            <Scatter name="Launch Heatmap" data={viz.data} fill="#8884d8">
+                                {viz.data.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Scatter>
+                        </ScatterChart>
                     </ResponsiveContainer>
                 );
             default:

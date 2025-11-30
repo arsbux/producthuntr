@@ -42,23 +42,30 @@ export default function TopProductsVelocityChart({ data }: TopProductsVelocityCh
             data.flatMap(p => p.snapshots.map(s => s.snapshot_time))
         )).sort();
 
+        const lastValues: Record<string, number> = {};
+
         return timestamps.map(time => {
             const point: any = { time: new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
 
             data.forEach(product => {
                 const snapshot = product.snapshots.find(s => s.snapshot_time === time);
+
+                let value = 0;
                 if (snapshot) {
                     if (mode === 'votes') {
-                        point[product.id] = snapshot.votes_count;
+                        value = snapshot.votes_count;
                     } else if (mode === 'comments') {
-                        point[product.id] = snapshot.comments_count;
+                        value = snapshot.comments_count;
                     } else {
-                        // Velocity: Calculate change from previous snapshot
-                        // This is a simplified velocity (current - previous)
-                        // In a real app, you'd want to find the previous snapshot index
-                        point[product.id] = snapshot.votes_count; // Placeholder for now, logic below is better
+                        value = snapshot.votes_count; // Velocity base
                     }
+                    lastValues[product.id] = value;
+                } else {
+                    // Forward fill
+                    value = lastValues[product.id] || 0;
                 }
+
+                point[product.id] = value;
             });
             return point;
         });
