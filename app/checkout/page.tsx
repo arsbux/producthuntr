@@ -221,9 +221,22 @@ function CheckoutContent() {
                             </PaymentForm>
                         </div>
 
-                        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500">
-                            <Lock className="w-3 h-3" />
-                            <span>Payments secured by Square</span>
+                        <div className="mt-6 flex flex-col items-center justify-center gap-4 text-xs text-gray-500">
+                            <div className="flex items-center gap-2">
+                                <Lock className="w-3 h-3" />
+                                <span>Payments secured by Square</span>
+                            </div>
+                            <div className="text-center">
+                                <p>Having trouble checking out?</p>
+                                <a
+                                    href="https://calendly.com/keithkatale1/discovery-call"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#FF6154] hover:text-white transition-colors border-b border-[#FF6154] hover:border-white pb-0.5 inline-block mt-1"
+                                >
+                                    Book a call here
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

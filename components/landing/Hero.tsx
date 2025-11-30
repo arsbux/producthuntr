@@ -32,8 +32,8 @@ export default function Hero() {
                         className="flex flex-col items-center max-w-5xl mx-auto mb-16 px-6"
                     >
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium text-white tracking-tighter mb-8 leading-[1.15]">
-                            Know which launches will win <br className="hidden md:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6154] to-orange-400">before everyone else.</span>
+                            #1 Data Analysis Platform <br className="hidden md:block" />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6154] to-orange-400">for Product Hunt</span>
                         </h1>
 
                         <p className="text-lg md:text-xl text-gray-400/80 mb-12 leading-[1.8] max-w-2xl font-light">

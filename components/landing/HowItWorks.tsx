@@ -53,12 +53,6 @@ export default function HowItWorks() {
                     ))}
                 </div>
 
-                <div className="text-center mt-16">
-                    <p className="text-gray-400 mb-4">Ready to see it in action?</p>
-                    <button className="text-[#FF6154] font-bold hover:text-white transition-colors border-b border-[#FF6154] hover:border-white pb-0.5">
-                        Get started → Book audit
-                    </button>
-                </div>
             </div>
         </section>
     );

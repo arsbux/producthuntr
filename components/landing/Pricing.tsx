@@ -28,8 +28,7 @@ export default function Pricing() {
         <section id="pricing" className="py-20 bg-[#0A0A0C]">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-white mb-4">Simple pricing for teams and investors</h2>
-                    <p className="text-gray-400">Annual saves 2 months. Cancel anytime.</p>
+                    <h2 className="text-3xl font-bold text-white mb-4">Simple and Transparent Pricing</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">

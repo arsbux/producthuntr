@@ -26,7 +26,6 @@ export default function Home() {
 
 
             <Pricing />
-            <CTAStrip />
             <Footer />
         </main>
     );

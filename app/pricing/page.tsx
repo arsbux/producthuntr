@@ -51,8 +51,7 @@ export default function PricingPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-20">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
-                            Simple pricing for <br />
-                            <span className="text-[#FF6154]">teams and investors</span>
+                            Simple and Transparent Pricing
                         </h1>
                         <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
                             Choose the plan that fits your needs. Upgrade your launch strategy today.
