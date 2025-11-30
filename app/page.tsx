@@ -1,15 +1,33 @@
-import { getTopicVelocity } from '@/lib/charts-data';
-import CategoryTrendsDashboard from '@/components/CategoryTrendsDashboard';
-import DeskLayout from '@/components/DeskLayout';
+import Navbar from '@/components/landing/Navbar';
+import Hero from '@/components/landing/Hero';
+import Features from '@/components/landing/Features';
+import HowItWorks from '@/components/landing/HowItWorks';
 
-export const revalidate = 3600; // Revalidate every hour
 
-export default async function Home() {
-    const trendsData = await getTopicVelocity(12);
+import Pricing from '@/components/landing/Pricing';
+import CTAStrip from '@/components/landing/CTAStrip';
+import Footer from '@/components/landing/Footer';
 
+export const metadata = {
+    title: 'ProductHuntr Insights — Real-time Product Hunt analytics for founders & investors',
+    description: 'Turn Product Hunt signals into repeatable growth actions. Real-time trends, predictive momentum, launch audits, and investor-grade datasets. Ship better launches. Spot winners earlier.',
+};
+
+import ScreenshotsGrid from '@/components/landing/ScreenshotsGrid';
+
+export default function Home() {
     return (
-        <DeskLayout>
-            <CategoryTrendsDashboard data={trendsData} />
-        </DeskLayout>
+        <main className="min-h-screen bg-[#0A0A0C] selection:bg-[#FF6154] selection:text-white font-sans">
+            <Navbar />
+            <Hero />
+            <Features />
+            <ScreenshotsGrid />
+            <HowItWorks />
+
+
+            <Pricing />
+            <CTAStrip />
+            <Footer />
+        </main>
     );
 }
