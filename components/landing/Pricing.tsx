@@ -4,7 +4,7 @@ import { Check } from 'lucide-react';
 const plans = [
     {
         name: "Analytics",
-        price: "$29",
+        price: "$1",
         period: "/mo",
         description: "Keyword analysis, Product & Category tracking, Trend alerts, 2-year history, Watchlists, Data Export",
         cta: "Get Started",

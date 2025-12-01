@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
         let amount = 0;
         if (plan === 'analytics') {
-            amount = 2900; // $29.00
+            amount = 100; // $1.00 for testing
         } else if (plan === 'analytics_ai') {
             amount = 3900; // $39.00
         } else {
