@@ -21,10 +21,15 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
         }
 
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+        let appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
         if (!appUrl) {
             console.error('❌ Missing NEXT_PUBLIC_APP_URL');
             return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+        }
+
+        // Remove trailing slash if present
+        if (appUrl.endsWith('/')) {
+            appUrl = appUrl.slice(0, -1);
         }
 
         const notificationUrl = `${appUrl}/api/webhooks/square`;
