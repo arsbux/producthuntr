@@ -50,12 +50,12 @@ function CheckoutContent() {
     const planDetails = {
         analytics: {
             name: 'Analytics Plan',
-            price: 25,
+            price: 1, // Updated to match backend testing amount
             features: ['Keyword analysis', 'Product & Category tracking', 'Trend alerts', '2-year history']
         },
         analytics_ai: {
             name: 'Analytics + AI Plan',
-            price: 39,
+            price: 1, // Updated to match backend testing amount
             features: ['Everything in Analytics', 'AI-Powered data analysis', 'Predictive Momentum', 'Deep Dive Reports']
         }
     }[plan as 'analytics' | 'analytics_ai'] || {
