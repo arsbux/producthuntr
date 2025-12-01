@@ -56,51 +56,22 @@ export async function POST(request: Request) {
         const event = JSON.parse(body);
         console.log('Webhook received:', event.type);
 
-        // Log the incoming webhook
-        await supabaseAdmin.from('webhook_logs').insert({
-            event_id: event.event_id,
-            event_type: event.type,
-            payload: event,
-            status: 'processing'
-        });
-
         if (event.type === 'payment.updated') {
             const payment = event.data.object.payment;
             console.log('Payment update:', payment.status, payment.id);
 
             if (payment.status === 'COMPLETED') {
                 console.log('Payment Completed:', payment.id);
-                // Update log to success
-                await supabaseAdmin.from('webhook_logs').update({
-                    status: 'success',
-                    error_message: `Payment completed: ${payment.id}`
-                }).eq('event_id', event.event_id);
+                // Here you would typically update your database to mark the order as paid
+                // For now, we are just logging to console
             } else if (payment.status === 'FAILED') {
                 console.error('Payment Failed:', payment.id);
-                // Update log to error
-                await supabaseAdmin.from('webhook_logs').update({
-                    status: 'error',
-                    error_message: `Payment failed: ${payment.id}`
-                }).eq('event_id', event.event_id);
             }
         }
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('Webhook Error:', error);
-
-        // Try to log the system error if possible
-        try {
-            await supabaseAdmin.from('webhook_logs').insert({
-                event_type: 'system_error',
-                status: 'error',
-                error_message: error.message
-            });
-        } catch (e) {
-            // If DB log fails, just console log
-            console.error('Failed to log error to DB:', e);
-        }
-
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
