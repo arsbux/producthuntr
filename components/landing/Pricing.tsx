@@ -4,7 +4,7 @@ import { Check } from 'lucide-react';
 const plans = [
     {
         name: "Analytics",
-        price: "$25",
+        price: "$29",
         period: "/mo",
         description: "Keyword analysis, Product & Category tracking, Trend alerts, 2-year history, Watchlists, Data Export",
         cta: "Get Started",
@@ -12,13 +12,13 @@ const plans = [
         link: "/pricing"
     },
     {
-        name: "Analytics + AI",
-        price: "$39",
-        period: "/mo",
-        description: "Everything in Analytics plus AI-Powered data analysis",
+        name: "White Glove",
+        price: "Custom",
+        period: "",
+        description: "Custom reporting, Custom data pipelines, Dedicated support, API Access",
         cta: "Book Discovery Call",
         highlight: true,
-        badge: "Coming Soon",
+        badge: "",
         link: "https://calendly.com/keithkatale1/discovery-call"
     }
 ];
