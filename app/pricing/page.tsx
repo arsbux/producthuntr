@@ -8,12 +8,12 @@ import Footer from '@/components/landing/Footer';
 const plans = [
     {
         name: "Analytics",
-        price: "$25",
+        price: "$29",
         period: "/mo",
         description: "Keyword analysis, Product & Category tracking, Trend alerts, 2-year history, Watchlists, Data Export",
         cta: "Get Started",
         highlight: false,
-        link: "#", // Changed to # since we handle it with onClick
+        link: "#",
         features: [
             "Keyword analysis",
             "Product & Category tracking",
@@ -24,20 +24,19 @@ const plans = [
         ]
     },
     {
-        name: "Analytics + AI",
-        price: "$39",
-        period: "/mo",
-        description: "Everything in Analytics plus AI-Powered data analysis",
+        name: "White Glove",
+        price: "Custom",
+        period: "",
+        description: "Custom reporting, Custom data pipelines, Dedicated support, API Access",
         cta: "Book Discovery Call",
         highlight: true,
-        badge: "Coming Soon",
+        badge: "",
         link: "https://calendly.com/keithkatale1/discovery-call",
         features: [
-            "Everything in Analytics",
-            "AI-Powered data analysis",
-            "Predictive Momentum",
-            "Deep Dive Reports",
-            "Market Gap Finder"
+            "Custom reporting",
+            "Custom data pipelines",
+            "Dedicated support",
+            "API Access"
         ]
     }
 ];
