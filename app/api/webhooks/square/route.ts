@@ -15,13 +15,13 @@ export async function POST(request: Request) {
         const body = await request.text();
         const signature = request.headers.get('x-square-hmacsha256-signature');
 
-        const signatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY;
+        const signatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY?.trim();
         if (!signatureKey) {
             console.error('❌ Missing SQUARE_WEBHOOK_SIGNATURE_KEY');
             return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
         }
 
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
         if (!appUrl) {
             console.error('❌ Missing NEXT_PUBLIC_APP_URL');
             return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
             console.error('❌ Invalid Signature');
             console.error('Notification URL used:', notificationUrl);
             console.error('Signature received:', signature);
-            // console.error('Body received:', body); // Careful logging body
+            console.error('Key used (first 4 chars):', signatureKey.substring(0, 4) + '...');
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
 
