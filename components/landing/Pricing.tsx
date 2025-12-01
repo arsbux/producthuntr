@@ -31,7 +31,7 @@ export default function Pricing() {
                     <h2 className="text-3xl font-bold text-white mb-4">Simple and Transparent Pricing</h2>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
                     {plans.map((plan, i) => (
                         <div
                             key={i}

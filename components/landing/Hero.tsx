@@ -32,12 +32,12 @@ export default function Hero() {
                         className="flex flex-col items-center max-w-5xl mx-auto mb-16 px-6"
                     >
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium text-white tracking-tighter mb-8 leading-[1.15]">
-                            #1 Data Analysis Platform <br className="hidden md:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6154] to-orange-400">for Product Hunt</span>
+                            Discover your next big opportunity <br className="hidden md:block" />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6154] to-orange-400">with Product Huntr.</span>
                         </h1>
 
                         <p className="text-lg md:text-xl text-gray-400/80 mb-12 leading-[1.8] max-w-2xl font-light">
-                            Real-time trend detection, a predictive momentum score, and launch playbooks built from every Top-10 that ever blew up.
+                            We've now analysed data spaning to 123,000 records of product launches across Product Hunt and other internet sources to help you track product ideas that actually work
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -52,7 +52,7 @@ export default function Hero() {
                     </motion.div>
 
                     {/* Dashboard App Shell Mock */}
-                    <div className="relative w-full max-w-[1600px] mx-auto z-10 px-4 sm:px-8 pointer-events-none">
+                    <div className="relative w-full max-w-[1600px] mx-auto z-10 px-4 sm:px-8 pointer-events-none hidden md:block">
                         {/* Glow behind the dashboard */}
                         <div className="absolute -inset-1 bg-gradient-to-r from-[#FF6154]/30 to-orange-600/30 rounded-2xl blur-2xl opacity-50" />
 
@@ -112,7 +112,7 @@ export default function Hero() {
                             <div className="flex-1 flex flex-col bg-[#0A0A0C] min-w-0">
                                 {/* Header Mock */}
                                 <div className="h-16 border-b border-gray-800 flex items-center justify-between px-6 shrink-0 bg-[#0A0A0C]/80 backdrop-blur-md z-20">
-                                    <div className="w-full max-w-md bg-gray-900/50 border border-gray-800 rounded-lg h-9 flex items-center px-3 text-gray-500 text-sm">
+                                    <div className="w-full max-w-md bg-gray-900/50 border border-gray-800 rounded-lg h-9 hidden md:flex items-center px-3 text-gray-500 text-sm">
                                         <Search className="w-4 h-4 mr-2" />
                                         <span className="opacity-50">Search launches, makers, or trends...</span>
                                     </div>

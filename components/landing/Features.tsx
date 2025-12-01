@@ -10,7 +10,7 @@ import CategoriesGrid from '@/components/landing/CategoriesGrid';
 export default function Features() {
     return (
         <section id="features" className="py-24 bg-[#0A0A0C]">
-            <div className="max-w-7xl mx-auto px-6 space-y-40">
+            <div className="max-w-7xl mx-auto px-6 space-y-20 md:space-y-40">
 
                 {/* Feature 1: Trends (Live Demo) */}
                 <div className="flex flex-col gap-8">

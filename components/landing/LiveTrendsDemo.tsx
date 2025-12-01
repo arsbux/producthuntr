@@ -33,12 +33,14 @@ export default function LiveTrendsDemo() {
     return (
         <div className="w-full bg-[#0F0F12] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             {/* Header / Controls */}
-            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-[#151518]">
+            <div className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between bg-[#151518]">
                 <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                    <span className="ml-4 text-sm font-mono text-gray-500">/desk/trends</span>
+                    <div className="hidden md:flex gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                    </div>
+                    <span className="md:ml-4 text-sm font-mono text-gray-500">/desk/trends</span>
                 </div>
 
                 {/* Simple Timeframe Toggle */}

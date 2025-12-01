@@ -9,7 +9,7 @@ import Footer from '@/components/Footer'
 
 const title = 'Product Huntr - Use Product Hunt Data to Find Ideas and Opportunities'
 const description = 'Discover your next big opportunity with Product Huntr. Analyze 12K+ Product Hunt launches to find validated ideas, market gaps, and untapped opportunities. AI-powered insights for builders and makers.'
-const image = 'https://rafddhfuidgiamkxdqyg.supabase.co/storage/v1/object/public/avatars/5e59793f-d2b0-47bc-8321-bc69fdf5aa2f/socialshare1.png'
+const image = '/socialshare.png'
 
 const font = Outfit({ subsets: ['latin'] });
 
@@ -84,8 +84,8 @@ export default function RootLayout({
       <body className={font.className}>
         <Script
           defer
-          data-website-id="dfid_HGJK2JK9Gu86uJCgkfB0X"
-          data-domain="produchuntr.com"
+          data-website-id="dfid_ZJgm2JPpoFMH3Q7GK2rZ5"
+          data-domain="producthuntr.com"
           src="https://datafa.st/js/script.js"
           strategy="afterInteractive"
         />

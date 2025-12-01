@@ -119,7 +119,7 @@ export default function TrendsChart({ history, items, type }: TrendsChartProps) 
                 <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">
                     Top {type === 'keywords' ? 'Keywords' : 'Categories'} (Click to toggle)
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                     {items.slice(0, 20).map((item, index) => (
                         <button
                             key={item.name}

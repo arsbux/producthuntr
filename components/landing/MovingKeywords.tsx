@@ -77,7 +77,7 @@ const MarqueeRow = ({ items, direction = 'left', speed = 20 }: { items: any[], d
 
 export default function MovingKeywords() {
     return (
-        <div className="relative w-full h-[600px] overflow-hidden bg-[#0A0A0C] flex items-center justify-center perspective-[2000px]">
+        <div className="relative w-full h-[400px] md:h-[600px] overflow-hidden bg-[#0A0A0C] flex items-center justify-center perspective-[2000px]">
             {/* 3D Container */}
             <div
                 className="relative transform-gpu rotate-[-5deg] skew-y-[-5deg] scale-110 w-[150%]"
