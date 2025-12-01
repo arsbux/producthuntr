@@ -50,13 +50,13 @@ function CheckoutContent() {
     const planDetails = {
         analytics: {
             name: 'Analytics Plan',
-            price: 1, // Updated to match backend testing amount
+            price: 29,
             features: ['Keyword analysis', 'Product & Category tracking', 'Trend alerts', '2-year history']
         },
         analytics_ai: {
-            name: 'Analytics + AI Plan',
-            price: 1, // Updated to match backend testing amount
-            features: ['Everything in Analytics', 'AI-Powered data analysis', 'Predictive Momentum', 'Deep Dive Reports']
+            name: 'White Glove',
+            price: 'Custom',
+            features: ['Custom reporting', 'Custom data pipelines', 'Dedicated support', 'API Access']
         }
     }[plan as 'analytics' | 'analytics_ai'] || {
         name: 'Unknown Plan',
@@ -73,19 +73,29 @@ function CheckoutContent() {
                     {/* Left Column: Order Summary */}
                     <div className="space-y-8">
                         <div>
-                            <h1 className="text-3xl md:text-4xl font-bold mb-4">Complete your purchase</h1>
-                            <p className="text-gray-400">Unlock professional analytics tools instantly.</p>
+                            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                                {plan === 'analytics_ai' ? 'Get Started' : 'Complete your purchase'}
+                            </h1>
+                            <p className="text-gray-400">
+                                {plan === 'analytics_ai'
+                                    ? 'Let us build a custom solution for your needs.'
+                                    : 'Unlock professional analytics tools instantly.'}
+                            </p>
                         </div>
 
                         <div className="bg-[#151518] border border-white/5 rounded-2xl p-6 md:p-8">
                             <div className="flex justify-between items-start mb-6 pb-6 border-b border-white/5">
                                 <div>
                                     <h3 className="text-xl font-bold text-white mb-1">{planDetails.name}</h3>
-                                    <p className="text-sm text-gray-500">Monthly subscription</p>
+                                    <p className="text-sm text-gray-500">
+                                        {plan === 'analytics_ai' ? 'Tailored Solution' : 'Monthly subscription'}
+                                    </p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-2xl font-bold text-white">${planDetails.price}</p>
-                                    <p className="text-sm text-gray-500">/mo</p>
+                                    <p className="text-2xl font-bold text-white">
+                                        {typeof planDetails.price === 'number' ? `$${planDetails.price}` : planDetails.price}
+                                    </p>
+                                    {typeof planDetails.price === 'number' && <p className="text-sm text-gray-500">/mo</p>}
                                 </div>
                             </div>
 
@@ -100,144 +110,168 @@ function CheckoutContent() {
 
                             <div className="flex justify-between items-center pt-6 border-t border-white/5">
                                 <span className="text-lg font-medium">Total due today</span>
-                                <span className="text-3xl font-bold text-[#FF6154]">${planDetails.price}</span>
+                                <span className="text-3xl font-bold text-[#FF6154]">
+                                    {typeof planDetails.price === 'number' ? `$${planDetails.price}` : planDetails.price}
+                                </span>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-4 text-sm text-gray-500 bg-[#151518]/50 p-4 rounded-xl border border-white/5">
                             <ShieldCheck className="w-5 h-5 text-gray-400" />
-                            <p>Your payment information is encrypted and secure. We never store your credit card details.</p>
+                            <p>Your information is secure. We value your privacy.</p>
                         </div>
                     </div>
 
-                    {/* Right Column: Payment Form */}
+                    {/* Right Column: Payment Form or Contact CTA */}
                     <div className="bg-[#1A1A1E] border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl h-fit">
-                        <h2 className="text-xl font-bold mb-6">Payment Details</h2>
-
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-start gap-3">
-                                <div className="mt-0.5">⚠️</div>
-                                <p>{error}</p>
-                            </div>
-                        )}
-
-                        <div className="square-payment-form-wrapper">
-                            <PaymentForm
-                                applicationId={appId}
-                                locationId={locationId}
-                                createVerificationDetails={() => ({
-                                    amount: planDetails.price.toString(),
-                                    currencyCode: 'USD',
-                                    intent: 'CHARGE',
-                                    billingContact: {
-                                        givenName: user?.email?.split('@')[0] || 'Customer',
-                                        email: user?.email || '',
-                                    },
-                                })}
-                                cardTokenizeResponseReceived={async (tokenResult, verifiedBuyer) => {
-                                    if (tokenResult.status !== 'OK') {
-                                        setError((tokenResult as any).errors?.[0]?.message || 'Payment failed');
-                                        return;
-                                    }
-
-                                    setProcessing(true);
-                                    setError(null);
-                                    try {
-                                        const payload: any = {
-                                            sourceId: tokenResult.token,
-                                            plan,
-                                        };
-
-                                        // Include verification token if buyer was verified
-                                        if (verifiedBuyer?.token) {
-                                            payload.verificationToken = verifiedBuyer.token;
-                                        }
-
-                                        const response = await fetch('/api/pay', {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                            },
-                                            body: JSON.stringify(payload),
-                                        });
-
-                                        const data = await response.json();
-
-                                        if (response.ok) {
-                                            router.push('/checkout/success');
-                                        } else {
-                                            setError(data.error || 'Payment failed');
-                                        }
-                                    } catch (e) {
-                                        setError('An unexpected error occurred. Please try again.');
-                                    } finally {
-                                        setProcessing(false);
-                                    }
-                                }}
-                            >
-                                <CreditCard
-                                    buttonProps={{
-                                        css: {
-                                            backgroundColor: processing ? '#333' : '#FF6154',
-                                            fontSize: '16px',
-                                            fontWeight: '600',
-                                            color: '#fff',
-                                            borderRadius: '12px',
-                                            height: '56px',
-                                            transition: 'all 0.2s',
-                                            '&:hover': {
-                                                backgroundColor: processing ? '#333' : '#ff4f40',
-                                                transform: processing ? 'none' : 'translateY(-1px)',
-                                                boxShadow: processing ? 'none' : '0 4px 12px rgba(255, 97, 84, 0.2)',
-                                            },
-                                        },
-                                    }}
-                                    style={{
-                                        input: {
-                                            fontSize: '16px',
-                                            color: '#fff',
-                                            backgroundColor: '#0A0A0C',
-                                        },
-                                        'input::placeholder': {
-                                            color: '#6b7280',
-                                        },
-                                        '.message-text': {
-                                            color: '#e5e7eb',
-                                        },
-                                        '.message-icon': {
-                                            color: '#e5e7eb',
-                                        },
-                                    }}
-                                >
-                                    {processing ? (
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            <span>Processing Payment...</span>
-                                        </div>
-                                    ) : (
-                                        `Pay $${planDetails.price}`
-                                    )}
-                                </CreditCard>
-                            </PaymentForm>
-                        </div>
-
-                        <div className="mt-6 flex flex-col items-center justify-center gap-4 text-xs text-gray-500">
-                            <div className="flex items-center gap-2">
-                                <Lock className="w-3 h-3" />
-                                <span>Payments secured by Square</span>
-                            </div>
-                            <div className="text-center">
-                                <p>Having trouble checking out?</p>
+                        {plan === 'analytics_ai' ? (
+                            <div className="flex flex-col items-center justify-center text-center py-8">
+                                <div className="w-16 h-16 bg-[#FF6154]/10 rounded-full flex items-center justify-center mb-6">
+                                    <CheckCircle2 className="w-8 h-8 text-[#FF6154]" />
+                                </div>
+                                <h2 className="text-2xl font-bold mb-4">Book a Consultation</h2>
+                                <p className="text-gray-400 mb-8 max-w-sm">
+                                    Our White Glove service is tailored to your specific requirements. Schedule a call to discuss your needs.
+                                </p>
                                 <a
                                     href="https://calendly.com/keithkatale1/discovery-call"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-[#FF6154] hover:text-white transition-colors border-b border-[#FF6154] hover:border-white pb-0.5 inline-block mt-1"
+                                    className="bg-[#FF6154] hover:bg-[#ff4f40] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all w-full md:w-auto"
                                 >
-                                    Book a call here
+                                    Book a Call
                                 </a>
                             </div>
-                        </div>
+                        ) : (
+                            <>
+                                <h2 className="text-xl font-bold mb-6">Payment Details</h2>
+
+                                {error && (
+                                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-start gap-3">
+                                        <div className="mt-0.5">⚠️</div>
+                                        <p>{error}</p>
+                                    </div>
+                                )}
+
+                                <div className="square-payment-form-wrapper">
+                                    <PaymentForm
+                                        applicationId={appId}
+                                        locationId={locationId}
+                                        createVerificationDetails={() => ({
+                                            amount: planDetails.price.toString(),
+                                            currencyCode: 'USD',
+                                            intent: 'CHARGE',
+                                            billingContact: {
+                                                givenName: user?.email?.split('@')[0] || 'Customer',
+                                                email: user?.email || '',
+                                            },
+                                        })}
+                                        cardTokenizeResponseReceived={async (tokenResult, verifiedBuyer) => {
+                                            if (tokenResult.status !== 'OK') {
+                                                setError((tokenResult as any).errors?.[0]?.message || 'Payment failed');
+                                                return;
+                                            }
+
+                                            setProcessing(true);
+                                            setError(null);
+                                            try {
+                                                const payload: any = {
+                                                    sourceId: tokenResult.token,
+                                                    plan,
+                                                };
+
+                                                // Include verification token if buyer was verified
+                                                if (verifiedBuyer?.token) {
+                                                    payload.verificationToken = verifiedBuyer.token;
+                                                }
+
+                                                const response = await fetch('/api/pay', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify(payload),
+                                                });
+
+                                                const data = await response.json();
+
+                                                if (response.ok) {
+                                                    router.push('/checkout/success');
+                                                } else {
+                                                    setError(data.error || 'Payment failed');
+                                                }
+                                            } catch (e) {
+                                                setError('An unexpected error occurred. Please try again.');
+                                            } finally {
+                                                setProcessing(false);
+                                            }
+                                        }}
+                                    >
+                                        <CreditCard
+                                            buttonProps={{
+                                                css: {
+                                                    backgroundColor: processing ? '#333' : '#FF6154',
+                                                    fontSize: '16px',
+                                                    fontWeight: '600',
+                                                    color: '#fff',
+                                                    borderRadius: '12px',
+                                                    height: '56px',
+                                                    transition: 'all 0.2s',
+                                                    '&:hover': {
+                                                        backgroundColor: processing ? '#333' : '#ff4f40',
+                                                        transform: processing ? 'none' : 'translateY(-1px)',
+                                                        boxShadow: processing ? 'none' : '0 4px 12px rgba(255, 97, 84, 0.2)',
+                                                    },
+                                                },
+                                            }}
+                                            style={{
+                                                input: {
+                                                    fontSize: '16px',
+                                                    color: '#fff',
+                                                    backgroundColor: '#0A0A0C',
+                                                },
+                                                'input::placeholder': {
+                                                    color: '#6b7280',
+                                                },
+                                                '.message-text': {
+                                                    color: '#e5e7eb',
+                                                },
+                                                '.message-icon': {
+                                                    color: '#e5e7eb',
+                                                },
+                                            }}
+                                        >
+                                            {processing ? (
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                    <span>Processing Payment...</span>
+                                                </div>
+                                            ) : (
+                                                `Pay $${planDetails.price}`
+                                            )}
+                                        </CreditCard>
+                                    </PaymentForm>
+                                </div>
+
+                                <div className="mt-6 flex flex-col items-center justify-center gap-4 text-xs text-gray-500">
+                                    <div className="flex items-center gap-2">
+                                        <Lock className="w-3 h-3" />
+                                        <span>Payments secured by Square</span>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="mb-2">Having trouble checking out?</p>
+                                        <a
+                                            href="https://calendly.com/keithkatale1/discovery-call"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="bg-[#2A2A2E] hover:bg-[#3A3A3E] text-white px-4 py-2 rounded-md font-medium transition-all inline-block border border-white/10"
+                                        >
+                                            Book a call
+                                        </a>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </main>

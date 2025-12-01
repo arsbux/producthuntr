@@ -32,8 +32,8 @@ export default function Hero() {
                         className="flex flex-col items-center max-w-5xl mx-auto mb-16 px-6"
                     >
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium text-white tracking-tighter mb-8 leading-[1.15]">
-                            Discover your next big opportunity <br className="hidden md:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6154] to-orange-400">with Product Huntr.</span>
+                            Discover your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6154] to-orange-400">next big opportunity</span> <br className="hidden md:block" />
+                            on Product Hunt.
                         </h1>
 
                         <p className="text-lg md:text-xl text-gray-400/80 mb-12 leading-[1.8] max-w-2xl font-light">
