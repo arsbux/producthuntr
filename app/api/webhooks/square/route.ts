@@ -29,10 +29,15 @@ export async function POST(request: Request) {
 
         const notificationUrl = `${appUrl}/api/webhooks/square`;
 
+        if (!signature) {
+            console.error('❌ Missing Signature Header');
+            return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
+        }
+
         // Verify Webhook Signature
         const isValid = await (WebhooksHelper as any).verifySignature(
             body,
-            signature!,
+            signature,
             signatureKey,
             notificationUrl
         );
@@ -40,8 +45,7 @@ export async function POST(request: Request) {
         if (!isValid) {
             console.error('❌ Invalid Signature');
             console.error('Notification URL used:', notificationUrl);
-            console.error('Signature received:', signature);
-            console.error('Key used (first 4 chars):', signatureKey.substring(0, 4) + '...');
+            // console.error('Signature received:', signature);
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
 
