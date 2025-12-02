@@ -50,7 +50,7 @@ function CheckoutContent() {
     const planDetails = {
         analytics: {
             name: 'Analytics Plan',
-            price: 1, // $1 for testing
+            price: 29,
             features: ['Keyword analysis', 'Product & Category tracking', 'Trend alerts', '2-year history']
         },
         analytics_ai: {

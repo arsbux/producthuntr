@@ -8,7 +8,7 @@ import Footer from '@/components/landing/Footer';
 const plans = [
     {
         name: "Analytics",
-        price: "$1",
+        price: "$29",
         period: "/mo",
         description: "Keyword analysis, Product & Category tracking, Trend alerts, 2-year history, Watchlists, Data Export",
         cta: "Get Started",
