@@ -89,6 +89,12 @@ export default function RootLayout({
           src="https://datafa.st/js/script.js"
           strategy="afterInteractive"
         />
+        <Script
+          defer
+          src="https://data.flightlabs.agency/trackify.js"
+          data-site-id="producthuntr-com-3xl2p"
+          strategy="afterInteractive"
+        />
         <Suspense fallback={null}>
           <AnalyticsTracker />
         </Suspense>
